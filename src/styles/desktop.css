@@ -3313,7 +3313,7 @@ body.desktop-task-dragging {
 .desktop-pack-page-item-leading {
   width: 36px;
   height: 36px;
-  border-radius: 15px;
+  border-radius: 13px;
   display: flex;
   align-items: center;
   justify-content: center;

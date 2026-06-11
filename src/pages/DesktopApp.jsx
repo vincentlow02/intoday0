@@ -1956,7 +1956,7 @@ const TaskCardFaviconIcon = ({ task, appearance, cfg, faviconUrl: propFaviconUrl
 
   if (normalizeCardType(task?.cardType) === CARD_TYPES.PHOTO && photoPreview) {
     return (
-        <div style={{ width: 32, height: 32, borderRadius: 13, overflow: 'hidden', background: '#f3f3f3', border: iconBorder, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ width: 32, height: 32, borderRadius: 11, overflow: 'hidden', background: '#f3f3f3', border: iconBorder, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <img
             src={photoPreview}
             alt=""
@@ -1977,7 +1977,7 @@ const TaskCardFaviconIcon = ({ task, appearance, cfg, faviconUrl: propFaviconUrl
       <div style={{
         width: 32,
         height: 32,
-        borderRadius: 13,
+        borderRadius: 11,
         background: appearance === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.9)',
         border: appearance === 'dark' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.06)',
         display: 'flex',
@@ -1999,7 +1999,7 @@ const TaskCardFaviconIcon = ({ task, appearance, cfg, faviconUrl: propFaviconUrl
 
   // Fallback: existing card-type icon
   return (
-    <div style={{ width: 32, height: 32, borderRadius: 13, background: iconBackground, border: iconBorder, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+    <div style={{ width: 32, height: 32, borderRadius: 11, background: iconBackground, border: iconBorder, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
       {appearance === 'dark' && cfg.darkIconColor ? (
         <div style={{
           width: 18,
