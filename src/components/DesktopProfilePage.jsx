@@ -4,6 +4,9 @@ import { translations } from '../lib/translations';
 import { getUserProfile } from '../userProfile';
 
 const APPEARANCE_OPTIONS = ['light', 'dark'];
+const COMPACT_LANGUAGE_OPTIONS = PROFILE_LANGUAGE_OPTIONS.filter((option) => (
+  ['EN', 'ZH', 'JA', 'TH'].includes(option.value)
+));
 
 const CloseIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -75,7 +78,7 @@ const SettingsRow = ({
         </span>
       </span>
     </button>
-    {expanded ? <div className="desktop-profile-setting-panel">{children}</div> : null}
+    {expanded ? <div className="desktop-profile-setting-popover">{children}</div> : null}
   </div>
 );
 
@@ -103,6 +106,12 @@ function DesktopProfilePage({
       handleClose();
     }
   }, [handleClose]);
+  const handleStageClick = useCallback((event) => {
+    event.stopPropagation();
+    if (!event.target.closest('.desktop-profile-setting')) {
+      setExpandedSection(null);
+    }
+  }, []);
 
   useEffect(() => {
     if (!open) {
@@ -128,7 +137,7 @@ function DesktopProfilePage({
       <div className="desktop-profile-page-orb desktop-profile-page-orb-left" aria-hidden="true" />
       <div className="desktop-profile-page-orb desktop-profile-page-orb-right" aria-hidden="true" />
 
-      <div className="desktop-profile-stage" onClick={(e) => e.stopPropagation()}>
+      <div className="desktop-profile-stage" onClick={handleStageClick}>
         <button type="button" className="desktop-profile-page-close" onClick={handleClose} aria-label={t.close}>
           <CloseIcon />
         </button>
@@ -151,14 +160,13 @@ function DesktopProfilePage({
           <div className="desktop-profile-storage-card">
             <div className="desktop-profile-storage-header">
               <span>Storage</span>
-              <span><strong>0.2 GB</strong> / 2 GB</span>
+              <span><strong>0.2GB</strong> / 2GB</span>
             </div>
             <div className="desktop-profile-storage-track" aria-hidden="true">
               <span className="desktop-profile-storage-fill" />
             </div>
             <div className="desktop-profile-storage-footer">
               <span>Manage storage</span>
-              <button type="button">Upgrade for more storage</button>
             </div>
           </div>
 
@@ -171,7 +179,7 @@ function DesktopProfilePage({
               onClick={() => setExpandedSection((current) => (current === 'language' ? null : 'language'))}
             >
               <div className="desktop-profile-choice-grid">
-                {PROFILE_LANGUAGE_OPTIONS.map((option) => (
+                {COMPACT_LANGUAGE_OPTIONS.map((option) => (
                   <button
                     key={option.value}
                     type="button"
