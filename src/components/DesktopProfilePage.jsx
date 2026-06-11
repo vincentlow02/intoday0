@@ -191,19 +191,22 @@ function DesktopProfilePage({
               value={getLanguageLabel(language)}
               expanded={expandedSection === 'language'}
               onClick={() => setExpandedSection((current) => (current === 'language' ? null : 'language'))}
+              panelClassName="desktop-profile-select-popover"
+              chevronVariant="down"
             >
-              <div className="desktop-profile-choice-grid">
+              <div className="desktop-profile-select-menu">
                 {COMPACT_LANGUAGE_OPTIONS.map((option) => (
                   <button
                     key={option.value}
                     type="button"
-                    className={`desktop-profile-choice ${language === option.value ? 'is-active' : ''}`}
+                    className={`desktop-profile-select-option ${language === option.value ? 'is-active' : ''}`}
                     onClick={() => {
                       setLanguage(option.value);
                       setExpandedSection(null);
                     }}
                   >
-                    {option.label}
+                    <span>{option.label}</span>
+                    {language === option.value ? <CheckIcon /> : null}
                   </button>
                 ))}
               </div>
@@ -215,15 +218,15 @@ function DesktopProfilePage({
               value={getAppearanceOptionLabel(appearancePreference, t)}
               expanded={expandedSection === 'appearance'}
               onClick={() => setExpandedSection((current) => (current === 'appearance' ? null : 'appearance'))}
-              panelClassName="desktop-profile-appearance-popover"
+              panelClassName="desktop-profile-select-popover"
               chevronVariant="down"
             >
-              <div className="desktop-profile-appearance-menu">
+              <div className="desktop-profile-select-menu">
                 {APPEARANCE_OPTIONS.map((option) => (
                   <button
                     key={option}
                     type="button"
-                    className={`desktop-profile-appearance-option ${appearancePreference === option ? 'is-active' : ''}`}
+                    className={`desktop-profile-select-option ${appearancePreference === option ? 'is-active' : ''}`}
                     onClick={() => {
                       setAppearance(option);
                       setExpandedSection(null);

@@ -511,7 +511,7 @@
   color: #050505;
 }
 
-.desktop-profile-appearance-popover {
+.desktop-profile-select-popover {
   position: absolute;
   top: calc(100% - 2px);
   right: 7px;
@@ -526,7 +526,7 @@
   box-shadow: none;
 }
 
-.desktop-profile-appearance-menu {
+.desktop-profile-select-menu {
   width: 100%;
   padding: 8px;
   border-radius: 22px;
@@ -536,7 +536,7 @@
   color: #050505;
 }
 
-.desktop-profile-appearance-option {
+.desktop-profile-select-option {
   width: 100%;
   min-height: 48px;
   padding: 0 17px;
@@ -556,16 +556,16 @@
     color 0.16s ease;
 }
 
-.desktop-profile-appearance-option:hover,
-.desktop-profile-appearance-option.is-active {
+.desktop-profile-select-option:hover,
+.desktop-profile-select-option.is-active {
   background: #f4f4f4;
 }
 
-.desktop-profile-appearance-option.is-active {
+.desktop-profile-select-option.is-active {
   font-weight: 600;
 }
 
-.desktop-profile-appearance-option svg {
+.desktop-profile-select-option svg {
   flex: 0 0 auto;
   color: #111111;
 }
