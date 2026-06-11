@@ -48,6 +48,8 @@ const getPackDisplayName = (tasks) => (
   || 'Untitled pack'
 );
 
+const MAX_PACK_PREVIEW_ITEMS = 6;
+
 const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onClickItem, onResultPointerDown, onResultPointerEnd }) => {
   const isDark = appearance === 'dark';
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
@@ -82,7 +84,9 @@ const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onCli
     };
   }, [isExportMenuOpen]);
 
-  const visiblePreviewTasks = packInfo.previews;
+  const visiblePreviewTasks = (packInfo.previewTasks || packInfo.previews || []).slice(0, MAX_PACK_PREVIEW_ITEMS);
+  const hiddenPreviewCount = Math.max(0, (packInfo.previewTasks || []).length - visiblePreviewTasks.length);
+  const moreLabel = (labels.plusMore || '+ {count} more').replace('{count}', hiddenPreviewCount);
 
   return (
     <div
@@ -94,9 +98,8 @@ const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onCli
         background: isDark ? '#252527' : '#F8F8F8',
         border: `1px solid ${isDark ? '#333' : '#F1F1F1'}`,
         borderRadius: 8,
-        padding: '14px 12px 18px',
+        padding: '14px 12px 12px',
         marginBottom: 10,
-        minHeight: 176,
         cursor: 'pointer',
         transition: 'background 0.15s ease',
       }}
@@ -235,7 +238,7 @@ const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onCli
           </button>
         </div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '7px 8px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         {visiblePreviewTasks.map(task => {
           const { cfg, displayTitle } = getTaskCardPresentation(task, labels);
           return (
@@ -258,9 +261,9 @@ const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onCli
                 onResultPointerEnd?.();
               }}
               style={{
-                minHeight: 35,
+                minHeight: 34,
                 display: 'flex', alignItems: 'center', gap: 8,
-                padding: '6px 10px', borderRadius: 6,
+                padding: '6px 10px', borderRadius: 7,
                 background: isDark ? '#1C1C1E' : '#FFF',
                 border: `1px solid ${isDark ? '#333' : '#F0F0F0'}`,
                 cursor: 'pointer'
@@ -281,6 +284,19 @@ const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onCli
             </div>
           );
         })}
+        {hiddenPreviewCount > 0 ? (
+          <div
+            style={{
+              padding: '2px 2px 0',
+              fontSize: 12,
+              fontWeight: 600,
+              color: isDark ? 'rgba(255,255,255,0.48)' : '#9A9A9A',
+              lineHeight: 1.3,
+            }}
+          >
+            {moreLabel}
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -578,7 +594,7 @@ const DesktopHistoryModal = ({ open, tasks, appearance, language, t, onClose, on
           tasks: packTasks,
           matchedCount: previews.length,
           previewTasks: previews,
-          previews: previews.slice(0, 4),
+          previews: previews.slice(0, MAX_PACK_PREVIEW_ITEMS),
           updatedAt: Math.max(...packTasks.map(t => t.updatedAt || t.id))
         });
       }
