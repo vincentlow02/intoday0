@@ -1409,22 +1409,33 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   position: absolute;
   top: calc(100% + 12px);
   left: 0;
-  width: 333px;
-  min-height: 282px;
-  padding: 19px 25px 17px;
-  border-radius: 0;
-  border: none;
-  background: #f3f3f3;
-  box-shadow: 0 18px 42px rgba(17, 17, 17, 0.08);
+  width: min(440px, calc(100vw - 32px));
+  min-height: 374px;
+  padding: 18px 11px 28px;
+  border-radius: 29px;
+  border: 1px solid rgba(17, 17, 17, 0.22);
+  background: #ffffff;
+  box-shadow: 0 22px 56px rgba(17, 17, 17, 0.08);
   overflow: hidden;
   z-index: 40;
 }
 
+.desktop-workspace-menu::after {
+  content: '';
+  position: absolute;
+  left: 11px;
+  right: 11px;
+  bottom: 77px;
+  height: 1px;
+  background: rgba(17, 17, 17, 0.1);
+  pointer-events: none;
+}
+
 .desktop-workspace-menu-header {
-  padding: 0;
+  padding: 0 22px;
   color: #8b8b8b;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 700;
   line-height: normal;
 }
@@ -1432,8 +1443,8 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 .desktop-workspace-menu-list {
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  padding: 19px 0 0;
+  gap: 22px;
+  padding: 10px 0 0;
 }
 
 .desktop-workspace-menu-row {
@@ -1442,14 +1453,14 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
-  min-height: 27px;
-  padding: 0;
-  border-radius: 0;
+  min-height: 67px;
+  padding: 0 23px;
+  border-radius: 14px;
 }
 
 .desktop-workspace-menu-item {
   width: 100%;
-  min-height: 27px;
+  min-height: 67px;
   padding: 0;
   border: none;
   border-radius: 0;
@@ -1464,7 +1475,7 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 .desktop-workspace-menu-row.is-active,
 .desktop-workspace-menu-row:hover,
 .desktop-workspace-menu-row:focus-within {
-  background: transparent;
+  background: #f5f5f5;
 }
 
 .desktop-workspace-menu-item:focus-visible {
@@ -1477,7 +1488,7 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: "DM Serif Display", "Playfair Display", Georgia, serif;
-  font-size: 20px;
+  font-size: 29px;
   line-height: normal;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -1494,7 +1505,7 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 
 .desktop-workspace-menu-item-more {
   width: 28px;
-  height: 27px;
+  height: 28px;
   border: none;
   border-radius: 0;
   background: transparent;
@@ -1570,16 +1581,17 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 .desktop-workspace-menu-add {
   width: auto;
   min-height: 15px;
-  margin-top: 51px;
+  margin-top: 38px;
+  margin-left: 22px;
   padding: 0;
   border: none;
   background: transparent;
   display: inline-flex;
   align-items: center;
-  gap: 11px;
+  gap: 15px;
   color: #8e8e8e;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: normal;
@@ -1604,9 +1616,9 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 }
 
 .desktop-workspace-menu-add svg {
-  width: 10px;
-  height: 10px;
-  flex: 0 0 10px;
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
 }
 
 .desktop-app-dark .desktop-workspace-icon {
@@ -1651,7 +1663,8 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 }
 
 .desktop-app-dark .desktop-workspace-menu {
-  background: #f3f3f3;
+  border-color: rgba(17, 17, 17, 0.22);
+  background: #ffffff;
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
 }
 
@@ -1660,7 +1673,7 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 .desktop-app-dark .desktop-workspace-menu-row:focus-within,
 .desktop-app-dark .desktop-workspace-menu-add:hover,
 .desktop-app-dark .desktop-workspace-menu-add:focus-visible {
-  background: transparent;
+  background: #f5f5f5;
 }
 
 .desktop-app-dark .desktop-workspace-menu-item-more {
