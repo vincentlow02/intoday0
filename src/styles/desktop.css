@@ -1409,10 +1409,10 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   position: absolute;
   top: calc(100% + 12px);
   left: 0;
-  width: min(340px, calc(100vw - 32px));
-  min-height: 288px;
-  padding: 14px 10px 22px;
-  border-radius: 24px;
+  width: min(314px, calc(100vw - 32px));
+  min-height: 266px;
+  padding: 13px 9px 20px;
+  border-radius: 22px;
   border: 1px solid rgba(17, 17, 17, 0.22);
   background: #ffffff;
   box-shadow: 0 18px 44px rgba(17, 17, 17, 0.08);
@@ -1425,17 +1425,17 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   position: absolute;
   left: 10px;
   right: 10px;
-  bottom: 62px;
+  bottom: 57px;
   height: 1px;
   background: rgba(17, 17, 17, 0.1);
   pointer-events: none;
 }
 
 .desktop-workspace-menu-header {
-  padding: 0 18px;
+  padding: 0 16px;
   color: #8b8b8b;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   line-height: normal;
 }
@@ -1443,8 +1443,8 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 .desktop-workspace-menu-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 10px 0 0;
+  gap: 14px;
+  padding: 9px 0 0;
 }
 
 .desktop-workspace-menu-row {
@@ -1453,14 +1453,14 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
-  min-height: 52px;
-  padding: 0 18px;
-  border-radius: 13px;
+  min-height: 48px;
+  padding: 0 16px;
+  border-radius: 12px;
 }
 
 .desktop-workspace-menu-item {
   width: 100%;
-  min-height: 52px;
+  min-height: 48px;
   padding: 0;
   border: none;
   border-radius: 0;
@@ -1488,7 +1488,7 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: "DM Serif Display", "Playfair Display", Georgia, serif;
-  font-size: 23px;
+  font-size: 21px;
   line-height: normal;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -1581,17 +1581,17 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 .desktop-workspace-menu-add {
   width: auto;
   min-height: 15px;
-  margin-top: 28px;
-  margin-left: 18px;
+  margin-top: 25px;
+  margin-left: 16px;
   padding: 0;
   border: none;
   background: transparent;
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 11px;
   color: #8e8e8e;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: normal;
