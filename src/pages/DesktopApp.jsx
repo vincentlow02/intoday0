@@ -6769,18 +6769,17 @@ function App() {
                   })}
                 </div>
                 <div className="desktop-workspace-menu-footer">
-                  <div className="desktop-workspace-usage">
-                    <div className="desktop-workspace-usage-row">
-                      <span>{workspaces.length} of {MAX_DESKTOP_WORKSPACES} used</span>
-                      <span className="desktop-workspace-plan-pill">Free Plan</span>
+                  {!canAddWorkspace ? (
+                    <div className="desktop-workspace-usage">
+                      <div className="desktop-workspace-usage-row">
+                        <span>{workspaces.length} of {MAX_DESKTOP_WORKSPACES} workspaces used</span>
+                        <span className="desktop-workspace-plan-pill">Free Plan</span>
+                      </div>
+                      <div className="desktop-workspace-menu-limit">
+                        Free plan supports up to 3 workspaces.
+                      </div>
                     </div>
-                    <div className="desktop-workspace-usage-track" aria-hidden="true">
-                      <span
-                        className="desktop-workspace-usage-fill"
-                        style={{ width: `${Math.min(100, (workspaces.length / MAX_DESKTOP_WORKSPACES) * 100)}%` }}
-                      />
-                    </div>
-                  </div>
+                  ) : null}
                   <button
                     type="button"
                     className="desktop-workspace-menu-add"
