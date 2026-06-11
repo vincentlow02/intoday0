@@ -1582,28 +1582,52 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   flex-shrink: 0;
 }
 
-.desktop-workspace-menu-count,
-.desktop-workspace-menu-limit {
+.desktop-workspace-usage {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.desktop-workspace-usage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: 0.02em;
+  line-height: 1;
+  color: #6f7a8a;
 }
 
-.desktop-workspace-menu-count {
-  color: #9a9a9a;
+.desktop-workspace-plan-pill {
+  padding: 7px 13px;
+  border: 1px solid rgba(17, 17, 17, 0.06);
+  border-radius: 999px;
+  background: #f7f8fa;
+  color: #9ba3b1;
+  white-space: nowrap;
 }
 
-.desktop-workspace-menu-limit {
-  margin-top: 4px;
-  color: #b05a5a;
+.desktop-workspace-usage-track {
+  position: relative;
+  height: 5px;
+  border-radius: 999px;
+  background: #d7dce3;
+  overflow: hidden;
+}
+
+.desktop-workspace-usage-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: #9ea8b5;
 }
 
 .desktop-workspace-menu-add {
   width: 100%;
   min-height: 18px;
-  margin-top: 10px;
+  margin-top: 14px;
   padding: 0;
   border: none;
   background: transparent;
