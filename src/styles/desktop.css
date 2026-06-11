@@ -378,7 +378,7 @@
   border-radius: 15px;
   border: 1px solid var(--desktop-profile-border);
   background: var(--desktop-profile-surface);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .desktop-profile-card-single {
@@ -422,8 +422,8 @@
 }
 
 .desktop-profile-setting-end {
-  gap: 8px;
-  color: var(--desktop-profile-muted);
+  gap: 7px;
+  color: var(--desktop-profile-ink);
 }
 
 .desktop-profile-setting-icon {
@@ -449,10 +449,16 @@
 
 .desktop-profile-setting-chevron {
   display: inline-flex;
+  color: var(--desktop-profile-ink);
   transition: transform 0.22s ease;
 }
 
 .desktop-profile-setting.is-expanded .desktop-profile-setting-chevron {
+  transform: rotate(90deg);
+}
+
+.desktop-profile-setting-chevron-down,
+.desktop-profile-setting.is-expanded .desktop-profile-setting-chevron-down {
   transform: rotate(90deg);
 }
 
@@ -503,6 +509,65 @@
 .desktop-profile-choice.is-active {
   background: #f2f2f2;
   color: #050505;
+}
+
+.desktop-profile-appearance-popover {
+  position: absolute;
+  top: calc(100% - 2px);
+  right: 7px;
+  z-index: 40;
+  width: 298px;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.desktop-profile-appearance-menu {
+  width: 100%;
+  padding: 8px;
+  border-radius: 22px;
+  border: 1px solid rgba(17, 17, 17, 0.1);
+  background: #ffffff;
+  box-shadow: 0 20px 42px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.06);
+  color: #050505;
+}
+
+.desktop-profile-appearance-option {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 17px;
+  border: 0;
+  border-radius: 13px;
+  background: transparent;
+  color: #050505;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.desktop-profile-appearance-option:hover,
+.desktop-profile-appearance-option.is-active {
+  background: #f4f4f4;
+}
+
+.desktop-profile-appearance-option.is-active {
+  font-weight: 600;
+}
+
+.desktop-profile-appearance-option svg {
+  flex: 0 0 auto;
+  color: #111111;
 }
 
 
