@@ -191,10 +191,10 @@ function DesktopProfilePage({
               value={getLanguageLabel(language)}
               expanded={expandedSection === 'language'}
               onClick={() => setExpandedSection((current) => (current === 'language' ? null : 'language'))}
-              panelClassName="desktop-profile-select-popover"
+              panelClassName="desktop-profile-select-popover desktop-profile-select-popover-compact"
               chevronVariant="down"
             >
-              <div className="desktop-profile-select-menu">
+              <div className="desktop-profile-select-menu desktop-profile-select-menu-compact">
                 {COMPACT_LANGUAGE_OPTIONS.map((option) => (
                   <button
                     key={option.value}

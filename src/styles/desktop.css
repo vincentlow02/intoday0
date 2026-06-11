@@ -526,6 +526,11 @@
   box-shadow: none;
 }
 
+.desktop-profile-select-popover-compact {
+  right: 12px;
+  width: 230px;
+}
+
 .desktop-profile-select-menu {
   width: 100%;
   padding: 8px;
@@ -534,6 +539,12 @@
   background: #ffffff;
   box-shadow: 0 20px 42px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.06);
   color: #050505;
+}
+
+.desktop-profile-select-menu-compact {
+  padding: 6px;
+  border-radius: 18px;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.04);
 }
 
 .desktop-profile-select-option {
@@ -554,6 +565,13 @@
   transition:
     background 0.16s ease,
     color 0.16s ease;
+}
+
+.desktop-profile-select-menu-compact .desktop-profile-select-option {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 11px;
+  font-size: 14px;
 }
 
 .desktop-profile-select-option:hover,
