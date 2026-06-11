@@ -6772,11 +6772,16 @@ function App() {
                   {!canAddWorkspace ? (
                     <div className="desktop-workspace-usage">
                       <div className="desktop-workspace-usage-row">
-                        <span>{workspaces.length} of {MAX_DESKTOP_WORKSPACES} workspaces used</span>
-                        <span className="desktop-workspace-plan-pill">Free Plan</span>
+                        <span className="desktop-workspace-limit-label">
+                          <span className="desktop-workspace-limit-icon" aria-hidden="true">i</span>
+                          <span>Free plan limit reached</span>
+                        </span>
+                        <span className="desktop-workspace-limit-count">
+                          {workspaces.length}/{MAX_DESKTOP_WORKSPACES}
+                        </span>
                       </div>
-                      <div className="desktop-workspace-menu-limit">
-                        Free plan supports up to 3 workspaces.
+                      <div className="desktop-workspace-limit-track" aria-hidden="true">
+                        <span className="desktop-workspace-limit-fill" />
                       </div>
                     </div>
                   ) : null}
