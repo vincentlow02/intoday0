@@ -4207,9 +4207,9 @@ const WorkspacePlusIcon = () => (
 
 const MOCK_USER = {
   id: 'prototype-user',
-  email: 'prototype@intoday.local',
+  email: 'lowvincent8@gmail.com',
   user_metadata: {
-    full_name: 'IntoDay Prototype',
+    full_name: 'Q X',
     avatar_url: '',
   },
 };

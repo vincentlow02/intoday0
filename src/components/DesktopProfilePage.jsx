@@ -46,6 +46,14 @@ const HelpIcon = () => (
   </svg>
 );
 
+const LogoutIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M10 7V5.5C10 4.67 10.67 4 11.5 4H18C18.83 4 19.5 4.67 19.5 5.5V18.5C19.5 19.33 18.83 20 18 20H11.5C10.67 20 10 19.33 10 18.5V17" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    <path d="M14 12H4.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    <path d="M7.5 9L4.5 12L7.5 15" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 const SettingsRow = ({
   icon,
   label,
@@ -83,6 +91,7 @@ function DesktopProfilePage({
   const [expandedSection, setExpandedSection] = useState(null);
   const contentRef = useRef(null);
   const profile = useMemo(() => getUserProfile(user), [user]);
+  const hasCustomAvatar = Boolean(profile.avatarUrl && !profile.avatarUrl.includes('default-user'));
   const t = translations[language] || translations.EN;
   const handleClose = useCallback(() => {
     setExpandedSection(null);
@@ -127,7 +136,7 @@ function DesktopProfilePage({
         <div className="desktop-profile-content" ref={contentRef}>
           <div className="desktop-profile-header-block">
             <div className="desktop-profile-avatar-frame">
-              {profile.avatarUrl ? (
+              {hasCustomAvatar ? (
                 <img src={profile.avatarUrl} alt={profile.fullName} className="desktop-profile-avatar-image" />
               ) : (
                 <span className="desktop-profile-avatar-fallback">{profile.initial}</span>
@@ -137,6 +146,20 @@ function DesktopProfilePage({
               {(profile.fullName || 'USER').toUpperCase()}
             </h2>
             <p className="desktop-profile-subtitle">{profile.email || ''}</p>
+          </div>
+
+          <div className="desktop-profile-storage-card">
+            <div className="desktop-profile-storage-header">
+              <span>Storage</span>
+              <span><strong>0.2 GB</strong> / 2 GB</span>
+            </div>
+            <div className="desktop-profile-storage-track" aria-hidden="true">
+              <span className="desktop-profile-storage-fill" />
+            </div>
+            <div className="desktop-profile-storage-footer">
+              <span>Manage storage</span>
+              <button type="button">Upgrade for more storage</button>
+            </div>
           </div>
 
           <div className="desktop-profile-card">
@@ -199,6 +222,11 @@ function DesktopProfilePage({
               </span>
             </div>
           </div>
+
+          <button type="button" className="desktop-profile-logout-button" onClick={handleClose}>
+            <LogoutIcon />
+            <span>退出登录</span>
+          </button>
         </div>
       </div>
     </div>
