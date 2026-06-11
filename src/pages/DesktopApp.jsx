@@ -45,13 +45,22 @@ const DESKTOP_LANGUAGE_KEY = 'desktop_profile_language';
 const DESKTOP_APPEARANCE_KEY = 'desktop_profile_appearance';
 const DESKTOP_WORKSPACES_KEY = 'desktop_workspace_items';
 const DESKTOP_ACTIVE_WORKSPACE_KEY = 'desktop_active_workspace';
-const DEFAULT_DESKTOP_WORKSPACE_ID = 'workspace-untitled';
+const DESKTOP_WORKSPACE_SCHEMA_KEY = 'desktop_workspace_schema_version';
+const DESKTOP_WORKSPACE_SCHEMA_VERSION = '2';
+const LEGACY_DEFAULT_DESKTOP_WORKSPACE_ID = 'workspace-untitled';
+const EMPTY_DESKTOP_WORKSPACE_ID = 'workspace-untitled-2';
+const DEFAULT_DESKTOP_WORKSPACE_ID = 'workspace-untitled-3';
 const MAX_DESKTOP_WORKSPACES = 3;
 const LEGACY_SAMPLE_WORKSPACE_IDS = new Set(['workspace-personal-projects', 'workspace-work-setup']);
 const DEFAULT_DESKTOP_WORKSPACES = [
   {
+    id: EMPTY_DESKTOP_WORKSPACE_ID,
+    name: 'Untitled 2',
+    iconType: 'dot',
+  },
+  {
     id: DEFAULT_DESKTOP_WORKSPACE_ID,
-    name: 'Untitled',
+    name: 'Untitled 3',
     iconType: 'dot',
   },
 ];
@@ -474,9 +483,17 @@ const getDesktopSelectionRect = (start, end) => ({
 });
 const getDefaultDesktopWorkspaces = () => DEFAULT_DESKTOP_WORKSPACES.map((workspace) => ({ ...workspace }));
 const getUntitledWorkspaceName = (index) => (index <= 1 ? 'Untitled' : `Untitled ${index}`);
+const getNextWorkspaceName = (workspaces) => {
+  const usedNames = new Set(workspaces.map((workspace) => workspace.name));
+  for (let index = 1; index <= MAX_DESKTOP_WORKSPACES + 1; index += 1) {
+    const candidate = getUntitledWorkspaceName(index);
+    if (!usedNames.has(candidate)) return candidate;
+  }
+  return getUntitledWorkspaceName(workspaces.length + 1);
+};
 const getTaskWorkspaceId = (task) => (
   typeof task?.desktopWorkspaceId === 'string' && task.desktopWorkspaceId.trim()
-    ? task.desktopWorkspaceId
+    ? (task.desktopWorkspaceId === LEGACY_DEFAULT_DESKTOP_WORKSPACE_ID ? DEFAULT_DESKTOP_WORKSPACE_ID : task.desktopWorkspaceId)
     : DEFAULT_DESKTOP_WORKSPACE_ID
 );
 const taskBelongsToWorkspace = (task, workspaceId) => getTaskWorkspaceId(task) === workspaceId;
@@ -485,15 +502,32 @@ const normalizeDesktopWorkspaces = (value) => {
   const normalized = value
     .filter((workspace) => workspace && !LEGACY_SAMPLE_WORKSPACE_IDS.has(workspace.id))
     .filter((workspace) => workspace && typeof workspace.id === 'string' && typeof workspace.name === 'string')
-    .map((workspace, index) => ({
-      id: workspace.id,
-      name: workspace.name.trim() || getUntitledWorkspaceName(index + 1),
+    .map((workspace, index) => {
+      const migratedId = workspace.id === LEGACY_DEFAULT_DESKTOP_WORKSPACE_ID
+        ? DEFAULT_DESKTOP_WORKSPACE_ID
+        : workspace.id;
+      return {
+        id: migratedId,
+        name: workspace.id === LEGACY_DEFAULT_DESKTOP_WORKSPACE_ID
+          ? 'Untitled 3'
+          : (workspace.name.trim() || getUntitledWorkspaceName(index + 1)),
+        iconType: workspace.iconType === 'letter' ? 'letter' : 'dot',
+        iconLetter: typeof workspace.iconLetter === 'string' ? workspace.iconLetter.slice(0, 1).toUpperCase() : null,
+        iconBackground: typeof workspace.iconBackground === 'string' ? workspace.iconBackground : null,
+        iconColor: typeof workspace.iconColor === 'string' ? workspace.iconColor : null,
+      };
+    });
+  const byId = new Map();
+  [...DEFAULT_DESKTOP_WORKSPACES, ...normalized].forEach((workspace) => {
+    byId.set(workspace.id, {
+      ...workspace,
       iconType: workspace.iconType === 'letter' ? 'letter' : 'dot',
       iconLetter: typeof workspace.iconLetter === 'string' ? workspace.iconLetter.slice(0, 1).toUpperCase() : null,
       iconBackground: typeof workspace.iconBackground === 'string' ? workspace.iconBackground : null,
       iconColor: typeof workspace.iconColor === 'string' ? workspace.iconColor : null,
-    }));
-  return normalized.length ? normalized : getDefaultDesktopWorkspaces();
+    });
+  });
+  return Array.from(byId.values()).slice(0, MAX_DESKTOP_WORKSPACES);
 };
 const areTaskIdSelectionsEqual = (currentIds, nextIds) => (
   currentIds.length === nextIds.length && nextIds.every((taskId) => currentIds.includes(taskId))
@@ -4200,7 +4234,16 @@ function App() {
       return getDefaultDesktopWorkspaces();
     }
   });
-  const [activeWorkspaceId, setActiveWorkspaceId] = useState(() => localStorage.getItem(DESKTOP_ACTIVE_WORKSPACE_KEY) || DEFAULT_DESKTOP_WORKSPACE_ID);
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState(() => {
+    if (localStorage.getItem(DESKTOP_WORKSPACE_SCHEMA_KEY) !== DESKTOP_WORKSPACE_SCHEMA_VERSION) {
+      return DEFAULT_DESKTOP_WORKSPACE_ID;
+    }
+    const savedWorkspaceId = localStorage.getItem(DESKTOP_ACTIVE_WORKSPACE_KEY);
+    if (!savedWorkspaceId || savedWorkspaceId === LEGACY_DEFAULT_DESKTOP_WORKSPACE_ID) {
+      return DEFAULT_DESKTOP_WORKSPACE_ID;
+    }
+    return savedWorkspaceId;
+  });
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
   const [isWorkspaceNameEditing, setIsWorkspaceNameEditing] = useState(false);
   const [workspaceNameDraft, setWorkspaceNameDraft] = useState('');
@@ -4467,6 +4510,7 @@ function App() {
   }, [appearance]);
   useEffect(() => {
     localStorage.setItem(DESKTOP_WORKSPACES_KEY, JSON.stringify(workspaces));
+    localStorage.setItem(DESKTOP_WORKSPACE_SCHEMA_KEY, DESKTOP_WORKSPACE_SCHEMA_VERSION);
   }, [workspaces]);
   useEffect(() => {
     const hasActiveWorkspace = workspaces.some((workspace) => workspace.id === activeWorkspaceId);
@@ -4474,7 +4518,9 @@ function App() {
       localStorage.setItem(DESKTOP_ACTIVE_WORKSPACE_KEY, activeWorkspaceId);
       return;
     }
-    const fallbackWorkspaceId = workspaces[0]?.id || DEFAULT_DESKTOP_WORKSPACE_ID;
+    const fallbackWorkspaceId = workspaces.some((workspace) => workspace.id === DEFAULT_DESKTOP_WORKSPACE_ID)
+      ? DEFAULT_DESKTOP_WORKSPACE_ID
+      : (workspaces[0]?.id || DEFAULT_DESKTOP_WORKSPACE_ID);
     setActiveWorkspaceId(fallbackWorkspaceId);
     localStorage.setItem(DESKTOP_ACTIVE_WORKSPACE_KEY, fallbackWorkspaceId);
   }, [activeWorkspaceId, workspaces]);
@@ -5714,17 +5760,6 @@ function App() {
     selectedDayEntriesRef.current = selectedDayEntries;
   }, [selectedDayEntries]);
   useEffect(() => {
-    if (tasks.length === 0) return;
-    if (currentWorkspaceTasks.length === 0) {
-      const fallbackTask = tasks[0];
-      const fallbackWorkspaceId = getTaskWorkspaceId(fallbackTask);
-      if (fallbackWorkspaceId && fallbackWorkspaceId !== activeWorkspaceId) {
-        setActiveWorkspaceId(fallbackWorkspaceId);
-      }
-    }
-  }, [activeWorkspaceId, currentWorkspaceTasks.length, tasks]);
-
-  useEffect(() => {
     if (!draggedTaskId || !desktopDragModeRef.current) {
       if (desktopDragOverlayActive) {
         setDesktopDragOverlayActive(false);
@@ -6525,7 +6560,7 @@ function App() {
     setWorkspaces((current) => {
       const nextWorkspace = {
         id: `workspace-${Date.now()}`,
-        name: getUntitledWorkspaceName(current.length + 1),
+        name: getNextWorkspaceName(current),
         iconType: 'dot',
       };
       setActiveWorkspaceId(nextWorkspace.id);
@@ -6733,15 +6768,25 @@ function App() {
                     );
                   })}
                 </div>
-                <button
-                  type="button"
-                  className="desktop-workspace-menu-add"
-                  onClick={handleAddWorkspace}
-                  disabled={!canAddWorkspace}
-                >
-                  <WorkspacePlusIcon />
-                  <span>{t.addWorkspace || 'Add workspace'}</span>
-                </button>
+                <div className="desktop-workspace-menu-footer">
+                  <div className="desktop-workspace-menu-count">
+                    {workspaces.length} / {MAX_DESKTOP_WORKSPACES} workspaces used
+                  </div>
+                  {!canAddWorkspace ? (
+                    <div className="desktop-workspace-menu-limit">
+                      Free plan supports up to 3 workspaces.
+                    </div>
+                  ) : null}
+                  <button
+                    type="button"
+                    className="desktop-workspace-menu-add"
+                    onClick={handleAddWorkspace}
+                    disabled={!canAddWorkspace}
+                  >
+                    <WorkspacePlusIcon />
+                    <span>{t.addWorkspace || 'Add workspace'}</span>
+                  </button>
+                </div>
               </div>
             ) : null}
             {workspaceMenuOpen && workspaceActionMenu && workspaceActionTarget ? (

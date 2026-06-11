@@ -12,7 +12,7 @@ export const createMockTasks = () => {
   const todayKey = dateKey(today);
   const tomorrowKey = dateKey(addDays(today, 1));
   const yesterdayKey = dateKey(addDays(today, -1));
-  const workspaceId = 'workspace-untitled';
+  const workspaceId = 'workspace-untitled-3';
   const groupId = 'mock-pack-resume';
 
   return [

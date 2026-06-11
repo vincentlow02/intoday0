@@ -1575,13 +1575,37 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   background: transparent;
 }
 
-.desktop-workspace-menu-add {
-  width: calc(100% - 32px);
-  min-height: 15px;
+.desktop-workspace-menu-footer {
   margin: 14px 16px 0;
-  padding: 15px 0 0;
-  border: none;
+  padding-top: 12px;
   border-top: 1px solid rgba(17, 17, 17, 0.12);
+  flex-shrink: 0;
+}
+
+.desktop-workspace-menu-count,
+.desktop-workspace-menu-limit {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+}
+
+.desktop-workspace-menu-count {
+  color: #9a9a9a;
+}
+
+.desktop-workspace-menu-limit {
+  margin-top: 4px;
+  color: #b05a5a;
+}
+
+.desktop-workspace-menu-add {
+  width: 100%;
+  min-height: 18px;
+  margin-top: 10px;
+  padding: 0;
+  border: none;
   background: transparent;
   display: inline-flex;
   align-items: center;
@@ -1593,7 +1617,6 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   letter-spacing: 0.04em;
   line-height: normal;
   cursor: pointer;
-  flex-shrink: 0;
 }
 
 .desktop-workspace-menu-add:hover,
@@ -1604,7 +1627,8 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 }
 
 .desktop-workspace-menu-add:disabled {
-  opacity: 0.42;
+  color: #b6b6b6;
+  opacity: 0.72;
   cursor: default;
 }
 
