@@ -4180,6 +4180,11 @@ const MOCK_USER = {
   },
 };
 
+const DESKTOP_VIEW_MODES = {
+  CANVAS: 'canvas',
+  COLLECTION: 'collection',
+};
+
 function App() {
   const user = MOCK_USER;
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -4199,6 +4204,7 @@ function App() {
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
   const [isWorkspaceNameEditing, setIsWorkspaceNameEditing] = useState(false);
   const [workspaceNameDraft, setWorkspaceNameDraft] = useState('');
+  const [desktopViewMode, setDesktopViewMode] = useState(DESKTOP_VIEW_MODES.CANVAS);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [profileOpen, setProfileOpenState] = useState(false);
   const setProfileOpen = useCallback((val) => {
@@ -6728,49 +6734,39 @@ function App() {
             ) : null}
           </div>
           <div className="desktop-minimal-date-nav-wrap">
-            {!todaySelected && (
-              <button
-                type="button"
-                className="desktop-minimal-today-button"
-                onClick={() => {
-                  setSelectedDate(getLogicalToday());
-                  setProfileOpen(false);
-                }}
-              >
-                {t.today}
-              </button>
-            )}
-            <div className="desktop-minimal-date-nav" role="group" aria-label="Date navigation">
+            <div className="desktop-minimal-date-nav" role="group" aria-label="View navigation">
             <button
               type="button"
-              className="desktop-minimal-date-nav-button"
+              className={`desktop-minimal-date-nav-button ${desktopViewMode === DESKTOP_VIEW_MODES.CANVAS ? 'is-active' : ''}`}
               onClick={() => {
-                setSelectedDate(shiftDateByDays(selectedDate, -1));
+                setDesktopViewMode(DESKTOP_VIEW_MODES.CANVAS);
                 setProfileOpen(false);
               }}
-              aria-label={t.previousDay || 'Previous day'}
+              aria-label="Show Canvas"
+              aria-pressed={desktopViewMode === DESKTOP_VIEW_MODES.CANVAS}
             >
               <HeaderChevronIcon direction="left" />
             </button>
             <button
               type="button"
-              className={`desktop-minimal-date-nav-label ${todaySelected ? 'is-today' : ''}`}
+              className="desktop-minimal-date-nav-label"
               onClick={() => {
-                setSelectedDate(logicalToday);
+                setDesktopViewMode(DESKTOP_VIEW_MODES.CANVAS);
                 setProfileOpen(false);
               }}
-              aria-label={t.backToToday}
+              aria-label={desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION ? 'Collection View' : 'Canvas'}
             >
-              {panelLabel(selectedDate, language)}
+              {desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION ? 'Collection View' : 'Canvas'}
             </button>
             <button
               type="button"
-              className="desktop-minimal-date-nav-button"
+              className={`desktop-minimal-date-nav-button ${desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION ? 'is-active' : ''}`}
               onClick={() => {
-                setSelectedDate(shiftDateByDays(selectedDate, 1));
+                setDesktopViewMode(DESKTOP_VIEW_MODES.COLLECTION);
                 setProfileOpen(false);
               }}
-              aria-label={t.nextDay || 'Next day'}
+              aria-label="Show Collection View"
+              aria-pressed={desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION}
             >
               <HeaderChevronIcon direction="right" />
             </button>
@@ -6804,33 +6800,41 @@ function App() {
           >
             <div className="desktop-main-stage-inner" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--desktop-main-gradient)' }}>
 
-              <main
-                ref={viewportContainerRef}
-                className={`desktop-canvas-scroll ${desktopCanvasPanReady ? 'is-pan-ready' : ''} ${desktopCanvasPanActive ? 'is-panning' : ''} ${isCanvasFileDragActive ? 'is-file-drag-active' : ''}`}
-                onWheel={handleDesktopCanvasWheel}
-                onPointerDownCapture={handleDesktopCanvasPointerDown}
-                onPointerMove={handleDesktopCanvasPointerMove}
-                onPointerUp={handleDesktopCanvasPointerEnd}
-                onPointerCancel={handleDesktopCanvasPointerEnd}
-                onDragEnter={handleCanvasFileDragEnter}
-                onDragOver={handleCanvasFileDragOver}
-                onDragLeave={handleCanvasFileDragLeave}
-                onDrop={handleCanvasFileDrop}
-                style={{ flex: 1, minHeight: 0, overflow: 'hidden', position: 'relative', background: 'var(--desktop-root-bg)' }}
-              >
-                <div
-                  ref={desktopCanvasContentRef}
-                  className="desktop-canvas-content"
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: DESKTOP_MAIN_CONTENT_MAX_WIDTH,
-                    transformOrigin: '0 0',
-                    transform: `translate(${viewport.panX}px, ${viewport.panY}px) scale(${viewport.zoom})`,
-                    paddingTop: 180,
-                  }}
+              {desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION ? (
+                <main className="desktop-collection-view" style={{ flex: 1, minHeight: 0 }}>
+                  <section className="desktop-collection-empty-state" aria-label="Collection View">
+                    <h1>Collection View</h1>
+                    <p>Collections in this workspace will appear here.</p>
+                  </section>
+                </main>
+              ) : (
+                <main
+                  ref={viewportContainerRef}
+                  className={`desktop-canvas-scroll ${desktopCanvasPanReady ? 'is-pan-ready' : ''} ${desktopCanvasPanActive ? 'is-panning' : ''} ${isCanvasFileDragActive ? 'is-file-drag-active' : ''}`}
+                  onWheel={handleDesktopCanvasWheel}
+                  onPointerDownCapture={handleDesktopCanvasPointerDown}
+                  onPointerMove={handleDesktopCanvasPointerMove}
+                  onPointerUp={handleDesktopCanvasPointerEnd}
+                  onPointerCancel={handleDesktopCanvasPointerEnd}
+                  onDragEnter={handleCanvasFileDragEnter}
+                  onDragOver={handleCanvasFileDragOver}
+                  onDragLeave={handleCanvasFileDragLeave}
+                  onDrop={handleCanvasFileDrop}
+                  style={{ flex: 1, minHeight: 0, overflow: 'hidden', position: 'relative', background: 'var(--desktop-root-bg)' }}
                 >
+                  <div
+                    ref={desktopCanvasContentRef}
+                    className="desktop-canvas-content"
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: DESKTOP_MAIN_CONTENT_MAX_WIDTH,
+                      transformOrigin: '0 0',
+                      transform: `translate(${viewport.panX}px, ${viewport.panY}px) scale(${viewport.zoom})`,
+                      paddingTop: 180,
+                    }}
+                  >
                     <DailyTaskList
                       entries={selectedDayEntries}
                       canvasHeight={selectedDayCanvasHeight}
@@ -6916,16 +6920,19 @@ function App() {
                       <span>{draggedTaskId ? 'Drop to place task' : 'Drop file to create card'}</span>
                     </div>
                   ) : null}
-                </div>
-              </main>
+                  </div>
+                </main>
+              )}
             </div>
-            <DragDayFeedbackOverlayV2
-              direction={desktopDragDayFeedback}
-              previousLabel={desktopPreviousDayLabel}
-              nextLabel={desktopNextDayLabel}
-              zones={desktopDragDayZones}
-              isConfirming={desktopDragDayConfirming}
-            />
+            {desktopViewMode === DESKTOP_VIEW_MODES.CANVAS ? (
+              <DragDayFeedbackOverlayV2
+                direction={desktopDragDayFeedback}
+                previousLabel={desktopPreviousDayLabel}
+                nextLabel={desktopNextDayLabel}
+                zones={desktopDragDayZones}
+                isConfirming={desktopDragDayConfirming}
+              />
+            ) : null}
           </div>
         </div>
 

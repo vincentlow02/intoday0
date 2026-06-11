@@ -1695,41 +1695,6 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   z-index: 1;
 }
 
-.desktop-minimal-today-button {
-  position: absolute;
-  right: calc(100% + 16px);
-  top: 50%;
-  transform: translateY(-50%);
-  height: 34px;
-  padding: 0 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(17, 17, 17, 0.08);
-  background: rgba(255, 255, 255, 0.6);
-  color: var(--desktop-root-text);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 140ms ease;
-  white-space: nowrap;
-}
-
-.desktop-minimal-today-button:hover {
-  background: #FFF;
-  border-color: rgba(17, 17, 17, 0.15);
-  box-shadow: 0 4px 12px rgba(17, 17, 17, 0.06);
-  transform: translateY(-50%) translateY(-1px);
-}
-
-.desktop-app-dark .desktop-minimal-today-button {
-  background: rgba(45, 45, 48, 0.6);
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.desktop-app-dark .desktop-minimal-today-button:hover {
-  background: #2D2D30;
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
 .desktop-minimal-date-nav {
   width: 220px;
   height: 56px;
@@ -1774,8 +1739,17 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   color: var(--desktop-root-text);
 }
 
+.desktop-minimal-date-nav-button.is-active {
+  background: rgba(17, 17, 17, 0.055);
+  color: var(--desktop-root-text);
+}
+
 .desktop-app-dark .desktop-minimal-date-nav-button:hover {
   background: rgba(255, 255, 255, 0.08);
+}
+
+.desktop-app-dark .desktop-minimal-date-nav-button.is-active {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .desktop-minimal-date-nav-label {
@@ -1789,9 +1763,52 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   color: var(--desktop-muted-strong);
 }
 
-.desktop-minimal-date-nav-label.is-today {
+.desktop-collection-view {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  position: relative;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(17, 17, 17, 0.035), transparent 34%),
+    var(--desktop-root-bg);
+}
+
+.desktop-collection-empty-state {
+  width: min(520px, calc(100vw - 48px));
+  padding: 56px 48px;
+  border-radius: 32px;
+  border: 1px solid rgba(17, 17, 17, 0.06);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 22px 60px rgba(17, 17, 17, 0.055);
+  text-align: center;
+}
+
+.desktop-collection-empty-state h1 {
+  margin: 0;
   color: var(--desktop-root-text);
-  font-weight: 620;
+  font-family: "DM Serif Display", Georgia, serif;
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.desktop-collection-empty-state p {
+  margin: 12px 0 0;
+  color: var(--desktop-muted-strong);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.desktop-app-dark .desktop-collection-view {
+  background:
+    radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.05), transparent 34%),
+    var(--desktop-root-bg);
+}
+
+.desktop-app-dark .desktop-collection-empty-state {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(32, 32, 35, 0.78);
+  box-shadow: 0 24px 68px rgba(0, 0, 0, 0.22);
 }
 
 .desktop-header-icon-button,
