@@ -4238,7 +4238,7 @@ function App() {
   const [pendingGroupName, setPendingGroupName] = useState('');
   const [activeGroupView, setActiveGroupView] = useState(null);
   const [pendingCanvasDeletion, setPendingCanvasDeletion] = useState(null);
-  const [workspaceActionMenuId, setWorkspaceActionMenuId] = useState(null);
+  const [workspaceActionMenu, setWorkspaceActionMenu] = useState(null);
   const [pendingWorkspaceDeletion, setPendingWorkspaceDeletion] = useState(null);
   const workspaceMenuRef = useRef(null);
   const workspaceNameInputRef = useRef(null);
@@ -4389,9 +4389,19 @@ function App() {
   }, [workspaceMenuOpen]);
   useEffect(() => {
     if (!workspaceMenuOpen) {
-      setWorkspaceActionMenuId(null);
+      setWorkspaceActionMenu(null);
     }
   }, [workspaceMenuOpen]);
+  useEffect(() => {
+    if (!workspaceActionMenu) return undefined;
+    const closeActionMenu = () => setWorkspaceActionMenu(null);
+    window.addEventListener('resize', closeActionMenu);
+    window.addEventListener('scroll', closeActionMenu, true);
+    return () => {
+      window.removeEventListener('resize', closeActionMenu);
+      window.removeEventListener('scroll', closeActionMenu, true);
+    };
+  }, [workspaceActionMenu]);
   useEffect(() => {
     if (!isWorkspaceNameEditing) return undefined;
     const frameId = window.requestAnimationFrame(() => {
@@ -6477,11 +6487,14 @@ function App() {
     startDesktopTaskDrag(task);
   };
   const activeWorkspace = workspaces.find((workspace) => workspace.id === activeWorkspaceId) || workspaces[0] || getDefaultDesktopWorkspaces()[0];
+  const workspaceActionTarget = workspaceActionMenu
+    ? workspaces.find((workspace) => workspace.id === workspaceActionMenu.workspaceId)
+    : null;
   const canAddWorkspace = workspaces.length < MAX_DESKTOP_WORKSPACES;
   const handleSelectWorkspace = (workspaceId) => {
     setActiveWorkspaceId(workspaceId);
     setWorkspaceMenuOpen(false);
-    setWorkspaceActionMenuId(null);
+    setWorkspaceActionMenu(null);
     setIsWorkspaceNameEditing(false);
     setSelectedTaskIds([]);
     setPendingCanvasDeletion(null);
@@ -6490,7 +6503,7 @@ function App() {
   };
   const handleStartWorkspaceRename = () => {
     setWorkspaceMenuOpen(false);
-    setWorkspaceActionMenuId(null);
+    setWorkspaceActionMenu(null);
     setWorkspaceNameDraft(activeWorkspace?.name || 'Untitled');
     setIsWorkspaceNameEditing(true);
   };
@@ -6521,7 +6534,7 @@ function App() {
       return [...current, nextWorkspace];
     });
     setWorkspaceMenuOpen(false);
-    setWorkspaceActionMenuId(null);
+    setWorkspaceActionMenu(null);
     setSelectedTaskIds([]);
     setPendingCanvasDeletion(null);
     setActiveGroupView(null);
@@ -6530,13 +6543,24 @@ function App() {
   const handleWorkspaceActionsToggle = (workspaceId, event) => {
     event.preventDefault();
     event.stopPropagation();
-    setWorkspaceActionMenuId((current) => (current === workspaceId ? null : workspaceId));
+    const rect = event.currentTarget.getBoundingClientRect();
+    const popoverWidth = 112;
+    const left = Math.min(
+      window.innerWidth - popoverWidth - 12,
+      Math.max(12, rect.right - popoverWidth),
+    );
+    const top = Math.min(window.innerHeight - 52, rect.bottom + 8);
+    setWorkspaceActionMenu((current) => (
+      current?.workspaceId === workspaceId
+        ? null
+        : { workspaceId, top, left }
+    ));
   };
   const handleWorkspaceDeleteRequest = (workspace, event) => {
     event.preventDefault();
     event.stopPropagation();
     if (workspaces.length <= 1) return;
-    setWorkspaceActionMenuId(null);
+    setWorkspaceActionMenu(null);
     setPendingWorkspaceDeletion({
       workspaceId: workspace.id,
       workspaceName: workspace.name || 'Untitled',
@@ -6563,7 +6587,7 @@ function App() {
       setActiveWorkspaceId(fallbackWorkspaceId);
     }
     setWorkspaceMenuOpen(false);
-    setWorkspaceActionMenuId(null);
+    setWorkspaceActionMenu(null);
     setPendingWorkspaceDeletion(null);
     setSelectedTaskIds([]);
     setPendingCanvasDeletion(null);
@@ -6679,7 +6703,7 @@ function App() {
                 <div className="desktop-workspace-menu-list">
                   {workspaces.map((workspace) => {
                     const isActive = workspace.id === activeWorkspace?.id;
-                    const isActionsOpen = workspaceActionMenuId === workspace.id;
+                    const isActionsOpen = workspaceActionMenu?.workspaceId === workspace.id;
                     return (
                       <div
                         key={workspace.id}
@@ -6704,18 +6728,6 @@ function App() {
                           >
                             <WorkspaceMoreIcon />
                           </button>
-                          {isActionsOpen ? (
-                            <div className="desktop-workspace-menu-item-popover" role="menu" aria-label="Workspace actions">
-                              <button
-                                type="button"
-                                className="desktop-workspace-menu-item-delete"
-                                onClick={(event) => handleWorkspaceDeleteRequest(workspace, event)}
-                                disabled={workspaces.length <= 1}
-                              >
-                                {t.deleteWorkspace || 'Delete workspace'}
-                              </button>
-                            </div>
-                          ) : null}
                         </div>
                       </div>
                     );
@@ -6729,6 +6741,26 @@ function App() {
                 >
                   <WorkspacePlusIcon />
                   <span>{t.addWorkspace || 'Add workspace'}</span>
+                </button>
+              </div>
+            ) : null}
+            {workspaceMenuOpen && workspaceActionMenu && workspaceActionTarget ? (
+              <div
+                className="desktop-workspace-action-popover"
+                role="menu"
+                aria-label="Workspace actions"
+                style={{
+                  top: workspaceActionMenu.top,
+                  left: workspaceActionMenu.left,
+                }}
+              >
+                <button
+                  type="button"
+                  className="desktop-workspace-menu-item-delete"
+                  onClick={(event) => handleWorkspaceDeleteRequest(workspaceActionTarget, event)}
+                  disabled={workspaces.length <= 1}
+                >
+                  {t.deleteWorkspace || 'Delete workspace'}
                 </button>
               </div>
             ) : null}
