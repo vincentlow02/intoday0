@@ -218,10 +218,10 @@ function DesktopProfilePage({
               value={getAppearanceOptionLabel(appearancePreference, t)}
               expanded={expandedSection === 'appearance'}
               onClick={() => setExpandedSection((current) => (current === 'appearance' ? null : 'appearance'))}
-              panelClassName="desktop-profile-select-popover"
+              panelClassName="desktop-profile-select-popover desktop-profile-select-popover-compact"
               chevronVariant="down"
             >
-              <div className="desktop-profile-select-menu">
+              <div className="desktop-profile-select-menu desktop-profile-select-menu-compact">
                 {APPEARANCE_OPTIONS.map((option) => (
                   <button
                     key={option}
