@@ -1696,7 +1696,7 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 }
 
 .desktop-minimal-date-nav {
-  width: 280px;
+  width: 220px;
   height: 56px;
   padding: 0 8px;
   display: inline-flex;
@@ -1756,11 +1756,9 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   flex: 1;
   text-align: center;
   padding: 0 10px;
-  font-family: "DM Serif Display", serif;
-  font-size: 29px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1;
-  letter-spacing: 0.05em;
   white-space: nowrap;
   color: var(--desktop-root-text);
 }
@@ -3401,7 +3399,7 @@ body.desktop-task-dragging {
 
   .desktop-minimal-date-nav {
     min-width: 0;
-    width: min(100%, 236px);
+    width: min(100%, 184px);
     height: 52px;
     justify-self: center;
   }
@@ -3409,7 +3407,7 @@ body.desktop-task-dragging {
   .desktop-minimal-date-nav-label {
     min-width: 0;
     padding: 0 10px;
-    font-size: 22px;
+    font-size: 13px;
   }
 
   .desktop-header-icon-button,
