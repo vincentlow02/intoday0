@@ -238,7 +238,7 @@ const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onCli
           </button>
         </div>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '7px 8px' }}>
         {visiblePreviewTasks.map(task => {
           const { cfg, displayTitle } = getTaskCardPresentation(task, labels);
           return (
@@ -287,6 +287,7 @@ const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onCli
         {hiddenPreviewCount > 0 ? (
           <div
             style={{
+              gridColumn: '1 / -1',
               padding: '2px 2px 0',
               fontSize: 12,
               fontWeight: 600,
