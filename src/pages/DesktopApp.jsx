@@ -6675,7 +6675,7 @@ function App() {
             </div>
             {workspaceMenuOpen ? (
               <div className="desktop-workspace-menu" role="menu" aria-label={t.workspaceMenu || 'Workspace menu'}>
-                <div className="desktop-workspace-menu-header">{t.switchWorkspace || 'Switch Workspace'}</div>
+                <div className="desktop-workspace-menu-header">My Spaces</div>
                 <div className="desktop-workspace-menu-list">
                   {workspaces.map((workspace) => {
                     const isActive = workspace.id === activeWorkspace?.id;

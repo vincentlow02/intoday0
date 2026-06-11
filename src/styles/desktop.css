@@ -1407,30 +1407,33 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 
 .desktop-workspace-menu {
   position: absolute;
-  top: calc(100% + 14px);
+  top: calc(100% + 12px);
   left: 0;
-  width: 308px;
-  border-radius: 22px;
-  border: 1px solid rgba(17, 17, 17, 0.08);
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 20px 50px rgba(17, 17, 17, 0.1);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  width: 333px;
+  min-height: 282px;
+  padding: 19px 25px 17px;
+  border-radius: 0;
+  border: none;
+  background: #f3f3f3;
+  box-shadow: 0 18px 42px rgba(17, 17, 17, 0.08);
   overflow: hidden;
   z-index: 40;
 }
 
 .desktop-workspace-menu-header {
-  padding: 18px 18px 14px;
-  color: #97a1b3;
+  padding: 0;
+  color: #8b8b8b;
+  font-family: Helvetica, Arial, sans-serif;
   font-size: 13px;
   font-weight: 700;
+  line-height: normal;
 }
 
 .desktop-workspace-menu-list {
   display: flex;
   flex-direction: column;
-  padding: 0 8px 10px;
+  gap: 32px;
+  padding: 19px 0 0;
 }
 
 .desktop-workspace-menu-row {
@@ -1438,22 +1441,22 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 8px;
-  min-height: 54px;
-  padding: 0 8px;
-  border-radius: 14px;
+  gap: 12px;
+  min-height: 27px;
+  padding: 0;
+  border-radius: 0;
 }
 
 .desktop-workspace-menu-item {
   width: 100%;
-  min-height: 100%;
-  padding: 0 10px;
+  min-height: 27px;
+  padding: 0;
   border: none;
-  border-radius: 14px;
+  border-radius: 0;
   background: transparent;
   display: flex;
   align-items: center;
-  color: var(--desktop-root-text);
+  color: #000000;
   text-align: left;
   cursor: pointer;
 }
@@ -1461,7 +1464,7 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 .desktop-workspace-menu-row.is-active,
 .desktop-workspace-menu-row:hover,
 .desktop-workspace-menu-row:focus-within {
-  background: rgba(17, 17, 17, 0.04);
+  background: transparent;
 }
 
 .desktop-workspace-menu-item:focus-visible {
@@ -1473,11 +1476,11 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: "DM Serif Display", serif;
-  font-size: 18px;
-  line-height: 1.1;
-  font-weight: 400;
-  letter-spacing: 0.05em;
+  font-family: "DM Serif Display", "Playfair Display", Georgia, serif;
+  font-size: 20px;
+  line-height: normal;
+  font-weight: 800;
+  letter-spacing: 0.04em;
 }
 
 .desktop-workspace-menu-item-actions {
@@ -1491,17 +1494,17 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 
 .desktop-workspace-menu-item-more {
   width: 28px;
-  height: 28px;
+  height: 27px;
   border: none;
-  border-radius: 9px;
+  border-radius: 0;
   background: transparent;
-  color: #8b93a3;
+  color: #8b8b8b;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   opacity: 0;
-  transition: background-color 140ms ease, color 140ms ease, opacity 140ms ease;
+  transition: color 140ms ease, opacity 140ms ease;
 }
 
 .desktop-workspace-menu-row:hover .desktop-workspace-menu-item-more,
@@ -1516,8 +1519,8 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 
 .desktop-workspace-menu-item-more:hover,
 .desktop-workspace-menu-item-more:focus-visible {
-  background: rgba(17, 17, 17, 0.06);
-  color: #5f6778;
+  background: transparent;
+  color: #000000;
   outline: none;
 }
 
@@ -1565,24 +1568,28 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 }
 
 .desktop-workspace-menu-add {
-  width: 100%;
-  min-height: 58px;
-  padding: 0 18px;
+  width: auto;
+  min-height: 15px;
+  margin-top: 51px;
+  padding: 0;
   border: none;
-  border-top: 1px solid rgba(17, 17, 17, 0.06);
   background: transparent;
   display: inline-flex;
   align-items: center;
-  gap: 14px;
-  color: #6f7889;
-  font-size: 15px;
-  font-weight: 600;
+  gap: 11px;
+  color: #8e8e8e;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: normal;
   cursor: pointer;
 }
 
 .desktop-workspace-menu-add:hover,
 .desktop-workspace-menu-add:focus-visible {
-  background: rgba(17, 17, 17, 0.03);
+  background: transparent;
+  color: #000000;
   outline: none;
 }
 
@@ -1594,6 +1601,12 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 .desktop-workspace-menu-add:disabled:hover,
 .desktop-workspace-menu-add:disabled:focus-visible {
   background: transparent;
+}
+
+.desktop-workspace-menu-add svg {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
 }
 
 .desktop-app-dark .desktop-workspace-icon {
@@ -1638,9 +1651,8 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 }
 
 .desktop-app-dark .desktop-workspace-menu {
-  border-color: rgba(255, 255, 255, 0.08);
-  background: rgba(24, 24, 28, 0.96);
-  box-shadow: 0 24px 54px rgba(0, 0, 0, 0.34);
+  background: #f3f3f3;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
 }
 
 .desktop-app-dark .desktop-workspace-menu-row.is-active,
@@ -1648,22 +1660,21 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
 .desktop-app-dark .desktop-workspace-menu-row:focus-within,
 .desktop-app-dark .desktop-workspace-menu-add:hover,
 .desktop-app-dark .desktop-workspace-menu-add:focus-visible {
-  background: rgba(255, 255, 255, 0.06);
+  background: transparent;
 }
 
 .desktop-app-dark .desktop-workspace-menu-item-more {
-  color: rgba(255, 255, 255, 0.64);
+  color: #8b8b8b;
 }
 
 .desktop-app-dark .desktop-workspace-menu-item-more:hover,
 .desktop-app-dark .desktop-workspace-menu-item-more:focus-visible {
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.92);
+  background: transparent;
+  color: #000000;
 }
 
 .desktop-app-dark .desktop-workspace-menu-add {
-  border-top-color: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.72);
+  color: #8e8e8e;
 }
 
 .desktop-app-dark .desktop-workspace-menu-item-popover {
