@@ -5,7 +5,7 @@ import { getUserProfile } from '../userProfile';
 
 const APPEARANCE_OPTIONS = ['dark', 'light'];
 const COMPACT_LANGUAGE_OPTIONS = PROFILE_LANGUAGE_OPTIONS.filter((option) => (
-  ['EN', 'ZH', 'JA', 'TH'].includes(option.value)
+  ['EN', 'ZH', 'MS', 'JA', 'TH'].includes(option.value)
 ));
 
 const getAppearanceOptionLabel = (option, t) => {
