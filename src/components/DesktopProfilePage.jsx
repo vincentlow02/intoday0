@@ -3,20 +3,12 @@ import { getLanguageLabel, PROFILE_LANGUAGE_OPTIONS } from '../lib/language';
 import { translations } from '../lib/translations';
 import { getUserProfile } from '../userProfile';
 
-const APPEARANCE_OPTIONS = ['system', 'dark', 'light'];
+const APPEARANCE_OPTIONS = ['dark', 'light'];
 const COMPACT_LANGUAGE_OPTIONS = PROFILE_LANGUAGE_OPTIONS.filter((option) => (
   ['EN', 'ZH', 'JA', 'TH'].includes(option.value)
 ));
 
-const SYSTEM_LABELS = {
-  EN: 'System',
-  ZH: '系统',
-  JA: 'システム',
-  TH: 'ระบบ',
-};
-
-const getAppearanceOptionLabel = (option, language, t) => {
-  if (option === 'system') return SYSTEM_LABELS[language] || SYSTEM_LABELS.EN;
+const getAppearanceOptionLabel = (option, t) => {
   if (option === 'dark') return t.dark;
   return t.light;
 };
@@ -220,7 +212,7 @@ function DesktopProfilePage({
             <SettingsRow
               icon={<SunIcon />}
               label={t.appearance}
-              value={getAppearanceOptionLabel(appearancePreference, language, t)}
+              value={getAppearanceOptionLabel(appearancePreference, t)}
               expanded={expandedSection === 'appearance'}
               onClick={() => setExpandedSection((current) => (current === 'appearance' ? null : 'appearance'))}
               panelClassName="desktop-profile-appearance-popover"
@@ -237,7 +229,7 @@ function DesktopProfilePage({
                       setExpandedSection(null);
                     }}
                   >
-                    <span>{getAppearanceOptionLabel(option, language, t)}</span>
+                    <span>{getAppearanceOptionLabel(option, t)}</span>
                     {appearancePreference === option ? <CheckIcon /> : null}
                   </button>
                 ))}

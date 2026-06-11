@@ -4220,15 +4220,8 @@ const DESKTOP_VIEW_MODES = {
 };
 
 const normalizeDesktopAppearancePreference = (value) => (
-  ['system', 'light', 'dark'].includes(value) ? value : 'light'
+  ['light', 'dark'].includes(value) ? value : 'light'
 );
-
-const getSystemDesktopAppearance = () => {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-    return 'light';
-  }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-};
 
 function App() {
   const user = MOCK_USER;
@@ -4240,8 +4233,7 @@ function App() {
   const [appearancePreference, setAppearancePreference] = useState(() => (
     normalizeDesktopAppearancePreference(localStorage.getItem(DESKTOP_APPEARANCE_KEY))
   ));
-  const [systemAppearance, setSystemAppearance] = useState(getSystemDesktopAppearance);
-  const appearance = appearancePreference === 'system' ? systemAppearance : appearancePreference;
+  const appearance = appearancePreference;
   const [workspaces, setWorkspaces] = useState(() => {
     try {
       return normalizeDesktopWorkspaces(JSON.parse(localStorage.getItem(DESKTOP_WORKSPACES_KEY) || 'null'));
@@ -4522,19 +4514,6 @@ function App() {
   }, [language]);
   useEffect(() => {
     localStorage.setItem(DESKTOP_APPEARANCE_KEY, appearancePreference);
-  }, [appearancePreference]);
-  useEffect(() => {
-    if (appearancePreference !== 'system' || typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-      return undefined;
-    }
-
-    const media = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleSystemAppearanceChange = () => {
-      setSystemAppearance(media.matches ? 'dark' : 'light');
-    };
-    handleSystemAppearanceChange();
-    media.addEventListener?.('change', handleSystemAppearanceChange);
-    return () => media.removeEventListener?.('change', handleSystemAppearanceChange);
   }, [appearancePreference]);
   useEffect(() => {
     localStorage.setItem(DESKTOP_WORKSPACES_KEY, JSON.stringify(workspaces));
