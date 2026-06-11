@@ -6773,7 +6773,7 @@ function App() {
                     <div className="desktop-workspace-usage">
                       <div className="desktop-workspace-usage-row">
                         <span className="desktop-workspace-limit-label">
-                          <span className="desktop-workspace-limit-icon" aria-hidden="true">i</span>
+                          <span className="desktop-workspace-limit-icon" aria-hidden="true">ⓘ</span>
                           <span>Free plan limit reached</span>
                         </span>
                         <span className="desktop-workspace-limit-count">
