@@ -27,6 +27,13 @@ const ShareIcon = () => (
   </svg>
 );
 
+const CopyLinkIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M8 8H5.8C4.8 8 4 8.8 4 9.8V18.2C4 19.2 4.8 20 5.8 20H14.2C15.2 20 16 19.2 16 18.2V16" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+    <path d="M9.8 4H18.2C19.2 4 20 4.8 20 5.8V14.2C20 15.2 19.2 16 18.2 16H9.8C8.8 16 8 15.2 8 14.2V5.8C8 4.8 8.8 4 9.8 4Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+  </svg>
+);
+
 const dateKey = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 const shiftDateByDays = (date, dayOffset) => {
   const nextDate = new Date(date);
@@ -50,7 +57,250 @@ const getPackDisplayName = (tasks) => (
 
 const MAX_PACK_PREVIEW_ITEMS = 6;
 
-const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onClickItem, onResultPointerDown, onResultPointerEnd }) => {
+const getShareLinkLabels = (language) => {
+  if (language === 'JA') {
+    return {
+      copyLink: '\u30ea\u30f3\u30af\u3092\u30b3\u30d4\u30fc',
+      copied: '\u30b3\u30d4\u30fc\u6e08\u307f',
+      noteStart: '\u516c\u958b\u30ea\u30f3\u30af\u306f\u8ab0\u3067\u3082\u30a2\u30af\u30bb\u30b9\u53ef\u80fd\u3067\u3059\u3002\u5171\u6709\u306f',
+      responsibility: '\u81ea\u5df1\u8cac\u4efb',
+      noteMiddle: '\u3067\u884c\u3063\u3066\u304f\u3060\u3055\u3044\u3002',
+      delete: '\u524a\u9664',
+      noteEnd: '\u306f\u3044\u3064\u3067\u3082\u53ef\u80fd\u3067\u3059\u3002\u7b2c\u4e09\u8005\u30d7\u30e9\u30c3\u30c8\u30d5\u30a9\u30fc\u30e0\u3067\u5171\u6709\u3059\u308b\u5834\u5408\u3001\u305d\u306e\u30d7\u30e9\u30c3\u30c8\u30d5\u30a9\u30fc\u30e0\u306e\u30dd\u30ea\u30b7\u30fc\u304c\u9069\u7528\u3055\u308c\u307e\u3059\u3002',
+    };
+  }
+  if (language === 'ZH') {
+    return {
+      copyLink: '\u590d\u5236\u94fe\u63a5',
+      copied: '\u5df2\u590d\u5236',
+      noteStart: '\u516c\u5f00\u94fe\u63a5\u4efb\u4f55\u4eba\u90fd\u53ef\u4ee5\u8bbf\u95ee\u3002\u5206\u4eab\u8bf7',
+      responsibility: '\u81ea\u884c\u8d1f\u8d23',
+      noteMiddle: '\u3002',
+      delete: '\u5220\u9664',
+      noteEnd: '\u94fe\u63a5\u53ef\u4ee5\u968f\u65f6\u8fdb\u884c\u3002\u5982\u679c\u901a\u8fc7\u7b2c\u4e09\u65b9\u5e73\u53f0\u5206\u4eab\uff0c\u5c06\u9002\u7528\u8be5\u5e73\u53f0\u7684\u653f\u7b56\u3002',
+    };
+  }
+  return {
+    copyLink: 'Copy link',
+    copied: 'Copied',
+    noteStart: 'Anyone with the public link can access this pack. Share it at your ',
+    responsibility: 'own risk',
+    noteMiddle: '. You can ',
+    delete: 'delete',
+    noteEnd: ' the link at any time. If shared on a third-party platform, that platform\'s policies apply.',
+  };
+};
+
+const makePackShareUrl = (packInfo) => {
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://intoday.prototype';
+  return `${origin}/share/${encodeURIComponent(String(packInfo?.groupId || 'pack'))}`;
+};
+
+const copyShareUrlWithFallback = (shareUrl) => {
+  if (typeof document === 'undefined') return;
+  try {
+    const textarea = document.createElement('textarea');
+    textarea.value = shareUrl;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+  } catch {
+    // Prototype-only fallback: keep the UI responsive even if clipboard access is blocked.
+  }
+};
+
+const PackShareLinkModal = ({ packInfo, appearance, language, onClose }) => {
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    setCopied(false);
+  }, [packInfo?.groupId]);
+
+  if (!packInfo) return null;
+
+  const isDark = appearance === 'dark';
+  const shareLabels = getShareLinkLabels(language);
+  const shareUrl = makePackShareUrl(packInfo);
+
+  const handleCopyLink = async (event) => {
+    event.stopPropagation();
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        copyShareUrlWithFallback(shareUrl);
+      }
+    } catch {
+      copyShareUrlWithFallback(shareUrl);
+    }
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1600);
+  };
+
+  return (
+    <div
+      role="presentation"
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 140,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 28,
+        background: isDark ? 'rgba(0,0,0,0.32)' : 'rgba(245,245,245,0.38)',
+        backdropFilter: 'blur(2px)',
+        WebkitBackdropFilter: 'blur(2px)',
+      }}
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${packInfo.packTitle} share link`}
+        onClick={(event) => event.stopPropagation()}
+        style={{
+          width: 'min(742px, calc(100vw - 48px))',
+          borderRadius: 34,
+          padding: '30px 30px 34px',
+          background: isDark ? '#1F1F21' : '#FFFFFF',
+          border: `1px solid ${isDark ? '#323236' : '#EFEFEF'}`,
+          boxShadow: isDark ? '0 28px 70px rgba(0,0,0,0.55)' : '0 26px 64px rgba(17,17,17,0.10)',
+          color: isDark ? '#F5F5F7' : '#111',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 18 }}>
+          <h2 style={{ margin: 0, fontSize: 25, lineHeight: 1.15, fontWeight: 800, letterSpacing: '-0.03em' }}>
+            {packInfo.packTitle}
+          </h2>
+          <button
+            type="button"
+            aria-label="Close share link"
+            onClick={onClose}
+            style={{
+              width: 34,
+              height: 34,
+              border: 'none',
+              borderRadius: '50%',
+              background: 'transparent',
+              color: isDark ? '#F5F5F7' : '#111',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              padding: 0,
+            }}
+          >
+            <CloseIcon />
+          </button>
+        </div>
+
+        <div style={{ height: 1, background: isDark ? '#343438' : '#E6E0DA', marginTop: 16 }} />
+
+        <div
+          style={{
+            marginTop: 28,
+            height: 74,
+            borderRadius: 999,
+            background: isDark ? '#2A2A2E' : '#F3F4F6',
+            display: 'flex',
+            alignItems: 'center',
+            padding: 6,
+            gap: 10,
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            title={shareUrl}
+            style={{
+              flex: 1,
+              minWidth: 0,
+              paddingLeft: 24,
+              color: isDark ? 'rgba(255,255,255,0.45)' : '#A8AFBA',
+              fontSize: 14,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {shareUrl}
+          </div>
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            style={{
+              height: 62,
+              minWidth: 210,
+              border: 'none',
+              borderRadius: 999,
+              background: '#050505',
+              color: '#FFFFFF',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 10,
+              padding: '0 28px',
+              fontSize: 17,
+              fontWeight: 800,
+              letterSpacing: language === 'JA' ? '0.01em' : '-0.01em',
+              cursor: 'pointer',
+              boxShadow: '0 10px 22px rgba(0,0,0,0.12)',
+            }}
+          >
+            <CopyLinkIcon />
+            <span>{copied ? shareLabels.copied : shareLabels.copyLink}</span>
+          </button>
+        </div>
+
+        <div
+          style={{
+            marginTop: 30,
+            display: 'grid',
+            gridTemplateColumns: '22px 1fr',
+            gap: 12,
+            alignItems: 'start',
+            color: isDark ? 'rgba(255,255,255,0.62)' : '#6E7A8A',
+            fontSize: 16,
+            lineHeight: 1.55,
+            fontWeight: 500,
+          }}
+        >
+          <span
+            aria-hidden="true"
+            style={{
+              width: 18,
+              height: 18,
+              borderRadius: '50%',
+              border: `1.4px solid ${isDark ? 'rgba(255,255,255,0.38)' : '#B6C0CC'}`,
+              color: isDark ? 'rgba(255,255,255,0.56)' : '#9CA7B5',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 12,
+              fontWeight: 800,
+              marginTop: 3,
+            }}
+          >
+            i
+          </span>
+          <p style={{ margin: 0 }}>
+            {shareLabels.noteStart}
+            <span style={{ color: isDark ? '#7FB0FF' : '#2B68C8', fontWeight: 700 }}>{shareLabels.responsibility}</span>
+            {shareLabels.noteMiddle}
+            <span style={{ color: isDark ? '#7FB0FF' : '#2B68C8', fontWeight: 700 }}>{shareLabels.delete}</span>
+            {shareLabels.noteEnd}
+          </p>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onClickItem, onSharePack, onResultPointerDown, onResultPointerEnd }) => {
   const isDark = appearance === 'dark';
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const exportMenuRef = useRef(null);
@@ -219,7 +469,10 @@ const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onCli
           <button
             type="button"
             aria-label="Share pack"
-            onClick={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              onSharePack?.(packInfo);
+            }}
             onPointerDown={(event) => event.stopPropagation()}
             style={{
               width: 20,
@@ -489,10 +742,15 @@ const CalendarPopover = ({ open, anchorRef, language, onClose, onSelectDate, app
 const DesktopHistoryModal = ({ open, tasks, appearance, language, t, onClose, onTaskClick, onPackClick, onPackItemClick, onTaskPointerDown, onTaskLongPress }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
+  const [sharePackInfo, setSharePackInfo] = useState(null);
   const resultLongPressTimerRef = useRef(null);
   const closeTopLayerOrModal = useCallback(() => {
+    if (sharePackInfo) {
+      setSharePackInfo(null);
+      return;
+    }
     onClose?.();
-  }, [onClose]);
+  }, [onClose, sharePackInfo]);
   useEffect(() => {
     if (!open) return;
 
@@ -508,6 +766,7 @@ const DesktopHistoryModal = ({ open, tasks, appearance, language, t, onClose, on
   useEffect(() => {
     if (!open) {
       setSearchQuery('');
+      setSharePackInfo(null);
       if (resultLongPressTimerRef.current) {
         clearTimeout(resultLongPressTimerRef.current);
         resultLongPressTimerRef.current = null;
@@ -539,6 +798,10 @@ const DesktopHistoryModal = ({ open, tasks, appearance, language, t, onClose, on
     onTaskClick(task);
     onClose?.();
   }, [onTaskClick, onClose]);
+
+  const handleOpenSharePack = useCallback((packInfo) => {
+    setSharePackInfo(packInfo);
+  }, []);
 
   const { matchedPacks, matchedItems } = useMemo(() => {
     if (!tasks || tasks.length === 0) return { matchedPacks: [], matchedItems: [] };
@@ -750,6 +1013,7 @@ const DesktopHistoryModal = ({ open, tasks, appearance, language, t, onClose, on
                     labels={t}
                     onClickPack={onPackClick}
                     onClickItem={onPackItemClick}
+                    onSharePack={handleOpenSharePack}
                     onResultPointerDown={handleResultPointerDown}
                     onResultPointerEnd={handleResultPointerEnd}
                   />
@@ -771,6 +1035,12 @@ const DesktopHistoryModal = ({ open, tasks, appearance, language, t, onClose, on
           </div>
         </div>
       </div>
+      <PackShareLinkModal
+        packInfo={sharePackInfo}
+        appearance={appearance}
+        language={language}
+        onClose={() => setSharePackInfo(null)}
+      />
     </>
   );
 };
