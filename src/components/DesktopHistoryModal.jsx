@@ -12,16 +12,18 @@ const getCalendarWeekdayLabels = (language) => {
   return ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 };
 
-const SearchIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8"></circle>
-    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-  </svg>
-);
-
 const CloseIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" width="15" height="15">
     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+  </svg>
+);
+
+const ShareIcon = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle cx="18" cy="5" r="2.4" fill="currentColor" />
+    <circle cx="6" cy="12" r="2.4" fill="currentColor" />
+    <circle cx="18" cy="19" r="2.4" fill="currentColor" />
+    <path d="M8.2 10.9L15.8 6.1M8.2 13.1L15.8 17.9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
   </svg>
 );
 
@@ -48,8 +50,6 @@ const getPackDisplayName = (tasks) => (
 
 const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onClickItem, onResultPointerDown, onResultPointerEnd }) => {
   const isDark = appearance === 'dark';
-  const [isHovered, setIsHovered] = useState(false);
-  const [isPreviewExpanded, setIsPreviewExpanded] = useState(false);
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const exportMenuRef = useRef(null);
   const packDragTask = {
@@ -82,7 +82,7 @@ const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onCli
     };
   }, [isExportMenuOpen]);
 
-  const visiblePreviewTasks = isPreviewExpanded ? packInfo.previewTasks : packInfo.previews;
+  const visiblePreviewTasks = packInfo.previews;
 
   return (
     <div
@@ -91,42 +91,38 @@ const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onCli
       onPointerUp={() => onResultPointerEnd?.()}
       onPointerCancel={() => onResultPointerEnd?.()}
       style={{
-        background: isDark ? '#252527' : '#F9F9F9',
-        border: `1px solid ${isDark ? '#333' : '#EFEFEF'}`,
-        borderRadius: 12,
-        padding: '14px',
-        marginBottom: 8,
+        background: isDark ? '#252527' : '#F8F8F8',
+        border: `1px solid ${isDark ? '#333' : '#F1F1F1'}`,
+        borderRadius: 8,
+        padding: '14px 12px 18px',
+        marginBottom: 10,
+        minHeight: 176,
         cursor: 'pointer',
         transition: 'background 0.15s ease',
       }}
       onMouseEnter={(e) => {
-        setIsHovered(true);
-        e.currentTarget.style.background = isDark ? '#2C2C2E' : '#F0F0F0';
+        e.currentTarget.style.background = isDark ? '#2C2C2E' : '#F7F7F7';
       }}
       onMouseLeave={(e) => {
-        setIsHovered(false);
-        setIsPreviewExpanded(false);
-        e.currentTarget.style.background = isDark ? '#252527' : '#F9F9F9';
+        e.currentTarget.style.background = isDark ? '#252527' : '#F8F8F8';
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <div style={{ fontWeight: 600, fontSize: 15, color: isDark ? '#FFF' : '#111' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+        <div style={{ fontWeight: 700, fontSize: 16, color: isDark ? '#FFF' : '#111', lineHeight: 1.1 }}>
           {packInfo.packTitle}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
           <button
             type="button"
             onClick={(event) => event.stopPropagation()}
             onPointerDown={(event) => event.stopPropagation()}
-            onMouseEnter={() => setIsPreviewExpanded(true)}
-            onFocus={() => setIsPreviewExpanded(true)}
             style={{
               border: 'none',
               fontSize: 12,
               fontWeight: 600,
-              color: isDark ? '#8E8E93' : '#999',
+              color: isDark ? '#C4C4C7' : '#9A9A9A',
               background: isDark ? '#1C1C1E' : '#FFF',
-              padding: '2px 8px',
+              padding: '4px 10px',
               borderRadius: 999,
               cursor: 'default',
             }}
@@ -147,15 +143,13 @@ const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onCli
               style={{
                 border: 'none',
                 background: 'transparent',
-                padding: '2px 4px',
+                padding: 0,
                 borderRadius: 8,
                 fontSize: 12,
-                fontWeight: 500,
-                color: isDark ? 'rgba(255,255,255,0.62)' : 'rgba(17,17,17,0.48)',
+                fontWeight: 600,
+                color: isDark ? 'rgba(255,255,255,0.64)' : '#8B8B8B',
                 cursor: 'pointer',
-                opacity: isHovered || isExportMenuOpen ? 1 : 0,
-                transform: isHovered || isExportMenuOpen ? 'translateX(0)' : 'translateX(3px)',
-                transition: 'opacity 0.16s ease, transform 0.16s ease, color 0.16s ease',
+                transition: 'color 0.16s ease',
               }}
             >
               Export
@@ -219,11 +213,31 @@ const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onCli
               </div>
             ) : null}
           </div>
+          <button
+            type="button"
+            aria-label="Share pack"
+            onClick={(event) => event.stopPropagation()}
+            onPointerDown={(event) => event.stopPropagation()}
+            style={{
+              width: 20,
+              height: 20,
+              padding: 0,
+              border: 'none',
+              background: 'transparent',
+              color: isDark ? 'rgba(255,255,255,0.62)' : '#8E8E8E',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            <ShareIcon />
+          </button>
         </div>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '7px 8px' }}>
         {visiblePreviewTasks.map(task => {
-          const { cfg, displayTitle, displaySub } = getTaskCardPresentation(task, labels);
+          const { cfg, displayTitle } = getTaskCardPresentation(task, labels);
           return (
             <div
               key={task.id}
@@ -244,8 +258,9 @@ const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onCli
                 onResultPointerEnd?.();
               }}
               style={{
+                minHeight: 35,
                 display: 'flex', alignItems: 'center', gap: 8,
-                padding: '6px 8px', borderRadius: 6,
+                padding: '6px 10px', borderRadius: 6,
                 background: isDark ? '#1C1C1E' : '#FFF',
                 border: `1px solid ${isDark ? '#333' : '#F0F0F0'}`,
                 cursor: 'pointer'
@@ -253,14 +268,14 @@ const PackSearchResultCard = ({ packInfo, appearance, labels, onClickPack, onCli
               onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? '#333' : '#F9F9F9'; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? '#1C1C1E' : '#FFF'; }}
             >
-              <div style={{ width: 18, height: 18, borderRadius: 4, background: isDark ? cfg.darkBg : cfg.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 22, height: 22, borderRadius: 7, background: isDark ? cfg.darkBg : cfg.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 {isDark && cfg.darkIconColor ? (
-                   <div style={{ width: 10, height: 10, backgroundColor: cfg.darkIconColor, maskImage: `url(${cfg.icon})`, WebkitMaskImage: `url(${cfg.icon})`, maskSize: 'contain', WebkitMaskSize: 'contain', maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat', maskPosition: 'center', WebkitMaskPosition: 'center' }} />
+                   <div style={{ width: 12, height: 12, backgroundColor: cfg.darkIconColor, maskImage: `url(${cfg.icon})`, WebkitMaskImage: `url(${cfg.icon})`, maskSize: 'contain', WebkitMaskSize: 'contain', maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat', maskPosition: 'center', WebkitMaskPosition: 'center' }} />
                 ) : (
-                   <img src={cfg.icon} alt="icon" style={{ width: 10, height: 10, objectFit: 'contain' }} />
+                   <img src={cfg.icon} alt="icon" style={{ width: 12, height: 12, objectFit: 'contain' }} />
                 )}
               </div>
-              <div style={{ flex: 1, minWidth: 0, fontSize: 13, color: isDark ? '#DDD' : '#333', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div style={{ flex: 1, minWidth: 0, fontSize: 12, color: isDark ? '#DDD' : '#333', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {displayTitle}
               </div>
             </div>
@@ -563,7 +578,7 @@ const DesktopHistoryModal = ({ open, tasks, appearance, language, t, onClose, on
           tasks: packTasks,
           matchedCount: previews.length,
           previewTasks: previews,
-          previews: previews.slice(0, 2),
+          previews: previews.slice(0, 4),
           updatedAt: Math.max(...packTasks.map(t => t.updatedAt || t.id))
         });
       }
@@ -616,12 +631,12 @@ const DesktopHistoryModal = ({ open, tasks, appearance, language, t, onClose, on
       >
         <div
           style={{
-            width: 'min(100%, 560px)',
-            height: 'min(640px, calc(100vh - 56px))',
+            width: 'min(100%, 586px)',
+            height: 'min(670px, calc(100vh - 56px))',
             background: isDark ? '#1C1C1E' : '#FFFFFF',
-            border: `1px solid ${isDark ? '#333' : '#E5E5E5'}`,
-            borderRadius: 11,
-            boxShadow: isDark ? '0 10px 40px rgba(0,0,0,0.5)' : '0 10px 40px rgba(0,0,0,0.1)',
+            border: `1px solid ${isDark ? '#333' : '#ECECEC'}`,
+            borderRadius: 6,
+            boxShadow: isDark ? '0 18px 48px rgba(0,0,0,0.5)' : '0 18px 50px rgba(17,17,17,0.08)',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
@@ -630,30 +645,27 @@ const DesktopHistoryModal = ({ open, tasks, appearance, language, t, onClose, on
           onClick={(e) => e.stopPropagation()}
         >
           <div style={{
-            padding: '8px 16px',
+            padding: '15px 16px 10px',
             display: 'flex',
             alignItems: 'center',
-            gap: 12,
-            borderBottom: `1px solid ${isDark ? '#333' : '#F0F0F0'}`,
+            gap: 14,
+            borderBottom: `1px solid ${isDark ? '#333' : '#F1F1F1'}`,
           }}>
             <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <span style={{ position: 'absolute', left: 12, color: mutedColor, display: 'flex', alignItems: 'center' }}>
-                <SearchIcon />
-              </span>
               <input
                 type="text"
-                placeholder={t.searchChat || "Search..."}
+                placeholder=""
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
                   width: '100%',
-                  height: 38,
-                  padding: '0 16px 0 38px',
-                  borderRadius: 999,
+                  height: 40,
+                  padding: '0 18px',
+                  borderRadius: 15,
                   border: 'none',
-                  background: isDark ? '#2C2C2E' : '#F5F5F5',
+                  background: isDark ? '#2C2C2E' : '#F3F3F3',
                   color: 'var(--desktop-root-text)',
-                  fontSize: 14,
+                  fontSize: 15,
                   outline: 'none',
                 }}
               />
@@ -663,16 +675,16 @@ const DesktopHistoryModal = ({ open, tasks, appearance, language, t, onClose, on
               type="button"
               onClick={onClose}
               style={{
-                width: 28,
-                height: 28,
+                width: 30,
+                height: 30,
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: isDark ? '#2C2C2E' : 'rgba(255, 255, 255, 0.78)',
-                border: isDark ? '1px solid #333' : '1px solid #E8E1D9',
+                background: isDark ? '#2C2C2E' : '#FFFFFF',
+                border: isDark ? '1px solid #333' : '1px solid #F0F0F0',
                 color: isDark ? '#FFF' : '#111',
-                boxShadow: isDark ? 'none' : '0 8px 18px rgba(28, 23, 18, 0.05)',
+                boxShadow: 'none',
                 backdropFilter: isDark ? 'none' : 'blur(8px)',
                 WebkitBackdropFilter: isDark ? 'none' : 'blur(8px)',
                 cursor: 'pointer',
@@ -683,7 +695,7 @@ const DesktopHistoryModal = ({ open, tasks, appearance, language, t, onClose, on
             </button>
           </div>
 
-          <div style={{ display: 'flex', gap: 16, padding: '0 16px', borderBottom: `1px solid ${isDark ? '#333' : '#F0F0F0'}` }}>
+          <div style={{ display: 'flex', gap: 22, padding: '0 18px', minHeight: 45, alignItems: 'flex-end', borderBottom: `1px solid ${isDark ? '#333' : '#F0F0F0'}` }}>
             {['all', 'packs', 'items'].map(tab => (
               <button
                 key={tab}
@@ -691,8 +703,11 @@ const DesktopHistoryModal = ({ open, tasks, appearance, language, t, onClose, on
                 onClick={() => setActiveTab(tab)}
                 style={{
                   background: 'none', border: 'none', outline: 'none', cursor: 'pointer',
-                  padding: '12px 4px', fontSize: 13, fontWeight: activeTab === tab ? 600 : 500,
-                  color: activeTab === tab ? (isDark ? '#FFF' : '#111') : (isDark ? '#777' : '#999'),
+                  padding: '0 0 12px',
+                  fontFamily: '"DM Serif Display", "Playfair Display", Georgia, serif',
+                  fontSize: 16,
+                  fontWeight: activeTab === tab ? 800 : 700,
+                  color: activeTab === tab ? (isDark ? '#FFF' : '#111') : (isDark ? '#777' : '#111'),
                   borderBottom: activeTab === tab ? `2px solid ${isDark ? '#FFF' : '#111'}` : '2px solid transparent',
                   textTransform: 'capitalize', transition: 'all 0.15s ease'
                 }}
@@ -703,13 +718,13 @@ const DesktopHistoryModal = ({ open, tasks, appearance, language, t, onClose, on
           </div>
 
           {/* Task list */}
-          <div className="desktop-history-scroll" style={{ flex: 1, overflowY: 'auto', padding: '16px 8px 16px 8px', minHeight: 0, paddingRight: 4 }}>
+          <div className="desktop-history-scroll" style={{ flex: 1, overflowY: 'auto', padding: '18px 10px 20px', minHeight: 0 }}>
             {isEmpty ? (
               <div style={{ textAlign: 'center', padding: '32px 16px', color: mutedColor, fontSize: 14 }}>
                 No results found
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {(activeTab === 'all' || activeTab === 'packs') && matchedPacks.map(pack => (
                   <PackSearchResultCard
                     key={pack.groupId}
