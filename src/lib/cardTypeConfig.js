@@ -20,9 +20,9 @@ export const cardTypeConfig = {
   [CARD_TYPES.LINK]: {
     icon: '/link.svg',
     bg: '#E0E4FF',
-    darkBg: '#3C4CB7',       // 完全对齐你的规范
-    darkStroke: '#5265E9',
-    darkIconColor: '#A6AEF4'
+    darkBg: '#172033',       // 完全对齐你的规范
+    darkStroke: '#2C3D62',
+    darkIconColor: '#72A0FF'
   },
   [CARD_TYPES.VIDEO]: {
     icon: '/play.png', // 替换为你原本想要的彩色图标路径
@@ -48,14 +48,15 @@ export const cardTypeConfig = {
   [CARD_TYPES.TEXT]: {
     icon: '/text.png',
     bg: '#FFE5B9',
-    darkBg: '#8B622A',       // 移除 B3
-    darkStroke: '#BF8A30'
+    darkBg: '#3B2616',       // 移除 B3
+    darkStroke: '#6F4318'
   },
   [CARD_TYPES.DOCUMENT]: {
     icon: '/document01.png',
     bg: '#E7CFFF',
-    darkBg: '#57307E',       // 移除 B3
-    darkStroke: '#715A87'
+    darkBg: '#2D213C',       // 移除 B3
+    darkStroke: '#543B78',
+    darkIconColor: '#B47CFF'
   },
   [CARD_TYPES.MEETING]: {
     icon: '/video.png',

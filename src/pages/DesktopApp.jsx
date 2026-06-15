@@ -144,7 +144,7 @@ const DESKTOP_TIME_MARKER_SIZE = 7;
 const DESKTOP_SLOT_MIN_HEIGHT = 98;
 const DESKTOP_SLOT_GAP = 22;
 const DESKTOP_CANVAS_DEFAULT_ZOOM = 0.8;
-const DESKTOP_CANVAS_MIN_SCALE = 0.15;
+const DESKTOP_CANVAS_MIN_SCALE = 0.25;
 const DESKTOP_CANVAS_MAX_SCALE = 2;
 const DESKTOP_CANVAS_SCALE_STEP = 0.12;
 const DESKTOP_CANVAS_CARD_WIDTH = 336;
@@ -171,16 +171,15 @@ const DESKTOP_CANVAS_HITBOX_HORIZONTAL_PADDING = 10;
 const DESKTOP_CANVAS_HITBOX_VERTICAL_PADDING = 18;
 // Pure coordinate utility functions (no DOM refs, no closures)
 const canvasToScreen = (canvasX, canvasY, vp) => ({
-  x: canvasX * vp.zoom + vp.panX,
-  y: canvasY * vp.zoom + vp.panY,
+  x: canvasX + vp.panX,
+  y: canvasY + vp.panY,
 });
 const screenToCanvas = (screenX, screenY, vp) => ({
-  x: (screenX - vp.panX) / vp.zoom,
-  y: (screenY - vp.panY) / vp.zoom,
+  x: screenX - vp.panX,
+  y: screenY - vp.panY,
 });
-// Root-level app window scale (OS density scaling) — unrelated to canvas zoom.
-// The entire desktop app wrapper is scaled down to 0.8 so the UI fits a typical
-// consumer monitor pixel density. Drag overlay positions must compensate for this.
+// Root-level app window scale baseline. The live scale is driven by viewport.zoom
+// so toolbar +/- behaves like Ctrl+Plus/Ctrl+Minus for the whole prototype UI.
 const DESKTOP_APP_WINDOW_SCALE = 0.8;
 
 const getDesktopSectionPillStyle = (section, appearance) => (
@@ -1055,6 +1054,7 @@ const normalizeTask = (task) => {
     desktopGroupIcon: normalizePackIcon(task.desktopGroupIcon),
     desktopGroupCover: normalizePackCover(task.desktopGroupCover),
     desktopGroupTags: normalizePackTags(task.desktopGroupTags),
+    desktopCollectionLabel: typeof task.desktopCollectionLabel === 'string' && task.desktopCollectionLabel.trim() ? task.desktopCollectionLabel.trim() : null,
     photoDataUrl: typeof task.photoDataUrl === 'string' && task.photoDataUrl.trim() ? task.photoDataUrl : null,
     photoFileName: typeof task.photoFileName === 'string' && task.photoFileName.trim() ? task.photoFileName : null,
     photoMimeType: typeof task.photoMimeType === 'string' && task.photoMimeType.trim() ? task.photoMimeType : null,
@@ -1171,6 +1171,25 @@ const GlobalStyles = ({ appearance }) => {
 const PlusIcon = ({ size = 26 }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.9" stroke="currentColor" style={{ width: size, height: size }}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+  </svg>
+);
+
+const CanvasControlSlidersIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+    <path d="M4 5.25h10" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
+    <path d="M4 9h10" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
+    <path d="M4 12.75h10" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
+    <circle cx="7" cy="5.25" r="1.25" fill="currentColor" />
+    <circle cx="11" cy="9" r="1.25" fill="currentColor" />
+    <circle cx="8.5" cy="12.75" r="1.25" fill="currentColor" />
+  </svg>
+);
+
+const CanvasControlFitIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+    <path d="M5.25 12.25h7.5" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
+    <path d="M6.5 12.25 7.3 7.7h3.4l.8 4.55" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M7.9 7.7V5.9h2.2v1.8" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
@@ -2956,37 +2975,11 @@ const DesktopGroupFullViewModal = ({
     }
     setIsExportMenuOpen(false);
   };
-  const exportMenuOptions = (() => {
-    switch (activeFilter) {
-      case 'Context':
-        return [
-          { id: 'copy-context', label: labels.copyForAI || 'Copy for AI' },
-          { id: 'context', label: labels.exportContext || 'Export Context' },
-        ];
-      case 'Code':
-        return [
-          { id: 'copy-code', label: labels.copyForAI || 'Copy for AI' },
-          { id: 'code', label: labels.exportTech || 'Export Tech' },
-        ];
-      case 'Notes':
-        return [
-          { id: 'copy-notes', label: labels.copyForAI || 'Copy for AI' },
-          { id: 'notes', label: labels.exportNotes || 'Export Notes' },
-        ];
-      case 'Reference':
-        return [
-          { id: 'copy-reference', label: labels.copyForAI || 'Copy for AI' },
-          { id: 'reference', label: labels.exportReference || 'Export Reference' },
-        ];
-      case 'All':
-      default:
-        return [
-          { id: 'copy-for-ai', label: labels.copyForAI || 'Copy for AI' },
-          { id: 'whole-pack', label: labels.exportWholePack || 'Export whole pack' },
-          { id: 'pack-bundle', label: labels.exportPackBundle || 'Export Pack Bundle (.zip)' },
-        ];
-    }
-  })();
+  const exportMenuOptions = [
+    { id: 'copy-for-ai', label: 'Copy for Ai' },
+    { id: 'whole-pack', label: 'Export as Markdown' },
+    { id: 'pack-bundle', label: 'Download ZIP' },
+  ];
 
   const handleRequestClose = () => {
     if (isClosing) return;
@@ -3095,6 +3088,7 @@ const DesktopGroupFullViewModal = ({
                       aria-expanded={isSearchVisible}
                     >
                       <SearchIcon />
+                      <span>{labels.search || 'Search'}</span>
                     </button>
                     <span className="desktop-pack-page-toolbar-divider" aria-hidden="true" />
                     <button
@@ -3439,6 +3433,108 @@ const DragDayFeedbackOverlayV2 = ({
   );
 };
 
+const getDesktopNotePanelContent = (task, labels) => {
+  const { displayTitle, displaySub } = getTaskCardPresentation(task, labels || {});
+  const rawText = String(task?.text || '').replace(/\r\n/g, '\n');
+  const lines = rawText.split('\n');
+  const firstContentIndex = lines.findIndex((line) => line.trim());
+  const hasContent = firstContentIndex >= 0;
+  const title = hasContent ? lines[firstContentIndex].trim() : displayTitle || 'Untitled note';
+  const body = hasContent ? lines.slice(firstContentIndex + 1).join('\n').replace(/^\n+/, '') : '';
+
+  return {
+    title,
+    subtitle: displaySub || 'Note',
+    body,
+  };
+};
+
+const composeDesktopNoteText = (title, body) => {
+  const safeTitle = title.trim() || 'Untitled note';
+  const normalizedBody = String(body || '').replace(/\r\n/g, '\n');
+  return normalizedBody ? `${safeTitle}\n${normalizedBody}` : safeTitle;
+};
+
+const DesktopNoteSidePanel = ({
+  task,
+  labels,
+  onClose,
+  collapsed,
+  onCollapse,
+  onExpand,
+  onTextChange,
+  onEdit,
+}) => {
+  if (!task) return null;
+
+  const { title, body } = getDesktopNotePanelContent(task, labels);
+
+  if (collapsed) {
+    return (
+      <button
+        type="button"
+        className="desktop-note-side-collapsed"
+        aria-label={`Open note ${title}`}
+        onClick={onExpand}
+      >
+        <span className="desktop-note-side-collapsed-icon" aria-hidden="true" />
+        <span className="desktop-note-side-collapsed-title">{title}</span>
+        <span className="desktop-note-side-collapsed-arrow" aria-hidden="true">&laquo;</span>
+      </button>
+    );
+  }
+
+  return (
+    <div className="desktop-note-side-layer" role="presentation" onClick={onClose}>
+      <aside
+        className="desktop-note-side-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="desktop-note-side-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="desktop-note-side-toolbar">
+          <button type="button" className="desktop-note-side-icon-button" aria-label="Collapse note" onClick={onCollapse}>
+            <span aria-hidden="true">&raquo;</span>
+          </button>
+          <button
+            type="button"
+            className="desktop-note-side-icon-button"
+            aria-label="Edit note"
+            onClick={() => onEdit?.(task)}
+          >
+            <span aria-hidden="true">+</span>
+          </button>
+          <button type="button" className="desktop-note-side-close" aria-label={labels.close || 'Close'} onClick={onClose}>
+            <CloseIcon />
+          </button>
+        </div>
+        <div className="desktop-note-side-meta">
+          <span className="desktop-note-side-chevron" aria-hidden="true">v</span>
+          <span className="desktop-note-side-doc-icon" aria-hidden="true" />
+          <span className="desktop-note-side-meta-title">{title}</span>
+        </div>
+        <div className="desktop-note-side-content">
+          <input
+            id="desktop-note-side-title"
+            className="desktop-note-side-title-input"
+            value={title}
+            placeholder="Untitled note"
+            onChange={(event) => onTextChange?.(task.id, composeDesktopNoteText(event.target.value, body))}
+          />
+          <div className="desktop-note-side-title-divider" aria-hidden="true" />
+          <textarea
+            className="desktop-note-side-body-editor"
+            value={body}
+            placeholder="Start typing..."
+            onChange={(event) => onTextChange?.(task.id, composeDesktopNoteText(title, event.target.value))}
+          />
+        </div>
+      </aside>
+    </div>
+  );
+};
+
 const ScheduleSection = ({
   section,
   appearance,
@@ -3548,8 +3644,16 @@ const DailyTaskList = ({
           ? (draggedTaskId === dragTask.id && isGroupDragActive) // Only hide whole card if lead task (group drag) is active
           : (draggedTaskId === entry.task.id && !isGroupDragActive);
         return (
-        <div key={entry.type === 'group' ? `group-${entry.id}` : entry.task.id} id={`desktop-canvas-entry-${dragTask.id}`} data-desktop-layout-id={`task-${dragTask.id}`} className="desktop-canvas-card-node" style={{ left: entry.x, top: entry.y, width: DESKTOP_CANVAS_CARD_WIDTH }}>
-          <div className={`desktop-canvas-card-shell ${isGroupReady ? 'desktop-canvas-card-shell--group-ready' : ''} ${isDragging ? 'is-dragging' : ''}`}>
+        <div
+          key={entry.type === 'group' ? `group-${entry.id}` : entry.task.id}
+          id={`desktop-canvas-entry-${dragTask.id}`}
+          data-desktop-layout-id={`task-${dragTask.id}`}
+          className="desktop-canvas-card-node"
+          style={{ left: entry.x, top: entry.y, width: DESKTOP_CANVAS_CARD_WIDTH }}
+        >
+          <div
+            className={`desktop-canvas-card-shell ${isGroupReady ? 'desktop-canvas-card-shell--group-ready' : ''} ${isDragging ? 'is-dragging' : ''}`}
+          >
             {entry.type === 'group' ? (
                 <GroupedTaskCard
                   tasks={entry.tasks}
@@ -3616,6 +3720,240 @@ const DailyTaskList = ({
     </div>
   );
 
+const getDesktopCollectionTimestamp = (tasks) => Math.max(
+  0,
+  ...tasks.map((task) => {
+    const candidates = [task?.updatedAt, task?.createdAt, task?.dateString];
+    for (const candidate of candidates) {
+      const parsed = Date.parse(candidate || '');
+      if (!Number.isNaN(parsed)) return parsed;
+    }
+    return 0;
+  }),
+);
+
+const getDesktopCollectionDateLabel = (task, language) => {
+  const date = parseSharedSelectedDate(task?.dateString);
+  if (!date) return 'Undated';
+
+  const today = new Date();
+  const taskDateKey = dateKey(date);
+  if (taskDateKey === dateKey(today)) return 'Today';
+  if (taskDateKey === dateKey(shiftDateByDays(today, -1))) return 'Yesterday';
+  return date.toLocaleDateString(getLocaleForLanguage(language), { month: 'short', day: 'numeric' });
+};
+
+const DEFAULT_DESKTOP_COLLECTION_LABEL = 'School work';
+
+const getDesktopCollectionLabel = (tasks) => (
+  tasks.find((task) => typeof task.desktopCollectionLabel === 'string' && task.desktopCollectionLabel.trim())?.desktopCollectionLabel.trim()
+  || DEFAULT_DESKTOP_COLLECTION_LABEL
+);
+
+const getDesktopCollectionDescription = (task, labels) => {
+  const { displayTitle, displaySub } = getTaskCardPresentation(task, labels || {});
+  const bodyText = getPackExportBodyText(task);
+  if (bodyText && bodyText !== displayTitle) return bodyText;
+  return displaySub || '';
+};
+
+const buildDesktopCollectionRows = (tasks) => {
+  const grouped = new Map();
+
+  tasks.forEach((task) => {
+    if (!task.desktopGroupId) return;
+
+    if (!grouped.has(task.desktopGroupId)) {
+      grouped.set(task.desktopGroupId, []);
+    }
+    grouped.get(task.desktopGroupId).push(task);
+  });
+
+  const groupEntries = [...grouped.entries()].map(([groupId, groupTasks]) => {
+    const normalizedGroupTasks = [...groupTasks].sort((a, b) => getDesktopCollectionTimestamp([b]) - getDesktopCollectionTimestamp([a]));
+    return {
+      id: groupId,
+      type: 'group',
+      tasks: normalizedGroupTasks,
+      timestamp: getDesktopCollectionTimestamp(normalizedGroupTasks),
+    };
+  });
+
+  return {
+    groupEntries: groupEntries.sort((a, b) => b.timestamp - a.timestamp),
+  };
+};
+
+const CollectionItemPreview = ({ task, appearance, labels, compact = false }) => {
+  const { displayTitle } = getTaskCardPresentation(task, labels || {});
+  const sourceMeta = getPackItemSourceMeta(task, labels || {});
+  const cardType = normalizeCardType(task?.cardType);
+
+  return (
+    <div className={`desktop-collection-item-preview ${compact ? 'is-compact' : ''}`}>
+      <span className="desktop-collection-item-icon">
+        <PackItemSourceIcon task={task} appearance={appearance} labels={labels} />
+      </span>
+      <div className="desktop-collection-item-copy">
+        <span className="desktop-collection-item-title">{displayTitle}</span>
+        <span className="desktop-collection-item-subtitle">
+          {formatDesktopGroupChipLabel(cardType)} / {sourceMeta.label}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const CollectionViewBoard = ({
+  tasks,
+  appearance,
+  labels,
+  language,
+  onTaskOpen,
+  onGroupOpen,
+  onGroupLabelUpdate,
+}) => {
+  const { groupEntries } = useMemo(() => buildDesktopCollectionRows(tasks), [tasks]);
+  const [editingCollectionLabelId, setEditingCollectionLabelId] = useState(null);
+  const [collectionLabelDraft, setCollectionLabelDraft] = useState('');
+
+  const startCollectionLabelEdit = useCallback((entry) => {
+    setEditingCollectionLabelId(entry.id);
+    setCollectionLabelDraft(getDesktopCollectionLabel(entry.tasks));
+  }, []);
+
+  const cancelCollectionLabelEdit = useCallback(() => {
+    setEditingCollectionLabelId(null);
+    setCollectionLabelDraft('');
+  }, []);
+
+  const commitCollectionLabelEdit = useCallback((entry) => {
+    const nextLabel = collectionLabelDraft.trim() || DEFAULT_DESKTOP_COLLECTION_LABEL;
+    onGroupLabelUpdate?.(entry.id, nextLabel);
+    setEditingCollectionLabelId(null);
+    setCollectionLabelDraft('');
+  }, [collectionLabelDraft, onGroupLabelUpdate]);
+
+  const renderTaskCard = (task) => {
+    const { cfg, displayTitle, faviconUrl } = getTaskCardPresentation(task, labels || {});
+    const sourceMeta = getPackItemSourceMeta(task, labels || {});
+    const description = getDesktopCollectionDescription(task, labels);
+    const isVisual = [CARD_TYPES.PHOTO, CARD_TYPES.VIDEO].includes(normalizeCardType(task?.cardType));
+    const photoPreview = task?.photoDataUrl || task?.photoUrl;
+
+    return (
+      <button
+        key={task.id}
+        type="button"
+        className={`desktop-collection-card desktop-collection-card-item ${isVisual ? 'has-visual-preview' : ''}`}
+        onClick={(event) => onTaskOpen(task, event)}
+      >
+        <span className="desktop-collection-card-icon" aria-hidden="true">
+          <TaskCardFaviconIcon task={task} appearance={appearance} cfg={cfg} faviconUrl={faviconUrl} />
+        </span>
+        <div className="desktop-collection-card-body">
+          <div className="desktop-collection-card-meta">
+            <span>{sourceMeta.label}</span>
+            <span>{getDesktopCollectionDateLabel(task, language)}</span>
+          </div>
+          <h3>{displayTitle}</h3>
+          {isVisual ? (
+            <div className="desktop-collection-visual-preview" aria-hidden="true">
+              {photoPreview ? (
+                <img src={photoPreview} alt="" draggable={false} />
+              ) : (
+                <span>
+                  <PackItemSourceIcon task={task} appearance={appearance} labels={labels} />
+                </span>
+              )}
+            </div>
+          ) : null}
+          {description ? <p>{description}</p> : null}
+        </div>
+      </button>
+    );
+  };
+
+  const renderGroupColumn = (entry, index) => {
+    const groupTitle = getDesktopGroupDisplayName(entry.tasks);
+    const groupIcon = getDesktopGroupIcon(entry.tasks);
+    const collectionLabel = getDesktopCollectionLabel(entry.tasks);
+    const isEditingCollectionLabel = editingCollectionLabelId === entry.id;
+
+    return (
+      <section key={entry.id} className="desktop-collection-column desktop-collection-group-column">
+        <div className="desktop-collection-label-anchor">
+          {isEditingCollectionLabel ? (
+            <input
+              className="desktop-collection-label-input"
+              value={collectionLabelDraft}
+              onChange={(event) => setCollectionLabelDraft(event.target.value)}
+              onBlur={() => commitCollectionLabelEdit(entry)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  commitCollectionLabelEdit(entry);
+                } else if (event.key === 'Escape') {
+                  event.preventDefault();
+                  cancelCollectionLabelEdit();
+                }
+              }}
+              autoFocus
+              aria-label="Collection label"
+            />
+          ) : (
+            <button
+              type="button"
+              className="desktop-collection-label-button"
+              onClick={() => startCollectionLabelEdit(entry)}
+              title="Rename collection label"
+            >
+              <span>{collectionLabel}</span>
+              <span aria-hidden="true">...</span>
+            </button>
+          )}
+        </div>
+        <div className="desktop-collection-group-card">
+          <header className="desktop-collection-column-header">
+            <button
+              type="button"
+              className="desktop-collection-column-title-button"
+              onClick={() => onGroupOpen(entry.tasks)}
+            >
+              <span className="desktop-collection-column-kicker">
+                {groupIcon || `Group ${index + 1}`}
+              </span>
+              <h2>{groupTitle}</h2>
+            </button>
+            <span>{String(entry.tasks.length).padStart(2, '0')} items</span>
+          </header>
+          <div className="desktop-collection-column-list">
+            {entry.tasks.map((task) => renderTaskCard(task))}
+          </div>
+        </div>
+      </section>
+    );
+  };
+
+  if (groupEntries.length === 0) {
+    return (
+      <main className="desktop-collection-view" style={{ flex: 1, minHeight: 0 }}>
+        <section className="desktop-collection-empty-state" aria-label="Collection View">
+          <h1>Collection View</h1>
+          <p>Collections in this workspace will appear here.</p>
+        </section>
+      </main>
+    );
+  }
+
+  return (
+    <main className="desktop-collection-view" style={{ flex: 1, minHeight: 0 }}>
+      <div className="desktop-collection-board" aria-label="Collection View">
+        {groupEntries.map(renderGroupColumn)}
+      </div>
+    </main>
+  );
+};
 const InlineMiniCalendar = ({
   language,
   selectedDate,
@@ -4134,6 +4472,7 @@ const DesktopDeleteConfirmModal = ({
   description = null,
   cancelLabel = 'Cancel',
   confirmLabel = 'Delete',
+  variant = 'default',
   onCancel,
   onConfirm,
 }) => {
@@ -4150,7 +4489,7 @@ const DesktopDeleteConfirmModal = ({
         aria-modal="true"
         aria-labelledby="desktop-delete-confirm-title"
         onClick={(event) => event.stopPropagation()}
-        className="desktop-delete-confirm-dialog"
+        className={`desktop-delete-confirm-dialog ${variant === 'workspace' ? 'is-workspace-delete' : ''}`}
       >
         <div className="desktop-delete-confirm-copy">
           <h2 id="desktop-delete-confirm-title" className="desktop-delete-confirm-title">{title}</h2>
@@ -4220,7 +4559,7 @@ const DESKTOP_VIEW_MODES = {
 };
 
 const normalizeDesktopAppearancePreference = (value) => (
-  ['light', 'dark'].includes(value) ? value : 'light'
+  ['light', 'dark'].includes(value) ? value : 'dark'
 );
 
 function App() {
@@ -4230,9 +4569,12 @@ function App() {
     return savedDate || getLogicalToday();
   });
   const [language, setLanguage] = useState(getInitialLanguage);
-  const [appearancePreference, setAppearancePreference] = useState(() => (
+  const [appearancePreference, setAppearancePreferenceState] = useState(() => (
     normalizeDesktopAppearancePreference(localStorage.getItem(DESKTOP_APPEARANCE_KEY))
   ));
+  const setAppearancePreference = useCallback((value) => {
+    setAppearancePreferenceState(normalizeDesktopAppearancePreference(value));
+  }, []);
   const appearance = appearancePreference;
   const [workspaces, setWorkspaces] = useState(() => {
     try {
@@ -4269,6 +4611,8 @@ function App() {
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [editText, setEditText] = useState('');
   const [editCopied, setEditCopied] = useState(false);
+  const [notePanelTaskId, setNotePanelTaskId] = useState(null);
+  const [notePanelCollapsed, setNotePanelCollapsed] = useState(false);
   const [draggedTaskId, setDraggedTaskId] = useState(null);
   const [isGroupDragActive, setIsGroupDragActive] = useState(false);
   const [selectedTaskIds, setSelectedTaskIds] = useState([]);
@@ -4471,7 +4815,7 @@ function App() {
 
     const handlePointerDown = (event) => {
       if (!(event.target instanceof HTMLElement)) return;
-      if (event.target.closest('.desktop-zoom-menu-anchor')) return;
+      if (event.target.closest('.desktop-canvas-zoom-toolbar')) return;
       setDesktopZoomMenuOpen(false);
     };
 
@@ -4550,7 +4894,7 @@ function App() {
     if (!container) return;
     const vw = container.clientWidth;
     const zoom = clampDesktopCanvasScale(Math.min(vw / DESKTOP_MAIN_CONTENT_MAX_WIDTH, DESKTOP_CANVAS_DEFAULT_ZOOM));
-    const contentW = DESKTOP_MAIN_CONTENT_MAX_WIDTH * zoom;
+    const contentW = DESKTOP_MAIN_CONTENT_MAX_WIDTH;
     const nextPanX = vw > contentW ? (vw - contentW) / 2 : 0;
     const nextVp = { panX: nextPanX, panY: 0, zoom };
     viewportRef.current = nextVp;
@@ -4577,9 +4921,10 @@ function App() {
     const container = viewportContainerRef.current;
     if (!container) return null;
     const rect = container.getBoundingClientRect();
+    const appScale = viewportRef.current.zoom || DESKTOP_APP_WINDOW_SCALE;
     return screenToCanvas(
-      (clientX - rect.left) / DESKTOP_APP_WINDOW_SCALE,
-      (clientY - rect.top) / DESKTOP_APP_WINDOW_SCALE,
+      (clientX - rect.left) / appScale,
+      (clientY - rect.top) / appScale,
       viewportRef.current,
     );
   }, []);
@@ -4587,9 +4932,10 @@ function App() {
   const getDragCanvasPointFromClient = useCallback((clientX, clientY) => {
     const rect = desktopDragContainerRectRef.current;
     if (rect) {
+      const appScale = viewportRef.current.zoom || DESKTOP_APP_WINDOW_SCALE;
       return screenToCanvas(
-        (clientX - rect.left) / DESKTOP_APP_WINDOW_SCALE,
-        (clientY - rect.top) / DESKTOP_APP_WINDOW_SCALE,
+        (clientX - rect.left) / appScale,
+        (clientY - rect.top) / appScale,
         viewportRef.current,
       );
     }
@@ -4642,7 +4988,7 @@ function App() {
     const MIN_VISIBLE = 128; // px — minimum overlap required on each axis
     const cw = container.clientWidth;
     const ch = container.clientHeight;
-    const contentW = DESKTOP_MAIN_CONTENT_MAX_WIDTH * vp.zoom;
+    const contentW = DESKTOP_MAIN_CONTENT_MAX_WIDTH;
     // Horizontal: canvas right edge must be at least MIN_VISIBLE from the left;
     //             canvas left edge must be at most (cw - MIN_VISIBLE) from the left.
     const minPanX = MIN_VISIBLE - contentW;  // canvas almost entirely right of viewport
@@ -4658,35 +5004,29 @@ function App() {
     };
   }, []);
 
-  // Zoom while anchoring a specific screen point (used for wheel/pinch so the canvas
-  // point under the cursor stays fixed on screen).
+  // Zoom only changes the canvas background density. Cards keep fixed screen
+  // size and fixed canvas coordinates, so groups do not drift when zooming.
   const updateDesktopCanvasZoomAnchored = useCallback((nextZoom, anchor) => {
-    const container = viewportContainerRef.current;
-    const current = viewportRef.current;
-    const clampedZoom = clampDesktopCanvasScale(Number(nextZoom.toFixed(3)));
-    if (!container || Math.abs(clampedZoom - current.zoom) < 0.001) return;
-
-    const containerRect = container.getBoundingClientRect();
-    const screenAnchorX = anchor.clientX - containerRect.left;
-    const screenAnchorY = anchor.clientY - containerRect.top;
-    const { x: canvasAnchorX, y: canvasAnchorY } = screenToCanvas(screenAnchorX, screenAnchorY, current);
-    const nextPanX = screenAnchorX - canvasAnchorX * clampedZoom;
-    const nextPanY = screenAnchorY - canvasAnchorY * clampedZoom;
-    const nextVp = clampViewportPan({ panX: nextPanX, panY: nextPanY, zoom: clampedZoom });
-    viewportRef.current = nextVp;
-    setViewport(nextVp);
-  }, [clampViewportPan]);
-
-  // Zoom without moving pan — tasks stay at the same absolute position on screen.
-  // Used by the zoom menu presets and keyboard shortcuts.
-  const updateDesktopCanvasZoom = useCallback((nextZoom) => {
     const current = viewportRef.current;
     const clampedZoom = clampDesktopCanvasScale(Number(nextZoom.toFixed(3)));
     if (Math.abs(clampedZoom - current.zoom) < 0.001) return;
-    const nextVp = clampViewportPan({ panX: current.panX, panY: current.panY, zoom: clampedZoom });
+
+    const nextVp = clampViewportPan({ ...current, zoom: clampedZoom });
     viewportRef.current = nextVp;
     setViewport(nextVp);
   }, [clampViewportPan]);
+
+  // Zoom around the visible viewport center so toolbar buttons and shortcuts
+  // keep the current canvas focus in place.
+  const updateDesktopCanvasZoom = useCallback((nextZoom) => {
+    const container = viewportContainerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    updateDesktopCanvasZoomAnchored(nextZoom, {
+      clientX: rect.left + rect.width / 2,
+      clientY: rect.top + rect.height / 2,
+    });
+  }, [updateDesktopCanvasZoomAnchored]);
 
   const handleDesktopCanvasWheel = useCallback((event) => {
     if (!(event.ctrlKey || event.metaKey)) return;
@@ -5448,6 +5788,7 @@ function App() {
                 desktopGroupIcon: null,
                 desktopGroupTags: [],
                 desktopGroupCover: null,
+                desktopCollectionLabel: null,
               } : {};
 
               return normalizeTask({
@@ -5812,11 +6153,46 @@ function App() {
   }, [draggedTaskId, selectedDateKey, syncDesktopDraggedTaskPosition]);
 
   const editingTask = editingTaskId ? tasks.find((task) => task.id === editingTaskId) || null : null;
+  const notePanelTask = notePanelTaskId ? tasks.find((task) => task.id === notePanelTaskId) || null : null;
   const canSaveEdit = editText.trim().length > 0;
+  const closeNotePanel = useCallback(() => {
+    setNotePanelTaskId(null);
+    setNotePanelCollapsed(false);
+  }, []);
+
   const handleTaskEdit = useCallback((task) => {
+    closeNotePanel();
     setEditingTaskId(task.id);
     setEditText(task.text);
-  }, []);
+  }, [closeNotePanel]);
+
+  const handleNotePanelTextChange = useCallback((taskId, nextText) => {
+    const nextUpdatedAt = createUpdatedTimestamp();
+    setTasks((prev) => prev.map((task) => (
+      task.id === taskId
+        ? normalizeTask({
+          ...task,
+          text: nextText,
+          updatedAt: nextUpdatedAt,
+        })
+        : task
+    )));
+    setActiveGroupView((prev) => {
+      if (!prev?.tasks?.some((task) => task.id === taskId)) return prev;
+      return {
+        ...prev,
+        tasks: prev.tasks.map((task) => (
+          task.id === taskId
+            ? normalizeTask({
+              ...task,
+              text: nextText,
+              updatedAt: nextUpdatedAt,
+            })
+            : task
+        )),
+      };
+    });
+  }, [setTasks]);
 
   const deleteTasksByIds = useCallback((taskIds) => {
     if (!Array.isArray(taskIds) || taskIds.length === 0) return;
@@ -5838,7 +6214,9 @@ function App() {
       return cleanupDesktopGroupMetadata(remainingTasks);
     });
     setSelectedTaskIds((current) => current.filter((taskId) => !taskIdSet.has(taskId)));
-  }, [setTasks]);
+    setNotePanelTaskId((current) => (taskIdSet.has(current) ? null : current));
+    setNotePanelCollapsed((current) => (taskIdSet.has(notePanelTaskId) ? false : current));
+  }, [notePanelTaskId, setTasks]);
 
   const handleTaskDelete = useCallback((task) => {
     deleteTasksByIds([task.id]);
@@ -5893,17 +6271,26 @@ function App() {
   }, [closeEditModal, editingTask, editingTaskId]);
 
   useEffect(() => {
-    if (!editingTaskId) return undefined;
+    if (notePanelTaskId && !notePanelTask) {
+      closeNotePanel();
+    }
+  }, [closeNotePanel, notePanelTask, notePanelTaskId]);
+
+  useEffect(() => {
+    if (!editingTaskId && !notePanelTaskId) return undefined;
 
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
-        closeEditModal();
+        if (editingTaskId) {
+          closeEditModal();
+        }
+        closeNotePanel();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [closeEditModal, editingTaskId]);
+  }, [closeEditModal, closeNotePanel, editingTaskId, notePanelTaskId]);
 
   const openTaskEditor = useCallback((task, jumpToDate = true) => {
     setProfileOpen(false);
@@ -5980,6 +6367,35 @@ function App() {
       };
     });
   }, [activeGroupView?.groupId, setTasks]);
+
+  const updateCollectionGroupLabel = useCallback((groupId, nextLabel) => {
+    if (!groupId) return;
+    const normalizedLabel = typeof nextLabel === 'string' && nextLabel.trim()
+      ? nextLabel.trim()
+      : DEFAULT_DESKTOP_COLLECTION_LABEL;
+    const nextUpdatedAt = createUpdatedTimestamp();
+    setTasks((prev) => prev.map((task) => (
+      task.desktopGroupId === groupId
+        ? normalizeTask({
+          ...task,
+          desktopCollectionLabel: normalizedLabel,
+          updatedAt: nextUpdatedAt,
+        })
+        : task
+    )));
+    setActiveGroupView((prev) => {
+      if (!prev || prev.groupId !== groupId) return prev;
+      return {
+        ...prev,
+        tasks: prev.tasks.map((task) => normalizeTask({
+          ...task,
+          desktopCollectionLabel: normalizedLabel,
+          updatedAt: nextUpdatedAt,
+        })),
+      };
+    });
+  }, [setTasks]);
+
   useEffect(() => {
     const activeGroupId = activeGroupView?.groupId;
     if (!activeGroupId) return;
@@ -6428,15 +6844,24 @@ function App() {
         return;
       }
 
-      const { redirectUrl, isPlain } = getTaskCardPresentation(task, t);
+      const { redirectUrl } = getTaskCardPresentation(task, t);
+      const cardType = normalizeCardType(task.cardType);
 
       if (task.uploadedFileStorageKey) {
         void openUploadedFileTask(task);
         return;
       }
 
+      if (cardType === CARD_TYPES.TEXT) {
+        setPanelOpen(false);
+        setProfileOpen(false);
+        setNotePanelTaskId(task.id);
+        setNotePanelCollapsed(false);
+        return;
+      }
+
       if (redirectUrl) {
-        if (normalizeCardType(task.cardType) === CARD_TYPES.PHOTO) {
+        if (cardType === CARD_TYPES.PHOTO) {
           setFullscreenImage(task.photoUrl || task.photoDataUrl || redirectUrl);
           return;
         }
@@ -6660,6 +7085,7 @@ function App() {
             desktopGroupId: pendingGroupPrompt.groupId,
             desktopGroupName: groupName,
             desktopGroupTags: nextGroupTags,
+            desktopCollectionLabel: DEFAULT_DESKTOP_COLLECTION_LABEL,
             desktopZ: Date.now(),
           })
           : task
@@ -6670,6 +7096,7 @@ function App() {
   const handleCancelGroupPrompt = () => {
     closePendingGroupPrompt();
   };
+  const desktopAppScale = viewport.zoom || DESKTOP_APP_WINDOW_SCALE;
   return (
     <>
       <GlobalStyles appearance={appearance} />
@@ -6683,9 +7110,9 @@ function App() {
       >
         <div
           style={{
-            width: `${100 / DESKTOP_APP_WINDOW_SCALE}vw`,
-            height: `${100 / DESKTOP_APP_WINDOW_SCALE}dvh`,
-            transform: `scale(${DESKTOP_APP_WINDOW_SCALE})`,
+            width: `${100 / desktopAppScale}vw`,
+            height: `${100 / desktopAppScale}dvh`,
+            transform: `scale(${desktopAppScale})`,
             transformOrigin: 'top left',
           }}
         >
@@ -6893,12 +7320,15 @@ function App() {
             <div className="desktop-main-stage-inner" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--desktop-main-gradient)' }}>
 
               {desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION ? (
-                <main className="desktop-collection-view" style={{ flex: 1, minHeight: 0 }}>
-                  <section className="desktop-collection-empty-state" aria-label="Collection View">
-                    <h1>Collection View</h1>
-                    <p>Collections in this workspace will appear here.</p>
-                  </section>
-                </main>
+                <CollectionViewBoard
+                  tasks={currentWorkspaceTasks}
+                  appearance={appearance}
+                  labels={t}
+                  language={language}
+                  onTaskOpen={handleTaskClick}
+                  onGroupOpen={handleHistoryPackOpen}
+                  onGroupLabelUpdate={updateCollectionGroupLabel}
+                />
               ) : (
                 <main
                   ref={viewportContainerRef}
@@ -6912,7 +7342,14 @@ function App() {
                   onDragOver={handleCanvasFileDragOver}
                   onDragLeave={handleCanvasFileDragLeave}
                   onDrop={handleCanvasFileDrop}
-                  style={{ flex: 1, minHeight: 0, overflow: 'hidden', position: 'relative', background: 'var(--desktop-root-bg)' }}
+                  style={{
+                    flex: 1,
+                    minHeight: 0,
+                    overflow: 'hidden',
+                    position: 'relative',
+                    background: 'var(--desktop-root-bg)',
+                    '--desktop-canvas-dot-size': `${Math.min(120, Math.max(14, Math.round(48 * viewport.zoom)))}px`,
+                  }}
                 >
                   <div
                     ref={desktopCanvasContentRef}
@@ -6923,7 +7360,7 @@ function App() {
                       left: 0,
                       width: DESKTOP_MAIN_CONTENT_MAX_WIDTH,
                       transformOrigin: '0 0',
-                      transform: `translate(${viewport.panX}px, ${viewport.panY}px) scale(${viewport.zoom})`,
+                      transform: `translate(${viewport.panX}px, ${viewport.panY}px)`,
                       paddingTop: 180,
                     }}
                   >
@@ -7043,35 +7480,67 @@ function App() {
           onSubmit={saveTask}
         />
 
-        {(!panelOpen && showAddPreview) ? (
-          <div style={{ position: 'fixed', right: 104, bottom: 38, background: 'var(--desktop-floating-bg)', color: 'var(--desktop-floating-text)', padding: '6px 14px', borderRadius: 16, border: '1px solid var(--desktop-floating-border)', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', zIndex: 19, fontSize: 13, fontWeight: 500, pointerEvents: 'none', animation: 'fadeIn 0.2s ease-out' }}>
-            Add task...
-          </div>
-        ) : null}
-
-        {!panelOpen ? (
-          <button 
-            type="button" 
-            onClick={() => { 
-              setProfileOpen(false); 
-              closeEditModal(); 
-              setInputText(''); 
-              setPanelOpen(true); 
-              setShowAddPreview(false);
-              if (hoverAddTimeoutRef.current) clearTimeout(hoverAddTimeoutRef.current);
-            }} 
-            onMouseEnter={() => {
-              hoverAddTimeoutRef.current = setTimeout(() => setShowAddPreview(true), 500);
-            }}
-            onMouseLeave={() => {
-              if (hoverAddTimeoutRef.current) clearTimeout(hoverAddTimeoutRef.current);
-              setShowAddPreview(false);
-            }}
-            aria-label={t.addTaskAria} 
-            style={{ position: 'fixed', right: 42, bottom: 30, width: 50, height: 50, borderRadius: '50%', border: '1px solid var(--desktop-floating-border)', background: 'var(--desktop-floating-bg)', color: 'var(--desktop-floating-text)', boxShadow: 'var(--desktop-floating-shadow)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 20 }}
+        {!panelOpen && desktopViewMode === DESKTOP_VIEW_MODES.CANVAS ? (
+          <div
+            className="desktop-canvas-zoom-toolbar"
+            aria-label="Canvas zoom controls"
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
+            style={{ transform: `scale(${1 / desktopAppScale})` }}
           >
-            <PlusIcon />
-          </button>
+            <span className="desktop-canvas-zoom-toolbar-icon" aria-hidden="true">
+              <CanvasControlSlidersIcon />
+            </span>
+            <button
+              type="button"
+              className={`desktop-canvas-zoom-percent ${desktopZoomMenuOpen ? 'is-open' : ''}`}
+              aria-haspopup="menu"
+              aria-expanded={desktopZoomMenuOpen}
+              onClick={() => setDesktopZoomMenuOpen((current) => !current)}
+            >
+              {Math.round(viewport.zoom * 100)}%
+            </button>
+            <button
+              type="button"
+              className="desktop-canvas-zoom-toolbar-button"
+              aria-label="Zoom in"
+              onClick={() => handleDesktopZoomPresetSelect('in')}
+            >
+              +
+            </button>
+            <button
+              type="button"
+              className="desktop-canvas-zoom-toolbar-button"
+              aria-label="Zoom out"
+              onClick={() => handleDesktopZoomPresetSelect('out')}
+            >
+              -
+            </button>
+            {desktopZoomMenuOpen ? (
+              <div className="desktop-canvas-zoom-dropdown" role="menu" aria-label="Zoom presets">
+                {[
+                  { label: '25%', value: 0.25 },
+                  { label: '50%', value: 0.5 },
+                  { label: '75%', value: 0.75 },
+                  { label: '100%', value: 1 },
+                  { label: '125%', value: 1.25 },
+                  { label: '150%', value: 1.5 },
+                  { label: '200%', value: 2 },
+                  { label: 'Fit Canvas', value: 'fit' },
+                ].map((option) => (
+                  <button
+                    key={option.label}
+                    type="button"
+                    role="menuitem"
+                    className="desktop-canvas-zoom-dropdown-item"
+                    onClick={() => handleDesktopZoomPresetSelect(option.value)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
         ) : null}
 
         {editingTask ? (
@@ -7209,6 +7678,17 @@ function App() {
           </div>
         ) : null}
 
+        <DesktopNoteSidePanel
+          task={notePanelTask}
+          labels={t}
+          collapsed={notePanelCollapsed}
+          onClose={closeNotePanel}
+          onCollapse={() => setNotePanelCollapsed(true)}
+          onExpand={() => setNotePanelCollapsed(false)}
+          onTextChange={handleNotePanelTextChange}
+          onEdit={(task) => handleTaskEdit(task)}
+        />
+
         <DesktopProfilePage
           open={profileOpen}
           onClose={() => setProfileOpen(false)}
@@ -7284,8 +7764,15 @@ function App() {
         />
         <DesktopDeleteConfirmModal
           open={Boolean(pendingWorkspaceDeletion)}
-          title={pendingWorkspaceDeletion?.title || t.deleteWorkspace}
+          title={pendingWorkspaceDeletion?.workspaceName ? (
+            <>
+              Delete workspace
+              <br />
+              "{pendingWorkspaceDeletion.workspaceName}"?
+            </>
+          ) : t.deleteWorkspace}
           description={pendingWorkspaceDeletion?.description || null}
+          variant="workspace"
           onCancel={cancelWorkspaceDeletion}
           onConfirm={confirmWorkspaceDeletion}
         />

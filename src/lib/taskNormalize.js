@@ -28,6 +28,7 @@ export const normalizeTask = (task) => {
     desktopGroupIcon: normalizePackIcon(task.desktopGroupIcon),
     desktopGroupCover: normalizePackCover(task.desktopGroupCover),
     desktopGroupTags: normalizePackTags(task.desktopGroupTags),
+    desktopCollectionLabel: typeof task.desktopCollectionLabel === 'string' && task.desktopCollectionLabel.trim() ? task.desktopCollectionLabel.trim() : null,
     photoDataUrl: typeof task.photoDataUrl === 'string' && task.photoDataUrl.trim() ? task.photoDataUrl : null,
     photoFileName: typeof task.photoFileName === 'string' && task.photoFileName.trim() ? task.photoFileName : null,
     photoMimeType: typeof task.photoMimeType === 'string' && task.photoMimeType.trim() ? task.photoMimeType : null,
