@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import { flushSync } from 'react-dom';
 import EmojiPicker from 'emoji-picker-react';
 import JSZip from 'jszip';
-import { PenLine, Trash2, X } from 'lucide-react';
+import { ChevronRight, FileText, ImageIcon, PenLine, Trash2, X } from 'lucide-react';
 import { useSyncedTodos } from '../todoSync';
 import { getUserProfile } from '../userProfile';
 import DesktopProfilePage from '../components/DesktopProfilePage';
@@ -63,6 +63,11 @@ const DEFAULT_DESKTOP_WORKSPACES = [
     name: 'Untitled 3',
     iconType: 'dot',
   },
+];
+const QUICK_LINK_PREVIEW_VISUALS = [
+  'linear-gradient(135deg, #1f2937 0%, #111827 38%, #d8dbe2 39%, #eceef4 100%)',
+  'linear-gradient(135deg, #dfe7ff 0%, #f6f7fb 42%, #d7f3df 43%, #fff5cf 100%)',
+  'linear-gradient(135deg, #151515 0%, #2b2b2b 52%, #e6e2da 53%, #f7f3ed 100%)',
 ];
 const LANGUAGE_LOCALES = {
   EN: 'en-US',
@@ -143,7 +148,7 @@ const DESKTOP_TIME_AXIS_LINE_BOTTOM = 36;
 const DESKTOP_TIME_MARKER_SIZE = 7;
 const DESKTOP_SLOT_MIN_HEIGHT = 98;
 const DESKTOP_SLOT_GAP = 22;
-const DESKTOP_CANVAS_DEFAULT_ZOOM = 0.8;
+const DESKTOP_CANVAS_DEFAULT_ZOOM = 0.76;
 const DESKTOP_CANVAS_MIN_SCALE = 0.25;
 const DESKTOP_CANVAS_MAX_SCALE = 2;
 const DESKTOP_CANVAS_SCALE_STEP = 0.12;
@@ -180,7 +185,8 @@ const screenToCanvas = (screenX, screenY, vp) => ({
 });
 // Root-level app window scale baseline. The live scale is driven by viewport.zoom
 // so toolbar +/- behaves like Ctrl+Plus/Ctrl+Minus for the whole prototype UI.
-const DESKTOP_APP_WINDOW_SCALE = 0.8;
+const DESKTOP_APP_WINDOW_SCALE = 0.76;
+const DESKTOP_FIXED_UI_SCALE = 0.95;
 
 const getDesktopSectionPillStyle = (section, appearance) => (
   appearance === 'dark'
@@ -482,6 +488,137 @@ const getDesktopSelectionRect = (start, end) => ({
 });
 const getDefaultDesktopWorkspaces = () => DEFAULT_DESKTOP_WORKSPACES.map((workspace) => ({ ...workspace }));
 const getUntitledWorkspaceName = (index) => (index <= 1 ? 'Untitled' : `Untitled ${index}`);
+const normalizeQuickAddUrl = (value = '') => {
+  const extractedUrl = extractPrimaryUrl(String(value || '').trim());
+  if (!extractedUrl) return null;
+
+  try {
+    const parsed = new URL(extractedUrl.startsWith('http') ? extractedUrl : `https://${extractedUrl}`);
+    return parsed.href;
+  } catch (_) {
+    return null;
+  }
+};
+const stripQuickAddUrlToken = (value = '') => String(value || '').trim().replace(/[),.;!?]+$/g, '');
+const extractQuickAddUrls = (value = '') => {
+  const source = String(value || '');
+  const candidates = source.match(/(?:https?:\/\/|www\.)[^\s<>"']+|(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s<>"']*)?/gi) || [];
+  const urls = [];
+  const seen = new Set();
+
+  candidates.forEach((candidate) => {
+    const normalized = normalizeQuickAddUrl(stripQuickAddUrlToken(candidate));
+    if (!normalized || seen.has(normalized)) return;
+    seen.add(normalized);
+    urls.push(normalized);
+  });
+
+  const fallback = normalizeQuickAddUrl(source);
+  if (fallback && !seen.has(fallback)) {
+    urls.push(fallback);
+  }
+
+  return urls;
+};
+const formatQuickLinkTitle = (url = '') => {
+  try {
+    const parsed = new URL(url);
+    const hostLabel = parsed.hostname.replace(/^www\./, '').split('.')[0] || 'Link';
+    const pathLabel = parsed.pathname.split('/').filter(Boolean).pop();
+    const formattedHost = hostLabel
+      .replace(/[-_]+/g, ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+    const formattedPath = pathLabel
+      ? pathLabel
+        .replace(/[-_]+/g, ' ')
+        .replace(/\b\w/g, (char) => char.toUpperCase())
+      : '';
+
+    if (hostLabel.toLowerCase() === 'linear') {
+      return formattedPath ? `${formattedHost} Product Roadmap` : formattedHost;
+    }
+
+    if (formattedPath) {
+      return `${formattedHost} ${formattedPath}`;
+    }
+
+    return formattedHost;
+  } catch (_) {
+    return 'Untitled Link';
+  }
+};
+const getQuickLinkDomain = (url = '') => {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch (_) {
+    return 'link';
+  }
+};
+const createQuickLinkPreview = (rawValue = '') => {
+  const url = normalizeQuickAddUrl(rawValue);
+  if (!url) return null;
+
+  const domain = getQuickLinkDomain(url);
+  const defaultTitle = formatQuickLinkTitle(url);
+  const visualIndex = [...domain].reduce((sum, char) => sum + char.charCodeAt(0), 0) % QUICK_LINK_PREVIEW_VISUALS.length;
+  return {
+    url,
+    domain,
+    title: defaultTitle,
+    customTitle: defaultTitle,
+    description: `Saved from ${domain}. Add this reference to your canvas for later review.`,
+    visual: QUICK_LINK_PREVIEW_VISUALS[visualIndex],
+  };
+};
+const createQuickLinkPreviews = (rawValue = '') => (
+  extractQuickAddUrls(rawValue)
+    .map((url) => createQuickLinkPreview(url))
+    .filter(Boolean)
+);
+const removeQuickAddUrlFromText = (text = '', urlToRemove = '') => {
+  const normalizedTarget = normalizeQuickAddUrl(urlToRemove);
+  if (!normalizedTarget) return text;
+
+  return String(text || '')
+    .split(/(\s+)/)
+    .filter((part) => {
+      if (/^\s+$/.test(part)) return true;
+      return normalizeQuickAddUrl(stripQuickAddUrlToken(part)) !== normalizedTarget;
+    })
+    .join('')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+};
+const isYouTubeQuickLink = (url = '') => {
+  try {
+    const hostname = new URL(url).hostname.replace(/^www\./, '').toLowerCase();
+    return hostname === 'youtube.com' || hostname === 'm.youtube.com' || hostname === 'youtu.be';
+  } catch (_) {
+    return false;
+  }
+};
+const fetchYouTubeQuickLinkPreview = async (url) => {
+  if (!isYouTubeQuickLink(url)) return null;
+
+  try {
+    const response = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);
+    if (!response.ok) return null;
+    const data = await response.json();
+    const title = String(data?.title || '').trim();
+    const authorName = String(data?.author_name || '').trim();
+    const thumbnailUrl = String(data?.thumbnail_url || '').trim();
+    if (!title && !thumbnailUrl) return null;
+
+    return {
+      title: title || 'YouTube Video',
+      customTitle: title || 'YouTube Video',
+      description: authorName ? `YouTube video by ${authorName}.` : 'YouTube video reference.',
+      thumbnailUrl: thumbnailUrl || null,
+    };
+  } catch (_) {
+    return null;
+  }
+};
 const getNextWorkspaceName = (workspaces) => {
   const usedNames = new Set(workspaces.map((workspace) => workspace.name));
   for (let index = 1; index <= MAX_DESKTOP_WORKSPACES + 1; index += 1) {
@@ -664,6 +801,88 @@ const getDesktopCanvasRectIntersectionArea = (first, second) => {
 const getRectCenterPoint = (rect) => ({
   x: rect.x + (rect.width / 2),
   y: rect.y + (rect.height / 2),
+});
+const DESKTOP_CANVAS_CONNECTION_EDGE_OFFSET = 8;
+const getDesktopCanvasEntryRect = (entry) => ({
+  x: entry.x,
+  y: entry.y,
+  width: DESKTOP_CANVAS_CARD_WIDTH,
+  height: getDesktopCanvasEntryHeight(entry),
+});
+const getDesktopCanvasConnectionAnchor = (entry, side = 'right') => {
+  const rect = getDesktopCanvasEntryRect(entry);
+  const center = getRectCenterPoint(rect);
+  const offset = DESKTOP_CANVAS_CONNECTION_EDGE_OFFSET;
+
+  if (side === 'left') {
+    return { x: rect.x - offset, y: center.y, side };
+  }
+  if (side === 'top') {
+    return { x: center.x, y: rect.y - offset, side };
+  }
+  if (side === 'bottom') {
+    return { x: center.x, y: rect.y + rect.height + offset, side };
+  }
+
+  return {
+    x: rect.x + rect.width + offset,
+    y: center.y,
+    side: 'right',
+  };
+};
+const getDesktopCanvasConnectionSidePair = (sourceEntry, targetEntry) => {
+  const sourceCenter = getRectCenterPoint(getDesktopCanvasEntryRect(sourceEntry));
+  const targetCenter = getRectCenterPoint(getDesktopCanvasEntryRect(targetEntry));
+  const dx = targetCenter.x - sourceCenter.x;
+  const dy = targetCenter.y - sourceCenter.y;
+
+  if (Math.abs(dx) >= Math.abs(dy)) {
+    return dx >= 0
+      ? { fromSide: 'right', toSide: 'left' }
+      : { fromSide: 'left', toSide: 'right' };
+  }
+
+  return dy >= 0
+    ? { fromSide: 'bottom', toSide: 'top' }
+    : { fromSide: 'top', toSide: 'bottom' };
+};
+const getDesktopCanvasConnectionPoints = (sourceEntry, targetEntry) => {
+  const { fromSide, toSide } = getDesktopCanvasConnectionSidePair(sourceEntry, targetEntry);
+  return {
+    from: getDesktopCanvasConnectionAnchor(sourceEntry, fromSide),
+    to: getDesktopCanvasConnectionAnchor(targetEntry, toSide),
+  };
+};
+const inferDesktopCanvasConnectionSide = (point, otherPoint, fallback = 'right') => {
+  if (point?.side) return point.side;
+  const dx = (otherPoint?.x ?? 0) - (point?.x ?? 0);
+  const dy = (otherPoint?.y ?? 0) - (point?.y ?? 0);
+  if (Math.abs(dx) >= Math.abs(dy)) return dx >= 0 ? 'right' : 'left';
+  return dy >= 0 ? 'bottom' : 'top';
+};
+const getDesktopCanvasConnectionTangent = (side, from, to) => {
+  const dx = Math.abs((to?.x ?? 0) - (from?.x ?? 0));
+  const dy = Math.abs((to?.y ?? 0) - (from?.y ?? 0));
+  const strength = Math.max(52, Math.min(180, (side === 'top' || side === 'bottom' ? dy : dx) * 0.45));
+  if (side === 'left') return { x: -strength, y: 0 };
+  if (side === 'top') return { x: 0, y: -strength };
+  if (side === 'bottom') return { x: 0, y: strength };
+  return { x: strength, y: 0 };
+};
+const getDesktopCanvasConnectionPath = (from, to) => {
+  const fromSide = inferDesktopCanvasConnectionSide(from, to, 'right');
+  const toSide = inferDesktopCanvasConnectionSide(to, from, 'left');
+  const fromTangent = getDesktopCanvasConnectionTangent(fromSide, from, to);
+  const toTangent = getDesktopCanvasConnectionTangent(toSide, to, from);
+  const c1x = from.x + fromTangent.x;
+  const c1y = from.y + fromTangent.y;
+  const c2x = to.x + toTangent.x;
+  const c2y = to.y + toTangent.y;
+  return `M ${from.x.toFixed(1)} ${from.y.toFixed(1)} C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${to.x.toFixed(1)} ${to.y.toFixed(1)}`;
+};
+const getDesktopCanvasConnectionMidpoint = (from, to) => ({
+  x: (from.x + to.x) / 2,
+  y: (from.y + to.y) / 2,
 });
 const expandDesktopCanvasRect = (rect, horizontal = DESKTOP_CANVAS_HITBOX_HORIZONTAL_PADDING, vertical = DESKTOP_CANVAS_HITBOX_VERTICAL_PADDING) => ({
   x: rect.x - horizontal,
@@ -1055,6 +1274,9 @@ const normalizeTask = (task) => {
     desktopGroupCover: normalizePackCover(task.desktopGroupCover),
     desktopGroupTags: normalizePackTags(task.desktopGroupTags),
     desktopCollectionLabel: typeof task.desktopCollectionLabel === 'string' && task.desktopCollectionLabel.trim() ? task.desktopCollectionLabel.trim() : null,
+    desktopLinkIds: Array.isArray(task.desktopLinkIds)
+      ? [...new Set(task.desktopLinkIds.map((id) => String(id).trim()).filter(Boolean))]
+      : [],
     photoDataUrl: typeof task.photoDataUrl === 'string' && task.photoDataUrl.trim() ? task.photoDataUrl : null,
     photoFileName: typeof task.photoFileName === 'string' && task.photoFileName.trim() ? task.photoFileName : null,
     photoMimeType: typeof task.photoMimeType === 'string' && task.photoMimeType.trim() ? task.photoMimeType : null,
@@ -1386,7 +1608,13 @@ const PACK_EXPORT_SECTION_ORDER = [
   { role: 'Notes', heading: 'Notes' },
   { role: 'Reference', heading: 'Reference' },
 ];
-const PACK_FILTER_ORDER = ['All', 'Context', 'Code', 'Notes', 'Reference'];
+const PACK_FILTER_ORDER = ['all', 'file', 'link', 'memo'];
+const PACK_FILTER_LABELS = {
+  all: 'すべて',
+  file: 'ファイル',
+  link: 'リンク',
+  memo: 'メモ',
+};
 const getPackRoleHeading = (role, labels = {}) => {
   const roleMap = {
     Context: labels.contextFilter || 'Context',
@@ -1397,14 +1625,57 @@ const getPackRoleHeading = (role, labels = {}) => {
   return roleMap[role] || role;
 };
 const getPackFilterLabel = (filter, labels = {}) => {
-  const filterMap = {
-    All: labels.allFilter || 'All',
-    Context: labels.contextFilter || 'Context',
-    Code: labels.techFilter || 'Tech',
-    Notes: labels.notesFilter || 'Notes',
-    Reference: labels.referenceFilter || 'Reference',
-  };
-  return filterMap[filter] || filter;
+  return PACK_FILTER_LABELS[filter] || labels?.[`${filter}Filter`] || filter;
+};
+
+const PACK_FILE_CARD_TYPES = new Set([
+  CARD_TYPES.DOCUMENT,
+  CARD_TYPES.PHOTO,
+]);
+
+const PACK_LINK_CARD_TYPES = new Set([
+  CARD_TYPES.LINK,
+  CARD_TYPES.VIDEO,
+  CARD_TYPES.PODCAST,
+  CARD_TYPES.MUSIC,
+  CARD_TYPES.PLACE,
+  CARD_TYPES.SOCIAL,
+  CARD_TYPES.SHOPPING,
+  CARD_TYPES.FINANCIAL,
+  CARD_TYPES.AI_TOOL,
+]);
+
+const PACK_MEMO_CARD_TYPES = new Set([
+  CARD_TYPES.TEXT,
+  CARD_TYPES.MEETING,
+]);
+
+const getPackTaskFilterCategories = (task) => {
+  const cardType = normalizeCardType(task?.cardType);
+  const categories = [];
+  const hasUploadedFile = Boolean(
+    task?.uploadedFileStorageKey
+    || task?.uploadedFileName
+    || task?.fileName
+    || task?.attachmentName
+    || task?.photoDataUrl
+    || task?.photoUrl
+  );
+  const hasUrl = Boolean(extractPrimaryUrl(task?.text || '') || task?.url || task?.href || task?.linkUrl);
+
+  if (PACK_FILE_CARD_TYPES.has(cardType) || hasUploadedFile) {
+    categories.push('file');
+  }
+
+  if (PACK_LINK_CARD_TYPES.has(cardType) || (hasUrl && !PACK_FILE_CARD_TYPES.has(cardType))) {
+    categories.push('link');
+  }
+
+  if (PACK_MEMO_CARD_TYPES.has(cardType) || categories.length === 0) {
+    categories.push('memo');
+  }
+
+  return categories;
 };
 
 const getPackTaskRoles = (task, labels) => {
@@ -2127,11 +2398,10 @@ const TaskCard = (props) => {
     } = props;
   const taskCardLabels = props?.labels;
 
-  const isPast = task.dateString < dateKey(getLogicalToday());
   const isPhotoCard = normalizeCardType(task?.cardType) === CARD_TYPES.PHOTO;
 
   return (
-      <div id={`desktop-task-wrapper-${task.id}`} className={`desktop-task-wrapper ${isDragging ? 'is-dragging' : ''} ${isSelected ? 'is-selected' : ''} ${isPast ? 'is-past' : ''}`}>
+      <div id={`desktop-task-wrapper-${task.id}`} className={`desktop-task-wrapper ${isDragging ? 'is-dragging' : ''} ${isSelected ? 'is-selected' : ''}`}>
       <button
         id={`desktop-task-card-${task.id}`}
         type="button"
@@ -2639,7 +2909,7 @@ const DesktopGroupFullViewModal = ({
   onToast,
 }) => {
   const [itemSearchQuery, setItemSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeFilter, setActiveFilter] = useState('all');
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const [highlightedTaskId, setHighlightedTaskId] = useState(null);
@@ -2663,7 +2933,7 @@ const DesktopGroupFullViewModal = ({
   useEffect(() => {
     if (!open) {
       setItemSearchQuery('');
-      setActiveFilter('All');
+      setActiveFilter('all');
       setIsSearchVisible(false);
       setIsExportMenuOpen(false);
       setHighlightedTaskId(null);
@@ -2793,11 +3063,11 @@ const DesktopGroupFullViewModal = ({
   const filteredTasks = useMemo(() => {
     let list = [...tasks];
 
-    // Filter by role
-    if (activeFilter !== 'All') {
+    // Filter by visible item type tabs: ファイル / リンク / メモ.
+    if (activeFilter !== 'all') {
       list = list.filter(task => {
-        const roles = getPackTaskRoles(task, labels);
-        return roles.includes(activeFilter);
+        const categories = getPackTaskFilterCategories(task);
+        return categories.includes(activeFilter);
       });
     }
 
@@ -3535,6 +3805,287 @@ const DesktopNoteSidePanel = ({
   );
 };
 
+const DesktopQuickNoteSidePanel = ({
+  open,
+  title,
+  body,
+  labels,
+  onTitleChange,
+  onBodyChange,
+  onClose,
+  onSubmit,
+}) => {
+  if (!open) return null;
+
+  const displayTitle = title.trim() || 'Quick Note';
+  const canSubmit = title.trim().length > 0 || body.trim().length > 0;
+
+  return (
+    <div className="desktop-note-side-layer" role="presentation" onClick={onClose}>
+      <aside
+        className="desktop-note-side-panel desktop-note-side-panel-quick"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="desktop-quick-note-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="desktop-note-side-toolbar">
+          <button type="button" className="desktop-note-side-icon-button" aria-label="Collapse note" onClick={onClose}>
+            <span aria-hidden="true">&raquo;</span>
+          </button>
+          <button type="button" className="desktop-note-side-icon-button" aria-label="New note">
+            <span aria-hidden="true">+</span>
+          </button>
+          <button type="button" className="desktop-note-side-close" aria-label={labels.close || 'Close'} onClick={onClose}>
+            <CloseIcon />
+          </button>
+        </div>
+        <div className="desktop-note-side-meta">
+          <span className="desktop-note-side-chevron" aria-hidden="true">v</span>
+          <span className="desktop-note-side-doc-icon" aria-hidden="true" />
+          <span className="desktop-note-side-meta-title">{displayTitle}</span>
+        </div>
+        <div className="desktop-note-side-content">
+          <input
+            id="desktop-quick-note-title"
+            className="desktop-note-side-title-input"
+            value={title}
+            placeholder="Untitled note"
+            onChange={(event) => onTitleChange(event.target.value)}
+            autoFocus
+          />
+          <div className="desktop-note-side-title-divider" aria-hidden="true" />
+          <textarea
+            className="desktop-note-side-body-editor"
+            value={body}
+            placeholder="Start typing..."
+            onChange={(event) => onBodyChange(event.target.value)}
+          />
+        </div>
+        <div className="desktop-note-side-footer">
+          <button
+            type="button"
+            className="desktop-note-side-add-button"
+            disabled={!canSubmit}
+            onClick={onSubmit}
+          >
+            <span className="desktop-note-side-add-icon" aria-hidden="true">+</span>
+            <span>Add to Canvas</span>
+          </button>
+        </div>
+      </aside>
+    </div>
+  );
+};
+
+const DesktopUploadPreviewModal = ({ attachment, onClose, onReplace, onSubmit }) => {
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState('');
+  const replacementInputRef = useRef(null);
+  const isPhoto = attachment?.uploadKind === 'image';
+  const isPdf = attachment?.uploadKind === 'pdf';
+
+  useEffect(() => {
+    if (!isPdf || !attachment?.file) {
+      setPdfPreviewUrl('');
+      return undefined;
+    }
+
+    const objectUrl = URL.createObjectURL(attachment.file);
+    setPdfPreviewUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [attachment?.file, isPdf]);
+
+  if (!attachment || (!isPhoto && !isPdf)) return null;
+
+  const fileSize = (() => {
+    if (!Number.isFinite(attachment.size) || attachment.size <= 0) return '';
+    if (attachment.size < 1024 * 1024) return `${Math.max(1, Math.round(attachment.size / 1024))} KB`;
+    return `${(attachment.size / (1024 * 1024)).toFixed(1)} MB`;
+  })();
+  const dimensions = isPhoto && Number.isFinite(attachment.photoWidth) && Number.isFinite(attachment.photoHeight)
+    ? `${attachment.photoWidth} × ${attachment.photoHeight} px`
+    : '';
+
+  return (
+    <div className="desktop-upload-preview-backdrop" role="presentation" onPointerDown={onClose}>
+      <section
+        className="desktop-upload-preview-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="desktop-upload-preview-title"
+        onPointerDown={(event) => event.stopPropagation()}
+      >
+        <header className="desktop-upload-preview-header">
+          <h2 id="desktop-upload-preview-title">Add</h2>
+          <button type="button" className="desktop-upload-preview-close" aria-label="Close upload" onClick={onClose}>
+            <X size={18} strokeWidth={2} />
+          </button>
+        </header>
+
+        <div className="desktop-upload-preview-body">
+          <input
+            ref={replacementInputRef}
+            className="desktop-upload-preview-input"
+            type="file"
+            accept={isPhoto ? 'image/*' : '.pdf,application/pdf'}
+            onChange={onReplace}
+          />
+          <span className="desktop-upload-preview-label">{isPhoto ? 'Image file' : 'PDF file'}</span>
+          <button type="button" className="desktop-upload-preview-file" onClick={() => replacementInputRef.current?.click()}>
+            <span className={`desktop-upload-preview-file-icon ${isPdf ? 'is-pdf' : ''}`}>
+              {isPhoto ? <ImageIcon size={18} strokeWidth={1.8} /> : <FileText size={18} strokeWidth={1.8} />}
+            </span>
+            <span className="desktop-upload-preview-file-copy">
+              <strong>{attachment.originalFileName || attachment.title}</strong>
+              {fileSize ? <span>{fileSize}</span> : null}
+            </span>
+            <ChevronRight size={18} strokeWidth={1.8} aria-hidden="true" />
+          </button>
+
+          {isPhoto ? (
+            <div className="desktop-upload-preview-media">
+              <img src={attachment.previewUrl || attachment.photoDataUrl} alt="Selected photo preview" />
+            </div>
+          ) : (
+            <div className="desktop-upload-preview-media desktop-upload-preview-pdf">
+              {pdfPreviewUrl ? (
+                <object data={`${pdfPreviewUrl}#toolbar=0&navpanes=0&view=FitH`} type="application/pdf" aria-label="Selected PDF preview">
+                  <div className="desktop-upload-preview-fallback"><FileText size={42} /><span>PDF preview</span></div>
+                </object>
+              ) : (
+                <div className="desktop-upload-preview-fallback"><FileText size={42} /><span>PDF preview</span></div>
+              )}
+            </div>
+          )}
+
+          <div className="desktop-upload-preview-meta">
+            <span>
+              {isPhoto ? <ImageIcon size={15} strokeWidth={1.8} /> : <FileText size={15} strokeWidth={1.8} />}
+              {isPhoto ? `${attachment.mimeType?.split('/')[1]?.toUpperCase() || 'Image'} image` : 'PDF document'}
+            </span>
+            {dimensions ? <><i aria-hidden="true" /><span>{dimensions}</span></> : null}
+            {fileSize ? <><i aria-hidden="true" /><span>{fileSize}</span></> : null}
+          </div>
+
+          <button type="button" className="desktop-upload-preview-submit" onClick={onSubmit}>Add to canvas</button>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+const formatQuickAddFileSize = (size) => {
+  if (!Number.isFinite(size) || size <= 0) return '';
+  if (size < 1024 * 1024) return `${Math.max(1, Math.round(size / 1024))} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const DesktopAddResourcesModal = ({
+  attachments,
+  linkPreviews = [],
+  onClose,
+  onRemoveAttachment,
+  onRemoveLink,
+  onSubmit,
+}) => {
+  const itemCount = attachments.length + linkPreviews.length;
+  if (itemCount === 0) return null;
+
+  return (
+    <div className="desktop-add-resources-backdrop" role="presentation" onPointerDown={onClose}>
+      <section
+        className="desktop-add-resources-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="desktop-add-resources-title"
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <header className="desktop-add-resources-header">
+          <h2 id="desktop-add-resources-title">Add</h2>
+          <button type="button" className="desktop-add-resources-close" aria-label="Close add" onClick={onClose}>
+            <X size={18} strokeWidth={2} />
+          </button>
+        </header>
+
+        <p className="desktop-add-resources-subtitle">You can add multiple links, photos, and PDFs at once.</p>
+
+        <div className="desktop-add-resources-list" aria-label="Selected resources">
+          {linkPreviews.map((linkPreview) => (
+            <article key={linkPreview.url} className="desktop-add-resource-item">
+              <div
+                className={`desktop-add-resource-thumb desktop-add-resource-link-thumb ${linkPreview.thumbnailUrl ? 'has-thumbnail' : ''}`}
+                style={linkPreview.thumbnailUrl ? undefined : { background: linkPreview.visual }}
+              >
+                {linkPreview.thumbnailUrl ? <img src={linkPreview.thumbnailUrl} alt="" /> : null}
+              </div>
+              <div className="desktop-add-resource-copy">
+                <div className="desktop-add-resource-kicker">
+                  <img
+                    className="desktop-add-resource-favicon"
+                    src={`https://www.google.com/s2/favicons?domain=${linkPreview.domain}&sz=64`}
+                    alt=""
+                  />
+                  <span>{linkPreview.domain}</span>
+                </div>
+                <strong>{String(linkPreview.customTitle || '').trim() || linkPreview.title || linkPreview.domain}</strong>
+                <span>Saved from {linkPreview.domain}</span>
+              </div>
+              <button type="button" className="desktop-add-resource-remove" aria-label={`Remove ${linkPreview.domain}`} onClick={() => onRemoveLink(linkPreview.url)}>
+                <X size={16} strokeWidth={2} />
+              </button>
+            </article>
+          ))}
+
+          {attachments.map((attachment) => {
+            const isImage = attachment.uploadKind === 'image';
+            const isPdf = attachment.uploadKind === 'pdf';
+            const fileSize = formatQuickAddFileSize(attachment.size);
+            const dimensions = isImage && Number.isFinite(attachment.photoWidth) && Number.isFinite(attachment.photoHeight)
+              ? `${attachment.photoWidth} × ${attachment.photoHeight}`
+              : '';
+            const meta = [fileSize, dimensions || (isPdf ? 'PDF document' : attachment.uploadKind)]
+              .filter(Boolean)
+              .join('  ·  ');
+
+            return (
+              <article key={attachment.id} className="desktop-add-resource-item">
+                <div className={`desktop-add-resource-thumb ${isPdf ? 'is-pdf' : ''}`}>
+                  {isImage ? (
+                    <img src={attachment.previewUrl || attachment.photoDataUrl} alt="" />
+                  ) : (
+                    <FileText size={34} strokeWidth={1.7} />
+                  )}
+                </div>
+                <div className="desktop-add-resource-copy">
+                  <div className="desktop-add-resource-kicker">
+                    {isImage ? <ImageIcon size={15} strokeWidth={1.8} /> : <FileText size={15} strokeWidth={1.8} />}
+                    <span>{isImage ? 'Photo' : isPdf ? 'PDF' : 'Document'}</span>
+                  </div>
+                  <strong>{attachment.originalFileName || attachment.title}</strong>
+                  {meta ? <span>{meta}</span> : null}
+                </div>
+                <button
+                  type="button"
+                  className="desktop-add-resource-remove"
+                  aria-label={`Remove ${attachment.originalFileName || attachment.title}`}
+                  onClick={() => onRemoveAttachment(attachment.id)}
+                >
+                  <X size={16} strokeWidth={2} />
+                </button>
+              </article>
+            );
+          })}
+        </div>
+
+        <button type="button" className="desktop-add-resources-submit" onClick={onSubmit}>
+          {itemCount > 1 ? `Add (${itemCount})` : 'Add to canvas'}
+        </button>
+      </section>
+    </div>
+  );
+};
+
 const ScheduleSection = ({
   section,
   appearance,
@@ -3618,6 +4169,9 @@ const DailyTaskList = ({
   canvasHeight,
   appearance,
   labels,
+  connectionLinks = [],
+  connectionDraft = null,
+  selectedConnectionKey = null,
   onTaskClick,
   onGroupOpenFullView,
   onTaskEdit,
@@ -3626,6 +4180,13 @@ const DailyTaskList = ({
   onTaskPointerMove,
   onTaskPointerUp,
   onTaskPointerCancel,
+  onConnectionPointerDown,
+  onConnectionMouseDown,
+  onConnectionPointerMove,
+  onConnectionPointerUp,
+  onConnectionPointerCancel,
+  onConnectionSelect,
+  onConnectionDelete,
   draggedTaskId,
   isGroupDragActive,
   selectedTaskIds,
@@ -3634,6 +4195,78 @@ const DailyTaskList = ({
   layoutWidth = DESKTOP_MAIN_CONTENT_MAX_WIDTH,
 }) => (
   <div style={{ width: layoutWidth, minHeight: canvasHeight, height: canvasHeight, margin: '0 auto', position: 'relative' }}>
+    <svg className="desktop-canvas-connection-layer" aria-hidden="true">
+      {connectionLinks.map((link) => {
+        const connectionKey = `${link.sourceId}->${link.targetId}`;
+        const path = getDesktopCanvasConnectionPath(link.from, link.to);
+        const isSelected = selectedConnectionKey === connectionKey;
+        return (
+          <g key={connectionKey} className={`desktop-canvas-connection ${isSelected ? 'is-selected' : ''}`}>
+            <path
+              className="desktop-canvas-connection-hit-path"
+              data-connection-key={connectionKey}
+              d={path}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onConnectionSelect?.(connectionKey);
+              }}
+              onMouseDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onConnectionSelect?.(connectionKey);
+              }}
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onConnectionSelect?.(connectionKey);
+              }}
+            />
+            <path
+              className="desktop-canvas-connection-path"
+              d={path}
+            />
+            {isSelected ? (
+              <>
+                <circle className="desktop-canvas-connection-control-point" cx={link.from.x} cy={link.from.y} r="4" />
+                <circle className="desktop-canvas-connection-control-point" cx={link.to.x} cy={link.to.y} r="4" />
+              </>
+            ) : null}
+          </g>
+        );
+      })}
+      {connectionDraft ? (
+        <path
+          className="desktop-canvas-connection-path is-draft"
+          d={getDesktopCanvasConnectionPath(connectionDraft.from, connectionDraft.to)}
+        />
+      ) : null}
+    </svg>
+    {connectionLinks.map((link) => {
+      const connectionKey = `${link.sourceId}->${link.targetId}`;
+      if (selectedConnectionKey !== connectionKey) return null;
+      const midpoint = getDesktopCanvasConnectionMidpoint(link.from, link.to);
+      return (
+        <button
+          key={`delete-${connectionKey}`}
+          type="button"
+          className="desktop-canvas-connection-delete"
+          aria-label="Delete connection"
+          style={{ left: midpoint.x, top: midpoint.y }}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onConnectionDelete?.(connectionKey);
+          }}
+        >
+          &times;
+        </button>
+      );
+    })}
     {entries.length > 0 ? (
       entries.map((entry) => {
         const dragTask = entry.type === 'group'
@@ -3648,12 +4281,26 @@ const DailyTaskList = ({
           key={entry.type === 'group' ? `group-${entry.id}` : entry.task.id}
           id={`desktop-canvas-entry-${dragTask.id}`}
           data-desktop-layout-id={`task-${dragTask.id}`}
+          data-desktop-connection-id={dragTask.id}
           className="desktop-canvas-card-node"
           style={{ left: entry.x, top: entry.y, width: DESKTOP_CANVAS_CARD_WIDTH }}
         >
           <div
             className={`desktop-canvas-card-shell ${isGroupReady ? 'desktop-canvas-card-shell--group-ready' : ''} ${isDragging ? 'is-dragging' : ''}`}
           >
+            {['left', 'right', 'top', 'bottom'].map((side) => (
+              <button
+                key={side}
+                type="button"
+                className={`desktop-canvas-connection-handle desktop-canvas-connection-handle-${side}`}
+                aria-label="Start connection"
+                onPointerDown={(event) => onConnectionPointerDown?.(dragTask.id, side, event)}
+                onMouseDown={(event) => onConnectionMouseDown?.(dragTask.id, side, event)}
+                onPointerMove={onConnectionPointerMove}
+                onPointerUp={onConnectionPointerUp}
+                onPointerCancel={onConnectionPointerCancel}
+              />
+            ))}
             {entry.type === 'group' ? (
                 <GroupedTaskCard
                   tasks={entry.tasks}
@@ -3759,6 +4406,7 @@ const getDesktopCollectionDescription = (task, labels) => {
 
 const buildDesktopCollectionRows = (tasks) => {
   const grouped = new Map();
+  const taskGroupById = new Map();
 
   tasks.forEach((task) => {
     if (!task.desktopGroupId) return;
@@ -3767,9 +4415,10 @@ const buildDesktopCollectionRows = (tasks) => {
       grouped.set(task.desktopGroupId, []);
     }
     grouped.get(task.desktopGroupId).push(task);
+    taskGroupById.set(String(task.id), task.desktopGroupId);
   });
 
-  const groupEntries = [...grouped.entries()].map(([groupId, groupTasks]) => {
+  const baseGroupEntries = [...grouped.entries()].map(([groupId, groupTasks]) => {
     const normalizedGroupTasks = [...groupTasks].sort((a, b) => getDesktopCollectionTimestamp([b]) - getDesktopCollectionTimestamp([a]));
     return {
       id: groupId,
@@ -3778,6 +4427,72 @@ const buildDesktopCollectionRows = (tasks) => {
       timestamp: getDesktopCollectionTimestamp(normalizedGroupTasks),
     };
   });
+  const groupById = new Map(baseGroupEntries.map((entry) => [entry.id, entry]));
+  const adjacency = new Map(baseGroupEntries.map((entry) => [entry.id, new Set()]));
+  const groupEdges = [];
+  const seenEdges = new Set();
+
+  tasks.forEach((task) => {
+    const sourceGroupId = taskGroupById.get(String(task.id));
+    if (!sourceGroupId || !Array.isArray(task.desktopLinkIds)) return;
+
+    task.desktopLinkIds.forEach((targetId) => {
+      const targetGroupId = taskGroupById.get(String(targetId));
+      if (!targetGroupId || sourceGroupId === targetGroupId) return;
+
+      adjacency.get(sourceGroupId)?.add(targetGroupId);
+      adjacency.get(targetGroupId)?.add(sourceGroupId);
+
+      const edgeKey = `${sourceGroupId}->${targetGroupId}`;
+      if (seenEdges.has(edgeKey)) return;
+      seenEdges.add(edgeKey);
+      groupEdges.push({
+        id: edgeKey,
+        sourceGroupId,
+        targetGroupId,
+      });
+    });
+  });
+
+  const visited = new Set();
+  const groupEntries = baseGroupEntries.map((entry) => {
+    if (visited.has(entry.id)) return null;
+
+    const componentGroupIds = [];
+    const queue = [entry.id];
+    visited.add(entry.id);
+    while (queue.length) {
+      const groupId = queue.shift();
+      componentGroupIds.push(groupId);
+      adjacency.get(groupId)?.forEach((nextGroupId) => {
+        if (visited.has(nextGroupId)) return;
+        visited.add(nextGroupId);
+        queue.push(nextGroupId);
+      });
+    }
+
+    const componentGroups = componentGroupIds
+      .map((groupId) => groupById.get(groupId))
+      .filter(Boolean)
+      .sort((a, b) => b.timestamp - a.timestamp);
+    const orderedGroupIds = componentGroups.map((group) => group.id);
+    const groupIdSet = new Set(orderedGroupIds);
+    const componentEdges = groupEdges.filter((edge) => (
+      groupIdSet.has(edge.sourceGroupId) && groupIdSet.has(edge.targetGroupId)
+    ));
+    const componentTasks = componentGroups.flatMap((group) => group.tasks);
+
+    return {
+      id: orderedGroupIds.join('::'),
+      type: componentGroups.length > 1 ? 'linked-groups' : 'group',
+      groups: componentGroups,
+      groupIds: orderedGroupIds,
+      primaryGroupId: componentGroups[0]?.id || entry.id,
+      tasks: componentTasks,
+      edges: componentEdges,
+      timestamp: getDesktopCollectionTimestamp(componentTasks),
+    };
+  }).filter(Boolean);
 
   return {
     groupEntries: groupEntries.sort((a, b) => b.timestamp - a.timestamp),
@@ -3801,6 +4516,116 @@ const CollectionItemPreview = ({ task, appearance, labels, compact = false }) =>
         </span>
       </div>
     </div>
+  );
+};
+
+const CollectionConnectionLayer = ({ edges, markerId }) => {
+  const layerRef = useRef(null);
+  const [geometry, setGeometry] = useState({ width: 1, height: 1, paths: [] });
+
+  useLayoutEffect(() => {
+    const layer = layerRef.current;
+    const container = layer?.parentElement;
+    if (!container || !edges.length) return undefined;
+
+    const updateGeometry = () => {
+      const containerRect = container.getBoundingClientRect();
+      const width = container.clientWidth || 1;
+      const height = container.clientHeight || 1;
+      const scaleX = containerRect.width ? width / containerRect.width : 1;
+      const scaleY = containerRect.height ? height / containerRect.height : 1;
+      const nodeByGroupId = new Map(
+        [...container.querySelectorAll('[data-collection-group-id]')]
+          .map((node) => [node.getAttribute('data-collection-group-id'), node]),
+      );
+
+      const paths = edges.flatMap((edge) => {
+        const sourceNode = nodeByGroupId.get(String(edge.sourceGroupId));
+        const targetNode = nodeByGroupId.get(String(edge.targetGroupId));
+        if (!sourceNode || !targetNode) return [];
+
+        const sourceRect = sourceNode.getBoundingClientRect();
+        const targetRect = targetNode.getBoundingClientRect();
+        const sourceCenter = {
+          x: sourceRect.left + (sourceRect.width / 2),
+          y: sourceRect.top + (sourceRect.height / 2),
+        };
+        const targetCenter = {
+          x: targetRect.left + (targetRect.width / 2),
+          y: targetRect.top + (targetRect.height / 2),
+        };
+        const dx = targetCenter.x - sourceCenter.x;
+        const dy = targetCenter.y - sourceCenter.y;
+        let from;
+        let to;
+
+        if (Math.abs(dx) >= Math.abs(dy)) {
+          from = dx >= 0
+            ? { x: sourceRect.right, y: sourceCenter.y }
+            : { x: sourceRect.left, y: sourceCenter.y };
+          to = dx >= 0
+            ? { x: targetRect.left, y: targetCenter.y }
+            : { x: targetRect.right, y: targetCenter.y };
+        } else {
+          from = dy >= 0
+            ? { x: sourceCenter.x, y: sourceRect.bottom }
+            : { x: sourceCenter.x, y: sourceRect.top };
+          to = dy >= 0
+            ? { x: targetCenter.x, y: targetRect.top }
+            : { x: targetCenter.x, y: targetRect.bottom };
+        }
+
+        const normalizePoint = (point) => ({
+          x: (point.x - containerRect.left) * scaleX,
+          y: (point.y - containerRect.top) * scaleY,
+        });
+        const normalizedFrom = normalizePoint(from);
+        const normalizedTo = normalizePoint(to);
+        return [{
+          id: edge.id,
+          d: `M ${normalizedFrom.x.toFixed(1)} ${normalizedFrom.y.toFixed(1)} L ${normalizedTo.x.toFixed(1)} ${normalizedTo.y.toFixed(1)}`,
+        }];
+      });
+
+      setGeometry({ width, height, paths });
+    };
+
+    updateGeometry();
+    const frameId = window.requestAnimationFrame(updateGeometry);
+    const resizeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(updateGeometry) : null;
+    resizeObserver?.observe(container);
+    container.querySelectorAll('[data-collection-group-id]').forEach((node) => resizeObserver?.observe(node));
+    window.addEventListener('resize', updateGeometry);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      resizeObserver?.disconnect();
+      window.removeEventListener('resize', updateGeometry);
+    };
+  }, [edges]);
+
+  return (
+    <svg
+      ref={layerRef}
+      className="desktop-collection-edge-layer"
+      viewBox={`0 0 ${geometry.width} ${geometry.height}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <defs>
+        <marker id={markerId} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="strokeWidth">
+          <path d="M 0 0 L 7 3.5 L 0 7 z" className="desktop-collection-edge-arrow" />
+        </marker>
+      </defs>
+      {geometry.paths.map((path) => (
+        <path
+          key={path.id}
+          className="desktop-collection-edge-path"
+          d={path.d}
+          markerEnd={`url(#${markerId})`}
+        />
+      ))}
+    </svg>
   );
 };
 
@@ -3829,7 +4654,9 @@ const CollectionViewBoard = ({
 
   const commitCollectionLabelEdit = useCallback((entry) => {
     const nextLabel = collectionLabelDraft.trim() || DEFAULT_DESKTOP_COLLECTION_LABEL;
-    onGroupLabelUpdate?.(entry.id, nextLabel);
+    (entry.groupIds || [entry.primaryGroupId || entry.id]).forEach((groupId) => {
+      onGroupLabelUpdate?.(groupId, nextLabel);
+    });
     setEditingCollectionLabelId(null);
     setCollectionLabelDraft('');
   }, [collectionLabelDraft, onGroupLabelUpdate]);
@@ -3875,13 +4702,20 @@ const CollectionViewBoard = ({
   };
 
   const renderGroupColumn = (entry, index) => {
-    const groupTitle = getDesktopGroupDisplayName(entry.tasks);
-    const groupIcon = getDesktopGroupIcon(entry.tasks);
     const collectionLabel = getDesktopCollectionLabel(entry.tasks);
     const isEditingCollectionLabel = editingCollectionLabelId === entry.id;
+    const groupCardWidth = 336;
+    const groupCardGap = 44;
+    const columnCount = Math.min(2, entry.groups.length);
+    const linkedLayoutWidth = (columnCount * groupCardWidth) + ((columnCount - 1) * groupCardGap);
+    const markerId = `desktop-collection-arrow-${index}`;
 
     return (
-      <section key={entry.id} className="desktop-collection-column desktop-collection-group-column">
+      <section
+        key={entry.id}
+        className={`desktop-collection-column desktop-collection-group-column ${entry.groups.length > 1 ? 'is-linked-collection' : ''}`}
+        style={{ width: linkedLayoutWidth + 36, flexBasis: linkedLayoutWidth + 36 }}
+      >
         <div className="desktop-collection-label-anchor">
           {isEditingCollectionLabel ? (
             <input
@@ -3913,23 +4747,39 @@ const CollectionViewBoard = ({
             </button>
           )}
         </div>
-        <div className="desktop-collection-group-card">
-          <header className="desktop-collection-column-header">
-            <button
-              type="button"
-              className="desktop-collection-column-title-button"
-              onClick={() => onGroupOpen(entry.tasks)}
-            >
-              <span className="desktop-collection-column-kicker">
-                {groupIcon || `Group ${index + 1}`}
-              </span>
-              <h2>{groupTitle}</h2>
-            </button>
-            <span>{String(entry.tasks.length).padStart(2, '0')} items</span>
-          </header>
-          <div className="desktop-collection-column-list">
-            {entry.tasks.map((task) => renderTaskCard(task))}
-          </div>
+        <div
+          className="desktop-collection-linked-layout"
+          style={{ width: linkedLayoutWidth, gridTemplateColumns: `repeat(${columnCount}, ${groupCardWidth}px)` }}
+        >
+          {entry.edges.length > 0 ? (
+            <CollectionConnectionLayer edges={entry.edges} markerId={markerId} />
+          ) : null}
+          {entry.groups.map((group, groupIndex) => {
+            const groupTitle = getDesktopGroupDisplayName(group.tasks);
+            const groupIcon = getDesktopGroupIcon(group.tasks);
+            return (
+              <div key={group.id} className="desktop-collection-group-node" data-collection-group-id={group.id}>
+                <div className="desktop-collection-group-card">
+                  <header className="desktop-collection-column-header">
+                    <button
+                      type="button"
+                      className="desktop-collection-column-title-button"
+                      onClick={() => onGroupOpen(group.tasks)}
+                    >
+                      <span className="desktop-collection-column-kicker">
+                        {groupIcon || `Group ${index + 1}.${groupIndex + 1}`}
+                      </span>
+                      <h2>{groupTitle}</h2>
+                    </button>
+                    <span>{String(group.tasks.length).padStart(2, '0')} items</span>
+                  </header>
+                  <div className="desktop-collection-column-list">
+                    {group.tasks.map((task) => renderTaskCard(task))}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
     );
@@ -4607,6 +5457,14 @@ function App() {
   const [showAddPreview, setShowAddPreview] = useState(false);
   const hoverAddTimeoutRef = useRef(null);
   const [inputText, setInputText] = useState('');
+  const [quickAddText, setQuickAddText] = useState('');
+  const [quickAddMenuOpen, setQuickAddMenuOpen] = useState(false);
+  const [quickAddAttachments, setQuickAddAttachments] = useState([]);
+  const [quickLinkPreviews, setQuickLinkPreviews] = useState([]);
+  const [quickAddReviewOpen, setQuickAddReviewOpen] = useState(false);
+  const [quickNoteOpen, setQuickNoteOpen] = useState(false);
+  const [quickNoteTitle, setQuickNoteTitle] = useState('');
+  const [quickNoteBody, setQuickNoteBody] = useState('');
   const [addPanelAttachments, setAddPanelAttachments] = useState([]);
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [editText, setEditText] = useState('');
@@ -4636,6 +5494,10 @@ function App() {
   const [pendingWorkspaceDeletion, setPendingWorkspaceDeletion] = useState(null);
   const workspaceMenuRef = useRef(null);
   const workspaceNameInputRef = useRef(null);
+  const quickAddMenuRef = useRef(null);
+  const quickAddTextareaRef = useRef(null);
+  const quickAddFileInputRef = useRef(null);
+  const quickAddPhotoInputRef = useRef(null);
   const setHistoryOpen = useCallback((val) => {
     sessionStorage.setItem('shared_history_open', String(Boolean(val)));
     setHistoryOpenState(val);
@@ -4708,6 +5570,9 @@ function App() {
   const [desktopCanvasPanReady, setDesktopCanvasPanReady] = useState(false);
   const [desktopCanvasPanActive, setDesktopCanvasPanActive] = useState(false);
   const [desktopZoomMenuOpen, setDesktopZoomMenuOpen] = useState(false);
+  const [desktopConnectionDraft, setDesktopConnectionDraft] = useState(null);
+  const [selectedDesktopConnectionKey, setSelectedDesktopConnectionKey] = useState(null);
+  const desktopConnectionDraftRef = useRef(null);
   const desktopCanvasPanStateRef = useRef({
     pointerId: null,
     startX: 0,
@@ -4832,6 +5697,39 @@ function App() {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [desktopZoomMenuOpen]);
+  useEffect(() => {
+    if (!quickAddMenuOpen) return undefined;
+
+    const handlePointerDown = (event) => {
+      if (quickAddMenuRef.current && quickAddMenuRef.current.contains(event.target)) return;
+      setQuickAddMenuOpen(false);
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setQuickAddMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [quickAddMenuOpen]);
+  useLayoutEffect(() => {
+    const textarea = quickAddTextareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = '0px';
+    const lineHeight = Number.parseFloat(window.getComputedStyle(textarea).lineHeight) || 20;
+    const verticalPadding = 2;
+    const maxHeight = (lineHeight * 5) + verticalPadding;
+    const nextHeight = Math.min(textarea.scrollHeight, maxHeight);
+    textarea.style.height = `${nextHeight}px`;
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+  }, [quickAddText]);
   useEffect(() => {
     const interval = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(interval);
@@ -5041,6 +5939,12 @@ function App() {
   const handleDesktopCanvasPointerDown = useCallback((event) => {
     if (event.button !== 0 || isEditableElement(event.target)) return;
 
+    if (event.target instanceof Element && event.target.closest('.desktop-canvas-connection-hit-path, .desktop-canvas-connection-delete')) {
+      return;
+    }
+
+    setSelectedDesktopConnectionKey(null);
+
     if (desktopCanvasPanReady) {
       event.preventDefault();
       event.stopPropagation();
@@ -5111,6 +6015,164 @@ function App() {
     desktopCanvasPanStateRef.current.pointerId = null;
     setDesktopCanvasPanActive(false);
   }, []);
+  const handleDesktopConnectionPointerDown = useCallback((sourceId, side, event) => {
+    if (!event.isPrimary || event.button !== 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+
+    const normalizedSourceId = String(sourceId);
+    const sourceEntry = selectedDayEntriesRef.current.find((entry) => (
+      getDesktopCanvasEntryTaskIds(entry).some((taskId) => String(taskId) === normalizedSourceId)
+    ));
+    const sourceButtonRect = event.currentTarget.getBoundingClientRect();
+    const from = getDragCanvasPointFromClient(
+      sourceButtonRect.left + (sourceButtonRect.width / 2),
+      sourceButtonRect.top + (sourceButtonRect.height / 2),
+    );
+    const currentPoint = getDragCanvasPointFromClient(event.clientX, event.clientY);
+    if (!sourceEntry || !from || !currentPoint) return;
+
+    const draft = {
+      pointerId: event.pointerId,
+      sourceId: normalizedSourceId,
+      from,
+      to: currentPoint,
+    };
+    desktopConnectionDraftRef.current = draft;
+    setDesktopConnectionDraft(draft);
+  }, [getDragCanvasPointFromClient]);
+  const handleDesktopConnectionMouseDown = useCallback((sourceId, side, event) => {
+    if (desktopConnectionDraftRef.current || event.button !== 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+
+    const normalizedSourceId = String(sourceId);
+    const sourceEntry = selectedDayEntriesRef.current.find((entry) => (
+      getDesktopCanvasEntryTaskIds(entry).some((taskId) => String(taskId) === normalizedSourceId)
+    ));
+    const sourceButtonRect = event.currentTarget.getBoundingClientRect();
+    const from = getDragCanvasPointFromClient(
+      sourceButtonRect.left + (sourceButtonRect.width / 2),
+      sourceButtonRect.top + (sourceButtonRect.height / 2),
+    );
+    const currentPoint = getDragCanvasPointFromClient(event.clientX, event.clientY);
+    if (!sourceEntry || !from || !currentPoint) return;
+
+    const draft = {
+      pointerId: 'mouse',
+      sourceId: normalizedSourceId,
+      from,
+      to: currentPoint,
+    };
+    desktopConnectionDraftRef.current = draft;
+    setDesktopConnectionDraft(draft);
+  }, [getDragCanvasPointFromClient]);
+
+  const handleDesktopConnectionPointerMove = useCallback((event) => {
+    const draft = desktopConnectionDraftRef.current;
+    if (!draft || draft.pointerId !== event.pointerId) return;
+    event.preventDefault();
+    event.stopPropagation();
+
+    const currentPoint = getDragCanvasPointFromClient(event.clientX, event.clientY);
+    if (!currentPoint) return;
+    const nextDraft = { ...draft, to: currentPoint };
+    desktopConnectionDraftRef.current = nextDraft;
+    setDesktopConnectionDraft(nextDraft);
+  }, [getDragCanvasPointFromClient]);
+  const handleDesktopConnectionMouseMove = useCallback((event) => {
+    const draft = desktopConnectionDraftRef.current;
+    if (!draft || draft.pointerId !== 'mouse') return;
+    event.preventDefault();
+    event.stopPropagation();
+
+    const currentPoint = getDragCanvasPointFromClient(event.clientX, event.clientY);
+    if (!currentPoint) return;
+    const nextDraft = { ...draft, to: currentPoint };
+    desktopConnectionDraftRef.current = nextDraft;
+    setDesktopConnectionDraft(nextDraft);
+  }, [getDragCanvasPointFromClient]);
+
+  const deleteDesktopConnection = useCallback((connectionKey) => {
+    if (!connectionKey || !connectionKey.includes('->')) return;
+    const [sourceId, targetId] = connectionKey.split('->');
+    if (!sourceId || !targetId) return;
+
+    setTasks((prev) => prev.map((task) => {
+      if (String(task.id) !== sourceId) return task;
+      const nextLinkIds = (Array.isArray(task.desktopLinkIds) ? task.desktopLinkIds : [])
+        .map((id) => String(id))
+        .filter((id) => id !== targetId);
+      return normalizeTask({
+        ...task,
+        desktopLinkIds: nextLinkIds,
+      });
+    }));
+    setSelectedDesktopConnectionKey(null);
+  }, [setTasks]);
+
+  const handleDesktopConnectionPointerEnd = useCallback((event) => {
+    const draft = desktopConnectionDraftRef.current;
+    if (!draft || (draft.pointerId !== 'mouse' && draft.pointerId !== event.pointerId)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+
+    const targetNode = document.elementFromPoint(event.clientX, event.clientY)?.closest?.('.desktop-canvas-card-node');
+    const targetId = targetNode?.getAttribute('data-desktop-connection-id');
+    if (targetId && targetId !== draft.sourceId) {
+      setTasks((prev) => prev.map((task) => {
+        if (String(task.id) !== draft.sourceId) return task;
+        const nextLinkIds = new Set(Array.isArray(task.desktopLinkIds) ? task.desktopLinkIds : []);
+        nextLinkIds.add(String(targetId));
+        return normalizeTask({
+          ...task,
+          desktopLinkIds: [...nextLinkIds],
+        });
+      }));
+      setSelectedDesktopConnectionKey(`${draft.sourceId}->${targetId}`);
+    }
+
+    desktopConnectionDraftRef.current = null;
+    setDesktopConnectionDraft(null);
+  }, [setTasks]);
+  useEffect(() => {
+    if (!desktopConnectionDraft) return undefined;
+
+    window.addEventListener('pointermove', handleDesktopConnectionPointerMove, { passive: false });
+    window.addEventListener('pointerup', handleDesktopConnectionPointerEnd);
+    window.addEventListener('pointercancel', handleDesktopConnectionPointerEnd);
+    window.addEventListener('mousemove', handleDesktopConnectionMouseMove);
+    window.addEventListener('mouseup', handleDesktopConnectionPointerEnd);
+    return () => {
+      window.removeEventListener('pointermove', handleDesktopConnectionPointerMove);
+      window.removeEventListener('pointerup', handleDesktopConnectionPointerEnd);
+      window.removeEventListener('pointercancel', handleDesktopConnectionPointerEnd);
+      window.removeEventListener('mousemove', handleDesktopConnectionMouseMove);
+      window.removeEventListener('mouseup', handleDesktopConnectionPointerEnd);
+    };
+  }, [desktopConnectionDraft, handleDesktopConnectionMouseMove, handleDesktopConnectionPointerEnd, handleDesktopConnectionPointerMove]);
+  useEffect(() => {
+    const handleConnectionHit = (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const hitPath = target.closest('.desktop-canvas-connection-hit-path');
+      if (!hitPath) return;
+      const connectionKey = hitPath.getAttribute('data-connection-key');
+      if (!connectionKey) return;
+      event.preventDefault();
+      event.stopPropagation();
+      setSelectedDesktopConnectionKey(connectionKey);
+    };
+
+    document.addEventListener('mousedown', handleConnectionHit, true);
+    document.addEventListener('click', handleConnectionHit, true);
+    return () => {
+      document.removeEventListener('mousedown', handleConnectionHit, true);
+      document.removeEventListener('click', handleConnectionHit, true);
+    };
+  }, []);
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (isEditableElement(event.target)) return;
@@ -5118,6 +6180,12 @@ function App() {
       if (event.code === 'Space') {
         event.preventDefault();
         setDesktopCanvasPanReady(true);
+      }
+
+      if ((event.key === 'Delete' || event.key === 'Backspace') && selectedDesktopConnectionKey) {
+        event.preventDefault();
+        deleteDesktopConnection(selectedDesktopConnectionKey);
+        return;
       }
 
       if (event.shiftKey && event.key === '1') {
@@ -5133,6 +6201,23 @@ function App() {
           if (summary) {
             setPendingCanvasDeletion(summary);
           }
+        }
+        return;
+      }
+
+      const isZoomShortcut = (event.metaKey || event.ctrlKey)
+        && !event.altKey
+        && (event.key === '+' || event.key === '=' || event.key === '-' || event.key === '0');
+
+      if (isZoomShortcut) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.key === '+' || event.key === '=') {
+          updateDesktopCanvasZoom(viewportRef.current.zoom + DESKTOP_CANVAS_SCALE_STEP);
+        } else if (event.key === '-') {
+          updateDesktopCanvasZoom(viewportRef.current.zoom - DESKTOP_CANVAS_SCALE_STEP);
+        } else if (event.key === '0') {
+          updateDesktopCanvasZoom(DESKTOP_CANVAS_DEFAULT_ZOOM);
         }
         return;
       }
@@ -5173,7 +6258,7 @@ function App() {
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('blur', handleWindowBlur);
     };
-  }, [activeGroupView, editingTaskId, fitDesktopCanvas, panelOpen]);
+  }, [activeGroupView, deleteDesktopConnection, editingTaskId, fitDesktopCanvas, panelOpen, selectedDesktopConnectionKey]);
   const handleDesktopZoomPresetSelect = useCallback((preset) => {
     if (preset === 'in') {
       updateDesktopCanvasZoom(viewportRef.current.zoom + DESKTOP_CANVAS_SCALE_STEP);
@@ -6139,6 +7224,37 @@ function App() {
     () => getDesktopCanvasHeight(selectedDayEntries),
     [selectedDayEntries],
   );
+  const selectedDayConnectionLinks = useMemo(() => {
+    const entryByTaskId = new Map();
+    selectedDayEntries.forEach((entry) => {
+      if (entry.type === 'group') {
+        entry.tasks.forEach((task) => entryByTaskId.set(String(task.id), entry));
+      } else if (entry.task) {
+        entryByTaskId.set(String(entry.task.id), entry);
+      }
+    });
+
+    const seen = new Set();
+    return currentWorkspaceTasks.flatMap((task) => {
+      const sourceId = String(task.id);
+      const sourceEntry = entryByTaskId.get(sourceId);
+      if (!sourceEntry || !Array.isArray(task.desktopLinkIds)) return [];
+
+      return task.desktopLinkIds.flatMap((targetId) => {
+        const normalizedTargetId = String(targetId);
+        const targetEntry = entryByTaskId.get(normalizedTargetId);
+        if (!targetEntry || targetEntry === sourceEntry) return [];
+        const key = `${sourceId}->${normalizedTargetId}`;
+        if (seen.has(key)) return [];
+        seen.add(key);
+        return [{
+          sourceId,
+          targetId: normalizedTargetId,
+          ...getDesktopCanvasConnectionPoints(sourceEntry, targetEntry),
+        }];
+      });
+    });
+  }, [currentWorkspaceTasks, selectedDayEntries]);
   useEffect(() => {
     if (!draggedTaskId || !desktopDragModeRef.current) return undefined;
 
@@ -6511,35 +7627,27 @@ function App() {
       setIsCanvasFileDragActive(false);
     }
   };
-  const handleCanvasFileDrop = async (event) => {
-    // We only prevent default and proceed if there are files.
-    // If it's an internal task drag (draggedTaskId), we clear the overlay and let internal logic handle it.
-    if (!hasSupportedUploadFiles(event.dataTransfer)) {
-      if (draggedTaskId) {
-        setIsCanvasFileDragActive(false);
-        canvasFileDragDepthRef.current = 0;
-      }
-      return;
+  const importFilesToCanvas = async (files, options = {}) => {
+    const selectedFiles = Array.from(files || []);
+    const supportedFiles = selectedFiles.filter((file) => {
+      const uploadKind = getSupportedUploadKind(file);
+      if (!uploadKind) return false;
+      if (options.onlyKind === 'image') return uploadKind === 'image';
+      if (options.onlyKind === 'file') return uploadKind !== 'image';
+      return true;
+    });
+    if (!supportedFiles.length) {
+      showToast(options.onlyKind === 'image' ? 'No supported photos selected' : 'No supported files selected');
+      return false;
     }
 
-    event.preventDefault();
-    event.stopPropagation();
-    canvasFileDragDepthRef.current = 0;
-    setIsCanvasFileDragActive(false);
-
-    const supportedFiles = Array.from(event.dataTransfer?.files || []).filter((file) => isSupportedUploadFile(file));
-    if (!supportedFiles.length) return;
-
-    const droppedDateKey = selectedDateRef.current ? dateKey(selectedDateRef.current) : selectedDateKey;
-    const dropCenter = getCanvasPointFromClient(event.clientX, event.clientY);
-    const dropBasePosition = dropCenter
-      ? { x: dropCenter.x - DESKTOP_CANVAS_CARD_WIDTH / 2, y: dropCenter.y - DESKTOP_PHOTO_CARD_HEIGHT / 2 }
-      : null;
+    const targetDateKey = options.dateKeyOverride || (selectedDateRef.current ? dateKey(selectedDateRef.current) : selectedDateKey);
+    const basePosition = options.basePosition || null;
 
     try {
       const serializedAttachments = await Promise.all(supportedFiles.map((file) => serializeUploadAttachment(file)));
       const operationUpdatedAt = createUpdatedTimestamp();
-      
+
       const fileTasks = await Promise.all(serializedAttachments.map(async (attachment, index) => {
         const storageKey = createUploadedFileStorageKey(attachment.originalFileName);
         await saveUploadedFileBlob({
@@ -6554,10 +7662,10 @@ function App() {
             updatedAt: operationUpdatedAt,
           },
         });
-        
+
         const taskId = Date.now() + index + Math.floor(Math.random() * 1000);
         const isImageAttachment = attachment.uploadKind === 'image';
-        
+
         return normalizeTask({
           id: taskId,
           text: attachment.title,
@@ -6565,7 +7673,7 @@ function App() {
           completed: false,
           desktopWorkspaceId: activeWorkspaceId,
           timeOfDay: 'Morning',
-          dateString: droppedDateKey,
+          dateString: targetDateKey,
           updatedAt: operationUpdatedAt,
           cardType: isImageAttachment ? CARD_TYPES.PHOTO : CARD_TYPES.DOCUMENT,
           primaryUrl: null,
@@ -6595,15 +7703,15 @@ function App() {
         let nextTasks = [...prev];
         fileTasks.forEach((task, index) => {
           const workspaceTasks = nextTasks.filter((item) => taskBelongsToWorkspace(item, activeWorkspaceId));
-          const preferredPosition = dropBasePosition
+          const preferredPosition = basePosition
             ? {
-              x: dropBasePosition.x,
-              y: dropBasePosition.y + (index * (DESKTOP_CANVAS_CARD_GAP + 12)),
+              x: basePosition.x,
+              y: basePosition.y + (index * (DESKTOP_CANVAS_CARD_GAP + 12)),
             }
-            : getNextDesktopCanvasPosition(workspaceTasks, droppedDateKey);
+            : getNextDesktopCanvasPosition(workspaceTasks, targetDateKey);
           const nextPosition = getDesktopCanvasResolvedPosition(
             workspaceTasks,
-            droppedDateKey,
+            targetDateKey,
             new Set([task.id]),
             preferredPosition,
           );
@@ -6620,10 +7728,39 @@ function App() {
       });
 
       showToast(supportedFiles.length === 1 ? 'File added' : `${supportedFiles.length} files added`);
+      return true;
     } catch (error) {
-      console.error('Failed to import dropped files:', error);
+      console.error('Failed to import files:', error);
       showToast('Unable to import files');
+      return false;
     }
+  };
+  const handleCanvasFileDrop = async (event) => {
+    // We only prevent default and proceed if there are files.
+    // If it's an internal task drag (draggedTaskId), we clear the overlay and let internal logic handle it.
+    if (!hasSupportedUploadFiles(event.dataTransfer)) {
+      if (draggedTaskId) {
+        setIsCanvasFileDragActive(false);
+        canvasFileDragDepthRef.current = 0;
+      }
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    canvasFileDragDepthRef.current = 0;
+    setIsCanvasFileDragActive(false);
+
+    const droppedDateKey = selectedDateRef.current ? dateKey(selectedDateRef.current) : selectedDateKey;
+    const dropCenter = getCanvasPointFromClient(event.clientX, event.clientY);
+    const dropBasePosition = dropCenter
+      ? { x: dropCenter.x - DESKTOP_CANVAS_CARD_WIDTH / 2, y: dropCenter.y - DESKTOP_PHOTO_CARD_HEIGHT / 2 }
+      : null;
+
+    await importFilesToCanvas(event.dataTransfer?.files, {
+      dateKeyOverride: droppedDateKey,
+      basePosition: dropBasePosition,
+    });
   };
   const applyAsyncMetadata = (taskId, cardType, videoUrl, mapUrl, primaryUrl, updatedAt = null) => {
     if (cardType === 'video' && videoUrl) {
@@ -6646,6 +7783,202 @@ function App() {
       });
     }
   };
+  const createCanvasTextTask = useCallback((rawText, options = {}) => {
+    const text = String(rawText || '').trim();
+    if (!text) return false;
+
+    const typeFields = getDerivedTaskFields(text);
+    const taskId = options.taskId || Date.now();
+    const operationUpdatedAt = createUpdatedTimestamp();
+    const targetDateKey = options.dateKey || selectedDateKey;
+    const resolvedTimeOfDay = todaySelected ? sectionIdToMobileId(currentBlock) : 'Morning';
+
+    setTasks((prev) => {
+      const workspaceTasks = prev.filter((task) => taskBelongsToWorkspace(task, activeWorkspaceId));
+      const nextPosition = options.position || getNextDesktopCanvasPosition(workspaceTasks, targetDateKey);
+      const desktopSlot = getFirstAvailableDesktopSlot(workspaceTasks, targetDateKey, resolvedTimeOfDay);
+      return [
+        ...prev,
+        normalizeTask({
+          id: taskId,
+          text,
+          completed: false,
+          desktopWorkspaceId: activeWorkspaceId,
+          timeOfDay: resolvedTimeOfDay,
+          dateString: targetDateKey,
+          updatedAt: operationUpdatedAt,
+          ...typeFields,
+          ...(options.taskOverrides || {}),
+          desktopSlot,
+          desktopZ: Date.now(),
+          desktopCanvasX: nextPosition.x,
+          desktopCanvasY: nextPosition.y,
+        }),
+      ];
+    });
+
+    if (!options.skipAsyncMetadata) {
+      applyAsyncMetadata(taskId, typeFields.cardType, typeFields.videoUrl, typeFields.mapUrl, typeFields.primaryUrl, operationUpdatedAt);
+    }
+    return true;
+  }, [activeWorkspaceId, currentBlock, selectedDateKey, setTasks, todaySelected]);
+
+  const quickAddDetectedLinks = useMemo(
+    () => (quickLinkPreviews.length > 0 ? quickLinkPreviews : createQuickLinkPreviews(quickAddText)),
+    [quickAddText, quickLinkPreviews],
+  );
+  const quickAddResourcesModalOpen = Boolean(
+    quickAddReviewOpen
+    && (quickAddAttachments.length > 0 || quickAddDetectedLinks.length > 0),
+  );
+
+  const submitQuickAdd = useCallback(async () => {
+    const linkPreviews = createQuickLinkPreviews(quickAddText);
+    if (quickAddAttachments.length > 0 || linkPreviews.length > 0) {
+      if (linkPreviews.length > 0) {
+        setQuickLinkPreviews(linkPreviews);
+        linkPreviews.forEach((linkPreview) => {
+          fetchYouTubeQuickLinkPreview(linkPreview.url).then((youtubePreview) => {
+          if (!youtubePreview) return;
+            setQuickLinkPreviews((current) => current.map((preview) => (
+              preview.url === linkPreview.url
+                ? { ...preview, ...youtubePreview }
+                : preview
+            )));
+          });
+        });
+      }
+      setQuickAddReviewOpen(true);
+      setQuickAddMenuOpen(false);
+      return;
+    }
+
+    const didCreate = createCanvasTextTask(quickAddText);
+    if (!didCreate) return;
+    setQuickAddText('');
+    showToast('Added to canvas');
+  }, [createCanvasTextTask, quickAddAttachments.length, quickAddText]);
+
+  const closeQuickAddResourcesModal = useCallback(() => {
+    setQuickAddReviewOpen(false);
+  }, []);
+
+  const removeQuickAddLink = useCallback((url) => {
+    setQuickLinkPreviews((current) => current.filter((preview) => preview.url !== url));
+    setQuickAddText((current) => removeQuickAddUrlFromText(current, url));
+  }, []);
+
+  const submitQuickAddResources = useCallback(async () => {
+    const linkPreviews = quickAddDetectedLinks;
+    const attachmentCount = quickAddAttachments.length;
+    let createdLinkCount = 0;
+    let didImportFiles = false;
+
+    linkPreviews.forEach((linkPreview) => {
+      const title = String(linkPreview.customTitle || '').trim() || linkPreview.title || linkPreview.domain;
+      const didCreate = createCanvasTextTask(linkPreview.url, {
+        skipAsyncMetadata: true,
+        taskOverrides: {
+          cardType: CARD_TYPES.LINK,
+          primaryUrl: linkPreview.url,
+          redirectUrl: linkPreview.url,
+          linkTitle: title,
+          linkDescription: linkPreview.description,
+          linkImage: linkPreview.thumbnailUrl || linkPreview.visual,
+        },
+      });
+      if (didCreate) createdLinkCount += 1;
+    });
+
+    if (attachmentCount > 0) {
+      didImportFiles = await importFilesToCanvas(quickAddAttachments.map((attachment) => attachment.file));
+    }
+
+    if (createdLinkCount === 0 && !didImportFiles) return;
+
+    const addedCount = attachmentCount + createdLinkCount;
+    setQuickAddText('');
+    setQuickAddAttachments([]);
+    setQuickLinkPreviews([]);
+    setQuickAddReviewOpen(false);
+    showToast(addedCount === 1 ? 'Added to canvas' : `${addedCount} items added to canvas`);
+  }, [createCanvasTextTask, importFilesToCanvas, quickAddAttachments, quickAddDetectedLinks]);
+
+  const handleQuickAddFileSelection = async (event, onlyKind) => {
+    const selectedFiles = Array.from(event.target.files || []).filter((file) => {
+      const uploadKind = getSupportedUploadKind(file);
+      if (!uploadKind) return false;
+      if (onlyKind === 'image') return uploadKind === 'image';
+      if (onlyKind === 'file') return uploadKind !== 'image';
+      return true;
+    });
+    event.target.value = '';
+    if (!selectedFiles.length) {
+      showToast(onlyKind === 'image' ? 'No supported photos selected' : 'No supported files selected');
+      return;
+    }
+
+    try {
+      const attachments = await Promise.all(selectedFiles.map((file) => serializeUploadAttachment(file)));
+      setQuickAddAttachments((current) => [...current, ...attachments]);
+      setQuickAddReviewOpen(false);
+      setQuickAddMenuOpen(false);
+    } catch (error) {
+      console.error('Failed to prepare quick add attachment:', error);
+      showToast('Unable to prepare file');
+    }
+  };
+
+  const removeQuickAddAttachment = (attachmentId) => {
+    setQuickAddAttachments((current) => current.filter((attachment) => attachment.id !== attachmentId));
+  };
+
+  const openQuickNotePanel = () => {
+    setQuickAddMenuOpen(false);
+    setPanelOpen(false);
+    setNotePanelTaskId(null);
+    setNotePanelCollapsed(false);
+    setQuickNoteTitle('');
+    setQuickNoteBody('');
+    setQuickNoteOpen(true);
+  };
+
+  const closeQuickNotePanel = useCallback(() => {
+    setQuickNoteOpen(false);
+  }, []);
+
+  const submitQuickNote = useCallback(() => {
+    const draftTitle = quickNoteTitle.trim();
+    const body = quickNoteBody.trim();
+    if (!draftTitle && !body) return;
+
+    const title = draftTitle || 'Untitled note';
+    const didCreate = createCanvasTextTask(composeDesktopNoteText(title, body), {
+      taskOverrides: {
+        cardType: CARD_TYPES.TEXT,
+      },
+    });
+    if (!didCreate) return;
+
+    setQuickNoteTitle('');
+    setQuickNoteBody('');
+    setQuickNoteOpen(false);
+    showToast('Note added to canvas');
+  }, [createCanvasTextTask, quickNoteBody, quickNoteTitle]);
+
+  useEffect(() => {
+    if (!quickNoteOpen) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        closeQuickNotePanel();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [closeQuickNotePanel, quickNoteOpen]);
+
   const handleAddPanelFilesSelected = async (files) => {
     if (!files?.length) return;
 
@@ -7369,6 +8702,9 @@ function App() {
                       canvasHeight={selectedDayCanvasHeight}
                       appearance={appearance}
                       labels={t}
+                      connectionLinks={selectedDayConnectionLinks}
+                      connectionDraft={desktopConnectionDraft}
+                      selectedConnectionKey={selectedDesktopConnectionKey}
                       onTaskClick={handleTaskClick}
                       onGroupOpenFullView={handleGroupCardOpen}
                       onTaskEdit={handleTaskEdit}
@@ -7376,13 +8712,20 @@ function App() {
                       onTaskPointerDown={handleTaskPointerDown}
                       onTaskPointerMove={handleTaskPointerMove}
                       onTaskPointerUp={handleTaskPointerUp}
-                    onTaskPointerCancel={handleTaskPointerCancel}
-                    draggedTaskId={draggedTaskId}
-                    selectedTaskIds={selectedTaskIds}
-                    selectionRect={desktopSelectionRect}
-                    dragOverlapTargetId={desktopDragOverlapTargetId}
-                    layoutWidth={DESKTOP_MAIN_CONTENT_MAX_WIDTH}
-                  />
+                      onTaskPointerCancel={handleTaskPointerCancel}
+                      onConnectionPointerDown={handleDesktopConnectionPointerDown}
+                      onConnectionMouseDown={handleDesktopConnectionMouseDown}
+                      onConnectionPointerMove={handleDesktopConnectionPointerMove}
+                      onConnectionPointerUp={handleDesktopConnectionPointerEnd}
+                      onConnectionPointerCancel={handleDesktopConnectionPointerEnd}
+                      onConnectionSelect={setSelectedDesktopConnectionKey}
+                      onConnectionDelete={deleteDesktopConnection}
+                      draggedTaskId={draggedTaskId}
+                      selectedTaskIds={selectedTaskIds}
+                      selectionRect={desktopSelectionRect}
+                      dragOverlapTargetId={desktopDragOverlapTargetId}
+                      layoutWidth={DESKTOP_MAIN_CONTENT_MAX_WIDTH}
+                    />
                   {desktopDragOverlayActive && desktopDragOverlaySnapshot ? (
                     <div
                       aria-hidden="true"
@@ -7480,13 +8823,200 @@ function App() {
           onSubmit={saveTask}
         />
 
+        {quickAddResourcesModalOpen ? (
+          <DesktopAddResourcesModal
+            attachments={quickAddAttachments}
+            linkPreviews={quickAddDetectedLinks}
+            onClose={closeQuickAddResourcesModal}
+            onRemoveAttachment={removeQuickAddAttachment}
+            onRemoveLink={removeQuickAddLink}
+            onSubmit={submitQuickAddResources}
+          />
+        ) : null}
+
+        {!panelOpen
+          && desktopViewMode === DESKTOP_VIEW_MODES.CANVAS
+          && !quickAddResourcesModalOpen ? (
+          <form
+            ref={quickAddMenuRef}
+            className={`desktop-canvas-quick-add ${quickAddAttachments.length > 0 ? 'has-attachments' : ''}`}
+            onSubmit={(event) => {
+              event.preventDefault();
+              submitQuickAdd();
+            }}
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
+            style={{ transform: `translateX(-50%) scale(${DESKTOP_FIXED_UI_SCALE / desktopAppScale})` }}
+          >
+            {quickAddAttachments.length > 0 ? (
+              <div className="desktop-canvas-quick-add-attachments">
+                {quickAddAttachments.map((attachment) => (
+                  attachment.uploadKind === 'image' ? (
+                    <article key={attachment.id} className="desktop-canvas-quick-add-photo-preview">
+                      <img src={attachment.previewUrl || attachment.photoDataUrl} alt={attachment.title || 'Photo preview'} />
+                      <button
+                        type="button"
+                        className="desktop-canvas-quick-add-attachment-remove"
+                        aria-label={`Remove ${attachment.originalFileName}`}
+                        onClick={() => removeQuickAddAttachment(attachment.id)}
+                      >
+                        &times;
+                      </button>
+                    </article>
+                  ) : (
+                    <article key={attachment.id} className="desktop-canvas-quick-add-file-preview">
+                      <span className="desktop-canvas-quick-add-file-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                          <path d="M7 3.75h6.8L18 8v12.25H7a1.5 1.5 0 0 1-1.5-1.5V5.25A1.5 1.5 0 0 1 7 3.75Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+                          <path d="M13.5 4v4.5H18" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+                        </svg>
+                      </span>
+                      <span className="desktop-canvas-quick-add-file-copy">
+                        <strong>{attachment.originalFileName}</strong>
+                        <span>{attachment.uploadKind === 'pdf' ? 'PDF' : 'Document'}</span>
+                      </span>
+                      <button
+                        type="button"
+                        className="desktop-canvas-quick-add-attachment-remove"
+                        aria-label={`Remove ${attachment.originalFileName}`}
+                        onClick={() => removeQuickAddAttachment(attachment.id)}
+                      >
+                        &times;
+                      </button>
+                    </article>
+                  )
+                ))}
+              </div>
+            ) : null}
+            <div className="desktop-canvas-quick-add-menu-anchor">
+              <button
+                type="button"
+                className="desktop-canvas-quick-add-plus"
+                aria-label="Open add menu"
+                aria-expanded={quickAddMenuOpen}
+                onClick={() => setQuickAddMenuOpen((current) => !current)}
+              >
+                <svg
+                  className="desktop-canvas-quick-add-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+              </button>
+              <input
+                ref={quickAddFileInputRef}
+                className="desktop-canvas-quick-add-file-input"
+                type="file"
+                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                multiple
+                onChange={(event) => handleQuickAddFileSelection(event, 'file')}
+              />
+              <input
+                ref={quickAddPhotoInputRef}
+                className="desktop-canvas-quick-add-file-input"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(event) => handleQuickAddFileSelection(event, 'image')}
+              />
+              {quickAddMenuOpen ? (
+                <div className="desktop-canvas-quick-add-menu" role="menu" aria-label="Quick add menu">
+                  <button
+                    type="button"
+                    className="desktop-canvas-quick-add-menu-item"
+                    role="menuitem"
+                    onClick={() => quickAddFileInputRef.current?.click()}
+                  >
+                    <span className="desktop-canvas-quick-add-menu-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24">
+                        <path d="M7 7.5v8.25a5 5 0 0 0 10 0V6.75a3.25 3.25 0 0 0-6.5 0v8.75a1.5 1.5 0 0 0 3 0V8" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                    <span>Upload file</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="desktop-canvas-quick-add-menu-item"
+                    role="menuitem"
+                    onClick={() => quickAddPhotoInputRef.current?.click()}
+                  >
+                    <span className="desktop-canvas-quick-add-menu-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24">
+                        <path d="M5.5 6.5h13a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="m6.5 15 3.2-3.2 2.6 2.6 1.8-1.8L18 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M16.2 9.5h.01" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+                      </svg>
+                    </span>
+                    <span>Upload photo</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="desktop-canvas-quick-add-menu-item"
+                    role="menuitem"
+                    onClick={openQuickNotePanel}
+                  >
+                    <span className="desktop-canvas-quick-add-menu-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24">
+                        <path d="M7 4.75h7.2L18 8.55v10.7H7a1 1 0 0 1-1-1V5.75a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M14 5v4h4M9 12h6M9 15h5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                    <span>Quick Note</span>
+                  </button>
+                </div>
+              ) : null}
+            </div>
+            <textarea
+              ref={quickAddTextareaRef}
+              className="desktop-canvas-quick-add-input"
+              value={quickAddText}
+              rows={1}
+              placeholder="Paste a link, note, or file..."
+              onChange={(event) => {
+                setQuickAddText(event.target.value);
+                setQuickLinkPreviews([]);
+                setQuickAddReviewOpen(false);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                  event.preventDefault();
+                  submitQuickAdd();
+                }
+              }}
+            />
+            <button
+              type="submit"
+              className="desktop-canvas-quick-add-submit"
+              aria-label="Add to canvas"
+              disabled={!quickAddText.trim() && quickAddAttachments.length === 0}
+            >
+              <svg
+                className="desktop-canvas-quick-add-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
+              </svg>
+            </button>
+          </form>
+        ) : null}
+
         {!panelOpen && desktopViewMode === DESKTOP_VIEW_MODES.CANVAS ? (
           <div
             className="desktop-canvas-zoom-toolbar"
             aria-label="Canvas zoom controls"
             onPointerDown={(event) => event.stopPropagation()}
             onClick={(event) => event.stopPropagation()}
-            style={{ transform: `scale(${1 / desktopAppScale})` }}
+            style={{ transform: `scale(${DESKTOP_FIXED_UI_SCALE / desktopAppScale})` }}
           >
             <span className="desktop-canvas-zoom-toolbar-icon" aria-hidden="true">
               <CanvasControlSlidersIcon />
@@ -7687,6 +9217,17 @@ function App() {
           onExpand={() => setNotePanelCollapsed(false)}
           onTextChange={handleNotePanelTextChange}
           onEdit={(task) => handleTaskEdit(task)}
+        />
+
+        <DesktopQuickNoteSidePanel
+          open={quickNoteOpen}
+          title={quickNoteTitle}
+          body={quickNoteBody}
+          labels={t}
+          onTitleChange={setQuickNoteTitle}
+          onBodyChange={setQuickNoteBody}
+          onClose={closeQuickNotePanel}
+          onSubmit={submitQuickNote}
         />
 
         <DesktopProfilePage
