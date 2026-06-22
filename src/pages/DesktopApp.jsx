@@ -56,6 +56,14 @@ import {
   removeQuickAddUrlFromText,
   fetchYouTubeQuickLinkPreview,
 } from '../lib/quickLinkUtils';
+import {
+  getUploadedFileFallbackMimeType,
+  getSupportedUploadKind,
+  isSupportedUploadFile,
+  isSupportedConvertFile,
+  hasSupportedUploadFiles,
+  hasSupportedConvertFiles,
+} from '../lib/uploadUtils';
 
 
 
@@ -169,9 +177,7 @@ const DESKTOP_CANVAS_CARD_GAP = 20;
 const DESKTOP_IMAGE_DROP_MAX_EDGE = 1600;
 const DESKTOP_IMAGE_DROP_QUALITY = 0.88;
 const UPLOADED_FILE_SOURCE_LABEL = 'Uploaded file';
-const SUPPORTED_UPLOAD_IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp'];
-const SUPPORTED_UPLOAD_WORD_EXTENSIONS = ['doc', 'docx'];
-const SUPPORTED_UPLOAD_PDF_EXTENSIONS = ['pdf'];
+
 const SUPPORTED_UPLOAD_ACCEPT = '.pdf,.doc,.docx,.png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 const SUPPORTED_CONVERT_ACCEPT = '.pdf,.docx,.html,.htm,.txt,.md,.csv,.tsv,.xml,text/plain,text/html,text/markdown,text/csv,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 const DESKTOP_CANVAS_MIN_HEIGHT = 560;
@@ -908,123 +914,7 @@ const parseSharedSelectedDate = (value) => {
 };
 const getUploadedFileTitle = (fileName = '', fallback = 'Untitled file') => fileName.replace(/\.[^.]+$/, '').trim() || fallback;
 const getDroppedImageTitle = (fileName = '') => getUploadedFileTitle(fileName, 'Photo');
-const getFileExtension = (fileName = '') => {
-  const segments = String(fileName || '').toLowerCase().split('.');
-  return segments.length > 1 ? segments.pop() : '';
-};
-const getUploadedFileFallbackMimeType = (uploadKind) => {
-  if (uploadKind === 'pdf') return 'application/pdf';
-  if (uploadKind === 'word') return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-  if (uploadKind === 'image') return 'image/png';
-  return 'application/octet-stream';
-};
-const getSupportedUploadKind = (file) => {
-  const mimeType = String(file?.type || '').toLowerCase();
-  const extension = getFileExtension(file?.name || '');
 
-  if (mimeType === 'application/pdf' || SUPPORTED_UPLOAD_PDF_EXTENSIONS.includes(extension)) {
-    return 'pdf';
-  }
-
-  if (
-    mimeType === 'application/msword'
-    || mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    || SUPPORTED_UPLOAD_WORD_EXTENSIONS.includes(extension)
-  ) {
-    return 'word';
-  }
-
-  if (
-    (mimeType.startsWith('image/') && SUPPORTED_UPLOAD_IMAGE_EXTENSIONS.includes(extension))
-    || SUPPORTED_UPLOAD_IMAGE_EXTENSIONS.includes(extension)
-  ) {
-    return 'image';
-  }
-
-  return null;
-};
-const isSupportedUploadFile = (file) => Boolean(getSupportedUploadKind(file));
-const isSupportedConvertFile = (file) => {
-  const mimeType = String(file?.type || '').toLowerCase();
-  const extension = getFileExtension(file?.name || '');
-  return (
-    mimeType === 'application/pdf'
-    || mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    || mimeType === 'text/plain'
-    || mimeType === 'text/html'
-    || mimeType === 'text/markdown'
-    || mimeType === 'text/csv'
-    || extension === 'pdf'
-    || extension === 'docx'
-    || extension === 'html'
-    || extension === 'htm'
-    || extension === 'txt'
-    || extension === 'md'
-    || extension === 'csv'
-    || extension === 'tsv'
-    || extension === 'xml'
-  );
-};
-const hasImageFiles = (dataTransfer) => {
-  const files = Array.from(dataTransfer?.files || []);
-  if (files.some((file) => getSupportedUploadKind(file) === 'image' || String(file?.type || '').toLowerCase().startsWith('image/'))) {
-    return true;
-  }
-
-  const items = Array.from(dataTransfer?.items || []);
-  if (items.some((item) => item.kind === 'file' && String(item.type || '').toLowerCase().startsWith('image/'))) {
-    return true;
-  }
-
-  const types = Array.from(dataTransfer?.types || []);
-  return types.includes('Files');
-};
-const hasSupportedUploadFiles = (dataTransfer) => {
-  const files = Array.from(dataTransfer?.files || []);
-  if (files.some((file) => isSupportedUploadFile(file))) {
-    return true;
-  }
-
-  const items = Array.from(dataTransfer?.items || []);
-  if (items.some((item) => {
-    if (item.kind !== 'file') return false;
-    const itemType = String(item.type || '').toLowerCase();
-    return (
-      itemType === 'application/pdf'
-      || itemType === 'application/msword'
-      || itemType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-      || itemType === 'image/png'
-      || itemType === 'image/jpeg'
-      || itemType === 'image/webp'
-    );
-  })) {
-    return true;
-  }
-
-  const types = Array.from(dataTransfer?.types || []);
-  return types.includes('Files');
-};
-const hasSupportedConvertFiles = (dataTransfer) => {
-  const files = Array.from(dataTransfer?.files || []);
-  if (files.some((file) => isSupportedConvertFile(file))) {
-    return true;
-  }
-
-  const items = Array.from(dataTransfer?.items || []);
-  if (items.some((item) => {
-    if (item.kind !== 'file') return false;
-    const itemType = String(item.type || '').toLowerCase();
-    return (
-      itemType === 'application/pdf'
-      || itemType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    );
-  })) {
-    return true;
-  }
-
-  const types = Array.from(dataTransfer?.types || []);
-  return types.includes('Files');
-};
 const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
   const reader = new FileReader();
   reader.onload = () => resolve(reader.result);

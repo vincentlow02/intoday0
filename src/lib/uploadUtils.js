@@ -107,6 +107,28 @@ export const hasSupportedUploadFiles = (dataTransfer) => {
   return types.includes('Files');
 };
 
+export const hasSupportedConvertFiles = (dataTransfer) => {
+  const files = Array.from(dataTransfer?.files || []);
+  if (files.some((file) => isSupportedConvertFile(file))) {
+    return true;
+  }
+
+  const items = Array.from(dataTransfer?.items || []);
+  if (items.some((item) => {
+    if (item.kind !== 'file') return false;
+    const itemType = String(item.type || '').toLowerCase();
+    return (
+      itemType === 'application/pdf'
+      || itemType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    );
+  })) {
+    return true;
+  }
+
+  const types = Array.from(dataTransfer?.types || []);
+  return types.includes('Files');
+};
+
 export const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
   const reader = new FileReader();
   reader.onload = () => resolve(reader.result);
