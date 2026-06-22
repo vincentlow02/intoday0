@@ -21,7 +21,6 @@ import {
   PACK_ICON_SUGGESTIONS,
 } from '../lib/packPageUtils';
 import { timeBlocks } from '../lib/timeBlocks';
-import { translations } from '../lib/translations';
 import {
   CARD_TYPES,
   extractPrimaryUrl,
@@ -44,6 +43,14 @@ import GlobalStyles from '../components/GlobalStyles';
 import DesktopZoomControl from '../components/DesktopZoomControl';
 import { TaskCardFaviconIcon, TaskCardContent, TaskCard } from '../components/TaskCard';
 import DesktopDeleteConfirmModal from '../components/DesktopDeleteConfirmModal';
+import {
+  dateKey,
+  sameDay,
+  shiftDateByDays,
+  getLocaleForLanguage,
+  getTranslationsForLanguage,
+  formatTemplate,
+} from '../lib/dateUtils';
 
 
 
@@ -77,13 +84,7 @@ const QUICK_LINK_PREVIEW_VISUALS = [
   'linear-gradient(135deg, #dfe7ff 0%, #f6f7fb 42%, #d7f3df 43%, #fff5cf 100%)',
   'linear-gradient(135deg, #151515 0%, #2b2b2b 52%, #e6e2da 53%, #f7f3ed 100%)',
 ];
-const LANGUAGE_LOCALES = {
-  EN: 'en-US',
-  ZH: 'zh-CN',
-  MS: 'ms-MY',
-  JA: 'ja-JP',
-  TH: 'th-TH',
-};
+
 const MOBILE_BLOCK_STYLES = Object.fromEntries(timeBlocks.map((block) => [block.id, block]));
 const DAY_TASK_TIME_ORDER = ['Morning', 'Afternoon', 'Evening', 'Night', 'Midnight'];
 const sections = [
@@ -390,13 +391,7 @@ const applyDesktopTaskDrop = ({
   return nextTasks.map(normalizeTask);
 };
 
-const dateKey = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-const shiftDateByDays = (date, dayOffset) => {
-  const nextDate = new Date(date);
-  nextDate.setDate(nextDate.getDate() + dayOffset);
-  return nextDate;
-};
+
 const getDesktopDayFlipZones = (viewportRect) => {
   const edgeZone = DESKTOP_DRAG_DAY_FLIP_ZONE_PX;
   return {
@@ -407,12 +402,7 @@ const getDesktopDayFlipZones = (viewportRect) => {
     nextEnd: viewportRect.right,
   };
 };
-const getLocaleForLanguage = (language) => LANGUAGE_LOCALES[language] || LANGUAGE_LOCALES.EN;
-const getTranslationsForLanguage = (language) => translations[language] || translations.EN;
-const formatTemplate = (template, values) => Object.entries(values).reduce(
-  (result, [key, value]) => result.replaceAll(`{${key}}`, String(value)),
-  template,
-);
+
 const clampDesktopCanvasScale = (value) => Math.min(DESKTOP_CANVAS_MAX_SCALE, Math.max(DESKTOP_CANVAS_MIN_SCALE, value));
 const isEditableElement = (target) => (
   target instanceof HTMLElement
