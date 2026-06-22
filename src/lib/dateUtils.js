@@ -1,4 +1,4 @@
-import { DESKTOP_DRAG_DAY_FLIP_ZONE_PX, LANGUAGE_LOCALES } from './desktopConstants';
+import { LANGUAGE_LOCALES } from './desktopConstants';
 import { getLogicalToday } from './dateHelpers';
 import { translations } from './translations';
 
@@ -10,17 +10,6 @@ export const shiftDateByDays = (date, dayOffset) => {
   const nextDate = new Date(date);
   nextDate.setDate(nextDate.getDate() + dayOffset);
   return nextDate;
-};
-
-export const getDesktopDayFlipZones = (viewportRect) => {
-  const edgeZone = DESKTOP_DRAG_DAY_FLIP_ZONE_PX;
-  return {
-    mode: 'edge',
-    previousStart: viewportRect.left,
-    previousEnd: viewportRect.left + edgeZone,
-    nextStart: viewportRect.right - edgeZone,
-    nextEnd: viewportRect.right,
-  };
 };
 
 export const parseSharedSelectedDate = (value) => {
