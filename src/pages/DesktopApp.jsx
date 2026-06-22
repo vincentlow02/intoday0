@@ -13,8 +13,6 @@ import { getInitialLanguage } from '../lib/language';
 import { createUpdatedTimestamp, getPackMetadataTextFromItems } from '../lib/packMetadata';
 import { deleteUploadedFileBlob, getUploadedFileRecord, saveUploadedFileBlob } from '../lib/uploadedFileStorage';
 import {
-  getPackIconFromTasks,
-  getPackTagsFromTasks,
   normalizePackCover,
   normalizePackIcon,
   normalizePackTags,
@@ -72,6 +70,13 @@ import {
   getDefaultDesktopWorkspaces,
   areTaskIdSelectionsEqual,
 } from '../lib/workspaceUtils';
+import {
+  getDesktopGroupDisplayName,
+  getDesktopGroupIcon,
+  getDesktopGroupDisplayTags,
+  getSuggestedDesktopGroupName,
+  formatDesktopGroupChipLabel,
+} from '../lib/groupMetadata';
 
 
 
@@ -826,36 +831,7 @@ const getDesktopCanvasResolvedPosition = (tasks, dateString, movingTaskIds, pref
     y: Math.max(0, preferredPosition.y),
   };
 };
-const getDesktopGroupDisplayName = (tasks) => (
-  tasks.find((task) => typeof task.desktopGroupName === 'string' && task.desktopGroupName.trim())?.desktopGroupName
-  || tasks[0]?.text
-  || 'Untitled group'
-);
-const getDesktopGroupIcon = (tasks) => getPackIconFromTasks(tasks);
-const getDesktopGroupTags = (tasks) => getPackTagsFromTasks(tasks);
-const getDesktopGroupDisplayTags = (tasks) => {
-  const storedTags = getDesktopGroupTags(tasks);
-  if (storedTags.length > 0) return storedTags;
-  return getDesktopGroupChips(tasks);
-};
-const getSuggestedDesktopGroupName = (movingTasks, overlapEntry) => {
-  const overlapTasks = overlapEntry?.type === 'group' ? overlapEntry.tasks : overlapEntry?.task ? [overlapEntry.task] : [];
-  const existingName = getDesktopGroupDisplayName([...movingTasks, ...overlapTasks]);
-  return existingName || 'New group';
-};
-const formatDesktopGroupChipLabel = (value) => {
-  if (!value) return '';
-  if (value === 'text') return 'Note';
-  return value.charAt(0).toUpperCase() + value.slice(1);
-};
-const getDesktopGroupChips = (tasks) => {
-  const uniqueTypes = [...new Set(tasks.map((task) => normalizeCardType(task.cardType)).filter(Boolean))];
-  if (uniqueTypes.length === 0) return [];
-  if (uniqueTypes.length > 1) {
-    return ['Mixed Content', formatDesktopGroupChipLabel(uniqueTypes[0])];
-  }
-  return [formatDesktopGroupChipLabel(uniqueTypes[0])];
-};
+
 const cleanupDesktopGroupMetadata = (tasks) => {
   // Keep group metadata even when one task remains so dragging one item out of a
   // group does not collapse the pack into a plain standalone task.
