@@ -45,6 +45,7 @@ export const getTaskWorkspaceId = (task) => (
     : DEFAULT_DESKTOP_WORKSPACE_ID
 );
 
+
 export const taskBelongsToWorkspace = (task, workspaceId) => getTaskWorkspaceId(task) === workspaceId;
 
 export const getDefaultDesktopWorkspaces = () => DEFAULT_DESKTOP_WORKSPACES.map((workspace) => ({ ...workspace }));
@@ -54,3 +55,12 @@ export const getUntitledWorkspaceName = (index) => (index <= 1 ? 'Untitled' : `U
 export const areTaskIdSelectionsEqual = (currentIds, nextIds) => (
   currentIds.length === nextIds.length && nextIds.every((taskId) => currentIds.includes(taskId))
 );
+
+export const getNextWorkspaceName = (workspaces) => {
+  const usedNames = new Set(workspaces.map((workspace) => workspace.name));
+  for (let index = 1; index <= MAX_DESKTOP_WORKSPACES + 1; index += 1) {
+    const candidate = getUntitledWorkspaceName(index);
+    if (!usedNames.has(candidate)) return candidate;
+  }
+  return getUntitledWorkspaceName(workspaces.length + 1);
+};
