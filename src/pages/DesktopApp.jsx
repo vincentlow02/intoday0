@@ -18,7 +18,7 @@ import {
   normalizePackTags,
   PACK_ICON_SUGGESTIONS,
 } from '../lib/packPageUtils';
-import { timeBlocks } from '../lib/timeBlocks';
+
 import {
   CARD_TYPES,
   extractPrimaryUrl,
@@ -87,6 +87,15 @@ import {
   getDesktopSectionPillStyle,
 } from '../lib/timeSectionUtils';
 import { getCanvasDeletionSummary } from '../lib/canvasDeletionSummary';
+import {
+  sections,
+  DAY_TASK_TIME_ORDER,
+  UPLOADED_FILE_SOURCE_LABEL,
+  SUPPORTED_UPLOAD_ACCEPT,
+  SUPPORTED_CONVERT_ACCEPT,
+  DESKTOP_IMAGE_DROP_MAX_EDGE,
+  DESKTOP_IMAGE_DROP_QUALITY,
+} from '../lib/desktopConstants';
 
 
 
@@ -117,58 +126,7 @@ const DEFAULT_DESKTOP_WORKSPACES = [
 ];
 
 
-const MOBILE_BLOCK_STYLES = Object.fromEntries(timeBlocks.map((block) => [block.id, block]));
-const DAY_TASK_TIME_ORDER = ['Morning', 'Afternoon', 'Evening', 'Night', 'Midnight'];
-const sections = [
-  {
-    id: 'morning',
-    mobileId: 'Morning',
-    labelKey: 'morning',
-    start: '06:00',
-    end: '12:00',
-    pillBg: '#f7d8a5',
-    pillColor: '#6b3f06',
-    darkPillBg: MOBILE_BLOCK_STYLES.Morning.color,
-    darkPillColor: MOBILE_BLOCK_STYLES.Morning.textColor,
-    darkPillBorder: MOBILE_BLOCK_STYLES.Morning.strokeColor,
-  },
-  {
-    id: 'afternoon',
-    mobileId: 'Afternoon',
-    labelKey: 'afternoon',
-    start: '12:00',
-    end: '18:00',
-    pillBg: '#bfe3fb',
-    pillColor: '#0d4c82',
-    darkPillBg: MOBILE_BLOCK_STYLES.Afternoon.color,
-    darkPillColor: MOBILE_BLOCK_STYLES.Afternoon.textColor,
-    darkPillBorder: MOBILE_BLOCK_STYLES.Afternoon.strokeColor,
-  },
-  {
-    id: 'evening',
-    mobileId: 'Evening',
-    labelKey: 'evening',
-    start: '18:00',
-    end: '22:00',
-    pillBg: '#eadffd',
-    pillColor: '#5f2d90',
-    darkPillBg: MOBILE_BLOCK_STYLES.Evening.color,
-    darkPillColor: MOBILE_BLOCK_STYLES.Evening.textColor,
-    darkPillBorder: MOBILE_BLOCK_STYLES.Evening.strokeColor,
-  },
-  {
-    id: 'night',
-    mobileId: 'Night',
-    labelKey: 'night',
-    start: '22:00',
-    end: '06:00',
-    pillBg: '#dfe6ef',
-    pillColor: '#213243',
-    darkPillBg: MOBILE_BLOCK_STYLES.Night.color,
-    darkPillColor: MOBILE_BLOCK_STYLES.Night.textColor,
-    darkPillBorder: MOBILE_BLOCK_STYLES.Night.strokeColor,
-  },
-];
+
 const DESKTOP_DRAG_START_DISTANCE = 8;
 const DESKTOP_DRAG_DAY_EDGE_HOLD_MS = 380;
 const DESKTOP_DRAG_DAY_FLIP_COOLDOWN_MS = 700;
@@ -197,12 +155,7 @@ const DESKTOP_CANVAS_CARD_WIDTH = 336;
 const DESKTOP_CANVAS_CARD_HEIGHT = 92;
 const DESKTOP_PHOTO_CARD_HEIGHT = 236;
 const DESKTOP_CANVAS_CARD_GAP = 20;
-const DESKTOP_IMAGE_DROP_MAX_EDGE = 1600;
-const DESKTOP_IMAGE_DROP_QUALITY = 0.88;
-const UPLOADED_FILE_SOURCE_LABEL = 'Uploaded file';
 
-const SUPPORTED_UPLOAD_ACCEPT = '.pdf,.doc,.docx,.png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-const SUPPORTED_CONVERT_ACCEPT = '.pdf,.docx,.html,.htm,.txt,.md,.csv,.tsv,.xml,text/plain,text/html,text/markdown,text/csv,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 const DESKTOP_CANVAS_MIN_HEIGHT = 560;
 const DESKTOP_GROUP_CARD_MIN_HEIGHT = 176;
 const DESKTOP_GROUP_CARD_ITEM_HEIGHT = 60;
