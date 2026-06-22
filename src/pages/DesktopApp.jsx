@@ -31,7 +31,6 @@ import {
   normalizeCardType,
 } from '../taskCardUtils';
 import {
-  deriveTaskDisplaySubtitle,
   deriveTaskDisplayTitle,
 } from '../lib/taskDisplayUtils';
 import { useTaskInteraction } from '../task-interactions/useTaskInteraction';
@@ -50,6 +49,8 @@ import DesktopPackPageHeader from '../components/DesktopPackPageHeader';
 import GroupedTaskCard from '../components/GroupedTaskCard';
 import DailyTaskList from '../components/DailyTaskList';
 import AddPanel from '../components/AddPanel';
+import PackItemSourceIcon from '../components/PackItemSourceIcon';
+import { getPackItemPrimaryUrl, getPackExportBodyText, getPackItemSourceMeta } from '../lib/packItemUtils';
 import {
   DESKTOP_GROUP_CARD_MIN_HEIGHT,
   DESKTOP_GROUP_CARD_ITEM_HEIGHT,
@@ -788,80 +789,7 @@ const panelLabel = (date, language) => {
 
 
 
-const getPackItemPrimaryUrl = (task) => (
-  task?.primaryUrl
-  || task?.videoUrl
-  || task?.mapUrl
-  || task?.redirectUrl
-  || extractPrimaryUrl(task?.text || '')
-  || ''
-);
 
-const getPackItemSourceMeta = (task, labels) => {
-  const cardType = normalizeCardType(task?.cardType);
-  const primaryUrl = getPackItemPrimaryUrl(task);
-  const subtitle = deriveTaskDisplaySubtitle(task, labels) || 'Item';
-
-  let host = '';
-  let domain = '';
-  try {
-    if (primaryUrl) {
-      const parsed = new URL(primaryUrl.startsWith('http') ? primaryUrl : `https://${primaryUrl}`);
-      host = parsed.hostname.toLowerCase();
-      domain = host.replace(/^www\./, '');
-    }
-  } catch {
-    host = '';
-    domain = '';
-  }
-
-  if (host.includes('youtube.com') || host.includes('youtu.be')) {
-    return { key: 'youtube', label: 'YouTube', domain: 'youtube.com' };
-  }
-  if (host.includes('chatgpt.com') || host.includes('openai.com')) {
-    return { key: 'gpt', label: 'ChatGPT', domain: 'chatgpt.com' };
-  }
-  if (host.includes('notion.so') || host.includes('notion.site')) {
-    return { key: 'notion', label: 'Notion', domain: 'notion.so' };
-  }
-  if (host.includes('github.com')) {
-    return { key: 'github', label: 'GitHub', domain: 'github.com' };
-  }
-  if (host.includes('spotify.com') || host.includes('spoti.fi')) {
-    return { key: 'spotify', label: 'Spotify', domain: 'spotify.com' };
-  }
-  if (host.includes('instagram.com')) {
-    return { key: 'link', label: 'Instagram', domain: 'instagram.com' };
-  }
-  if (host.includes('twitter.com') || host.includes('x.com')) {
-    return { key: 'link', label: 'X (Twitter)', domain: 'x.com' };
-  }
-  if (host.includes('tiktok.com')) {
-    return { key: 'video', label: 'TikTok', domain: 'tiktok.com' };
-  }
-  if (host.includes('reddit.com')) {
-    return { key: 'link', label: 'Reddit', domain: 'reddit.com' };
-  }
-  if (domain) {
-    // generic website — use favicon
-    return { key: 'link', label: domain, domain };
-  }
-
-  switch (cardType) {
-    case 'photo':
-      return { key: 'photo', label: labels?.photo || 'Photo', domain: null };
-    case 'video':
-      return { key: 'video', label: subtitle, domain: null };
-    case 'document':
-      return { key: 'document', label: subtitle, domain: null };
-    case 'ai_tool':
-      return { key: 'gpt', label: subtitle, domain: null };
-    case 'text':
-      return { key: 'text', label: subtitle, domain: null };
-    default:
-      return { key: 'link', label: subtitle, domain: null };
-  }
-};
 const PACK_EXPORT_SECTION_ORDER = [
   { role: 'Context', heading: 'Context' },
   { role: 'Code', heading: 'Tech' },
@@ -1018,31 +946,7 @@ const sanitizePackFilename = (value) => {
   return normalized || 'untitled-pack';
 };
 
-const getPackExportBodyText = (task) => {
-  const title = deriveTaskDisplayTitle(task).trim();
-  const primaryUrl = getPackItemPrimaryUrl(task).trim();
-  const candidates = [
-    task?.content,
-    task?.body,
-    task?.previewText,
-    task?.preview,
-    task?.description,
-    task?.summary,
-    task?.note,
-    task?.text,
-  ];
 
-  for (const candidate of candidates) {
-    if (typeof candidate !== 'string') continue;
-    const trimmed = candidate.trim();
-    if (!trimmed) continue;
-    if (title && trimmed === title) continue;
-    if (primaryUrl && trimmed === primaryUrl) continue;
-    return trimmed;
-  }
-
-  return '';
-};
 
 const isCodeLikeContent = (value) => {
   const text = String(value || '').trim();
@@ -1373,74 +1277,7 @@ const FALLBACK_TYPE_ICONS = {
   gpt: <SparkRosetteIcon />,
 };
 
-const PackItemSourceIcon = ({ task, appearance, labels }) => {
-  const [imgError, setImgError] = useState(false);
-  const { cfg } = getTaskCardPresentation(task, labels || {});
-  const { sourceKey, domain } = getPackItemSourceMeta(task, labels || {});
-  const iconBackground = appearance === 'dark' ? cfg.darkBg : cfg.bg;
-  const iconBorder = appearance === 'dark' ? `1px solid ${cfg.darkStroke}` : 'none';
-  const photoPreview = task?.photoDataUrl || task?.photoUrl;
 
-  if (normalizeCardType(task?.cardType) === CARD_TYPES.PHOTO && photoPreview) {
-    return (
-        <span className="desktop-pack-page-item-leading desktop-pack-page-item-leading-photo-preview" aria-hidden="true">
-          <img
-            src={photoPreview}
-            alt=""
-            width={36}
-            height={36}
-            draggable={false}
-            onDragStart={(event) => event.preventDefault()}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10 }}
-          />
-        </span>
-    );
-  }
-
-  if (domain && !imgError) {
-    const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-    return (
-      <span className="desktop-pack-page-item-leading desktop-pack-page-item-leading-favicon" aria-hidden="true">
-        <img
-          src={faviconUrl}
-          alt=""
-          width={22}
-          height={22}
-          style={{ borderRadius: 4, objectFit: 'contain' }}
-          onError={() => setImgError(true)}
-        />
-      </span>
-    );
-  }
-
-  return (
-    <span
-      className={`desktop-pack-page-item-leading desktop-pack-page-item-leading-${sourceKey || 'link'}`}
-      aria-hidden="true"
-      style={{ background: iconBackground, border: iconBorder }}
-    >
-      {appearance === 'dark' && cfg.darkIconColor ? (
-        <span
-          style={{
-            width: 18,
-            height: 18,
-            backgroundColor: cfg.darkIconColor,
-            maskImage: `url(${cfg.icon})`,
-            WebkitMaskImage: `url(${cfg.icon})`,
-            maskSize: 'contain',
-            WebkitMaskSize: 'contain',
-            maskRepeat: 'no-repeat',
-            WebkitMaskRepeat: 'no-repeat',
-            maskPosition: 'center',
-            WebkitMaskPosition: 'center',
-          }}
-        />
-      ) : (
-        <img src={cfg.icon} alt="" width={18} height={18} style={{ objectFit: 'contain' }} />
-      )}
-    </span>
-  );
-};
 
 
 
