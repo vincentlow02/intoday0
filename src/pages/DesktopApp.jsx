@@ -49,6 +49,7 @@ import {
   getTranslationsForLanguage,
   formatTemplate,
   parseSharedSelectedDate,
+  getCalendarWeekdayLabels,
 } from '../lib/dateUtils';
 import {
   createQuickLinkPreviews,
@@ -913,16 +914,7 @@ const normalizeTask = (task) => {
 };
 
 
-const getCalendarWeekdayLabels = (language) => {
-  const locale = getLocaleForLanguage(language);
-  const baseSunday = new Date(Date.UTC(2024, 0, 7));
 
-  return Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(baseSunday);
-    date.setUTCDate(baseSunday.getUTCDate() + index);
-    return new Intl.DateTimeFormat(locale, { weekday: 'narrow' }).format(date);
-  });
-};
 const panelLabel = (date, language) => {
   const t = getTranslationsForLanguage(language);
   if (sameDay(date, getLogicalToday())) {
