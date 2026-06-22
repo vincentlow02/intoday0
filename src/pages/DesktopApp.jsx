@@ -48,6 +48,7 @@ import {
   getLocaleForLanguage,
   getTranslationsForLanguage,
   formatTemplate,
+  parseSharedSelectedDate,
 } from '../lib/dateUtils';
 import {
   createQuickLinkPreviews,
@@ -61,6 +62,8 @@ import {
   isSupportedConvertFile,
   hasSupportedUploadFiles,
   hasSupportedConvertFiles,
+  getUploadedFileTitle,
+  getDroppedImageTitle,
 } from '../lib/uploadUtils';
 import {
   getNextWorkspaceName,
@@ -837,16 +840,6 @@ const cleanupDesktopGroupMetadata = (tasks) => {
   // group does not collapse the pack into a plain standalone task.
   return tasks;
 };
-const parseSharedSelectedDate = (value) => {
-  if (!value) return null;
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!match) return null;
-  const [, year, month, day] = match;
-  const parsed = new Date(Number(year), Number(month) - 1, Number(day));
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-};
-const getUploadedFileTitle = (fileName = '', fallback = 'Untitled file') => fileName.replace(/\.[^.]+$/, '').trim() || fallback;
-const getDroppedImageTitle = (fileName = '') => getUploadedFileTitle(fileName, 'Photo');
 
 const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
   const reader = new FileReader();
