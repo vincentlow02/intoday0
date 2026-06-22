@@ -2,16 +2,12 @@ import { StrictMode, Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
 import { PrototypeProvider } from './providers';
-import { applyPlatformClass } from './hooks/usePlatform';
 import './styles/tokens.css';
 import './styles/index.css';
-import './styles/mobile.css';
 import './styles/timeline.css';
 import './styles/sheets.css';
 import './styles/themes.css';
 import './styles/desktop.css';
-
-applyPlatformClass();
 
 class ErrorBoundary extends Component {
   constructor(props) {
