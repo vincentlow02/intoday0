@@ -82,7 +82,6 @@ import {
 } from '../lib/groupMetadata';
 import {
   sectionIdToMobileId,
-  mobileIdToSectionId,
   currentSection,
   getDesktopSectionPillStyle,
 } from '../lib/timeSectionUtils';
@@ -913,47 +912,7 @@ const normalizeTask = (task) => {
   };
 };
 
-const getSectionBounds = (section, logicalDate) => {
-  const baseDate = new Date(logicalDate);
-  baseDate.setHours(0, 0, 0, 0);
 
-  const [startHour, startMinute] = section.start.split(':').map(Number);
-  const [endHour, endMinute] = section.end.split(':').map(Number);
-
-  const sectionStart = new Date(baseDate);
-  sectionStart.setHours(startHour, startMinute, 0, 0);
-  if (startHour < DAY_BOUNDARY_HOUR) {
-    sectionStart.setDate(sectionStart.getDate() + 1);
-  }
-
-  const sectionEnd = new Date(baseDate);
-  sectionEnd.setHours(endHour, endMinute, 0, 0);
-  if (sectionEnd <= sectionStart) {
-    sectionEnd.setDate(sectionEnd.getDate() + 1);
-  }
-
-  return { sectionStart, sectionEnd };
-};
-const getSectionMarkerStyle = (section, currentTime, selectedDate) => {
-  const logicalToday = getLogicalToday(currentTime);
-  const logicalSelectedDate = new Date(selectedDate);
-  logicalSelectedDate.setHours(0, 0, 0, 0);
-
-  if (!sameDay(logicalSelectedDate, logicalToday)) return null;
-
-  const { sectionStart, sectionEnd } = getSectionBounds(section, logicalSelectedDate);
-
-  if (currentTime < sectionStart || currentTime >= sectionEnd) return null;
-
-  const progress = Math.max(
-    0,
-    Math.min(1, (currentTime.getTime() - sectionStart.getTime()) / (sectionEnd.getTime() - sectionStart.getTime())),
-  );
-
-  return {
-    top: `calc(${DESKTOP_TIME_AXIS_LINE_TOP}px + ((100% - ${DESKTOP_TIME_AXIS_LINE_TOP}px - ${DESKTOP_TIME_AXIS_LINE_BOTTOM}px) * ${progress}) - ${(DESKTOP_TIME_MARKER_SIZE / 2)}px)`,
-  };
-};
 const getCalendarWeekdayLabels = (language) => {
   const locale = getLocaleForLanguage(language);
   const baseSunday = new Date(Date.UTC(2024, 0, 7));
