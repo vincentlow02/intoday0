@@ -44,6 +44,7 @@ import DesktopQuickNoteSidePanel from '../components/DesktopQuickNoteSidePanel';
 import DesktopNoteSidePanel from '../components/DesktopNoteSidePanel';
 import { composeDesktopNoteText } from '../lib/noteUtils';
 import DesktopAddResourcesModal from '../components/DesktopAddResourcesModal';
+import DragDayFeedbackOverlayV2 from '../components/DragDayFeedbackOverlay';
 import DesktopDeleteConfirmModal from '../components/DesktopDeleteConfirmModal';
 import {
   dateKey,
@@ -2584,79 +2585,6 @@ const DesktopGroupPrompt = ({
           </button>
         </div>
       </div>
-    </div>
-  );
-};
-
-const DragDayFeedbackOverlay = ({
-  direction,
-  previousLabel,
-  nextLabel,
-  zones,
-  isConfirming,
-}) => (
-  <div className={`desktop-drag-day-feedback ${direction ? 'is-visible' : ''} ${isConfirming ? 'is-confirming' : ''}`} aria-hidden="true">
-    <div
-      className={`desktop-drag-day-feedback-edge desktop-drag-day-feedback-edge-previous ${direction === 'previous' ? 'is-active' : ''}`}
-      style={zones ? { width: Math.max(0, zones.previousEnd - zones.previousStart) } : undefined}
-    >
-      <div className="desktop-drag-day-feedback-chip">
-        <span className="desktop-drag-day-feedback-arrow desktop-drag-day-feedback-arrow-previous">{'←'}</span>
-        <span className="desktop-drag-day-feedback-label">{previousLabel}</span>
-      </div>
-    </div>
-    <div
-      className={`desktop-drag-day-feedback-edge desktop-drag-day-feedback-edge-next ${direction === 'next' ? 'is-active' : ''}`}
-      style={zones ? { width: Math.max(0, zones.nextEnd - zones.nextStart) } : undefined}
-    >
-      <div className="desktop-drag-day-feedback-chip">
-        <span className="desktop-drag-day-feedback-label">{nextLabel}</span>
-        <span className="desktop-drag-day-feedback-arrow desktop-drag-day-feedback-arrow-next">{'→'}</span>
-      </div>
-    </div>
-  </div>
-);
-
-const DragDayFeedbackOverlayV2 = ({
-  direction,
-  previousLabel,
-  nextLabel,
-  zones,
-  isConfirming,
-}) => {
-  const renderEdge = (edgeDirection, label, arrow, width) => {
-    const isActive = direction === edgeDirection;
-    const stateClass = isActive ? (isConfirming ? 'is-armed' : 'is-preview') : '';
-
-    return (
-      <div
-        className={`desktop-drag-day-feedback-edge desktop-drag-day-feedback-edge-${edgeDirection} ${isActive ? 'is-active' : ''} ${stateClass}`}
-        style={typeof width === 'number' ? { width } : undefined}
-      >
-        <div className="desktop-drag-day-feedback-chip">
-          {edgeDirection === 'previous' ? (
-            <span className="desktop-drag-day-feedback-arrow desktop-drag-day-feedback-arrow-previous">{'<'}</span>
-          ) : null}
-          <div className="desktop-drag-day-feedback-copy">
-            <span className="desktop-drag-day-feedback-label">{label}</span>
-            {isActive ? (
-              <span className="desktop-drag-day-feedback-hint">
-                {isConfirming ? 'Ready to switch' : 'Hold or drag further'}
-              </span>
-            ) : null}
-          </div>
-          {edgeDirection === 'next' ? (
-            <span className="desktop-drag-day-feedback-arrow desktop-drag-day-feedback-arrow-next">{'>'}</span>
-          ) : null}
-        </div>
-      </div>
-    );
-  };
-
-  return (
-    <div className={`desktop-drag-day-feedback ${direction ? 'is-visible' : ''} ${isConfirming ? 'is-confirming' : ''}`} aria-hidden="true">
-      {renderEdge('previous', previousLabel, '<', zones ? Math.max(0, zones.previousEnd - zones.previousStart) : undefined)}
-      {renderEdge('next', nextLabel, '>', zones ? Math.max(0, zones.nextEnd - zones.nextStart) : undefined)}
     </div>
   );
 };
