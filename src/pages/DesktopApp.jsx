@@ -65,6 +65,8 @@ import {
   hasSupportedConvertFiles,
   getUploadedFileTitle,
   getDroppedImageTitle,
+  createUploadedFileStorageKey,
+  serializeUploadAttachment,
 } from '../lib/uploadUtils';
 import {
   getNextWorkspaceName,
@@ -733,93 +735,7 @@ const cleanupDesktopGroupMetadata = (tasks) => {
   return tasks;
 };
 
-const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
-  const reader = new FileReader();
-  reader.onload = () => resolve(reader.result);
-  reader.onerror = () => reject(reader.error || new Error('Failed to read file'));
-  reader.readAsDataURL(file);
-});
-const loadImageElement = (src) => new Promise((resolve, reject) => {
-  const image = new Image();
-  image.onload = () => resolve(image);
-  image.onerror = () => reject(new Error('Failed to decode image'));
-  image.src = src;
-});
-const createUploadAttachmentId = () => `${Date.now()}-${Math.round(Math.random() * 100000)}`;
-const createUploadedFileStorageKey = (fileName = 'file') => {
-  const normalizedName = String(fileName || 'file')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    || 'file';
-  return `upload:${Date.now()}:${Math.random().toString(36).slice(2, 10)}:${normalizedName}`;
-};
-const serializeDroppedImageFile = async (file) => {
-  const originalDataUrl = await readFileAsDataUrl(file);
-  const image = await loadImageElement(originalDataUrl);
-  const longestEdge = Math.max(image.naturalWidth || 0, image.naturalHeight || 0);
-  const scale = longestEdge > DESKTOP_IMAGE_DROP_MAX_EDGE
-    ? DESKTOP_IMAGE_DROP_MAX_EDGE / longestEdge
-    : 1;
-  const targetWidth = Math.max(1, Math.round((image.naturalWidth || 1) * scale));
-  const targetHeight = Math.max(1, Math.round((image.naturalHeight || 1) * scale));
-  const canvas = document.createElement('canvas');
-  canvas.width = targetWidth;
-  canvas.height = targetHeight;
-  const context = canvas.getContext('2d');
-  if (!context) {
-    return {
-      photoDataUrl: originalDataUrl,
-      photoWidth: image.naturalWidth || targetWidth,
-      photoHeight: image.naturalHeight || targetHeight,
-      photoMimeType: file.type || 'image/png',
-    };
-  }
 
-  context.drawImage(image, 0, 0, targetWidth, targetHeight);
-  const shouldKeepAlpha = /png|webp|gif|avif/i.test(file.type || '');
-  const mimeType = shouldKeepAlpha ? 'image/png' : 'image/jpeg';
-  const photoDataUrl = canvas.toDataURL(mimeType, DESKTOP_IMAGE_DROP_QUALITY);
-
-  return {
-    photoDataUrl,
-    photoWidth: targetWidth,
-    photoHeight: targetHeight,
-    photoMimeType: mimeType,
-  };
-};
-const serializeUploadAttachment = async (file) => {
-  const uploadKind = getSupportedUploadKind(file);
-  if (!uploadKind) {
-    throw new Error(`Unsupported file type: ${file?.name || 'unknown'}`);
-  }
-
-  const fallbackTitle = uploadKind === 'image' ? 'Photo' : 'Untitled file';
-  const baseAttachment = {
-    id: createUploadAttachmentId(),
-    file,
-    uploadKind,
-    title: uploadKind === 'image' ? getDroppedImageTitle(file.name) : getUploadedFileTitle(file.name, fallbackTitle),
-    originalFileName: file.name || `${fallbackTitle.toLowerCase().replace(/\s+/g, '-')}`,
-    mimeType: file.type || getUploadedFileFallbackMimeType(uploadKind),
-    size: Number.isFinite(file.size) ? file.size : 0,
-    createdAt: createUpdatedTimestamp(),
-    updatedAt: createUpdatedTimestamp(),
-    extractedText: null,
-    previewUrl: null,
-  };
-
-  if (uploadKind !== 'image') {
-    return baseAttachment;
-  }
-
-  const photoFields = await serializeDroppedImageFile(file);
-  return {
-    ...baseAttachment,
-    ...photoFields,
-    previewUrl: photoFields.photoDataUrl || null,
-  };
-};
 
 const normalizeTask = (task) => {
   const derivedFields = getDerivedTaskFields(task.text || '');
