@@ -2500,56 +2500,6 @@ const DesktopGroupFullViewModal = ({
   );
 };
 
-const GroupDragPreview = ({ tasks, appearance, labels }) => {
-  const groupTitle = getDesktopGroupDisplayName(tasks);
-  const groupIcon = getDesktopGroupIcon(tasks);
-  const metadataText = getPackMetadataTextFromItems(tasks);
-  const groupChips = getDesktopGroupDisplayTags(tasks);
-  const displayTasks = tasks.slice(0, 4); // Display up to 4 items matching the card
-
-  return (
-    <div className="desktop-task-card desktop-task-group-card is-drag-preview" style={{ width: '100%', height: '100%', transform: 'none', padding: '14px 0 0 0' }}>
-      <div className="desktop-task-group-header" style={{ marginBottom: 10, padding: '0 14px' }}>
-        <div className="desktop-task-group-title-wrap">
-          {groupIcon ? (
-            <span className="desktop-task-group-title-icon">{groupIcon}</span>
-          ) : (
-            <span className="desktop-task-group-title-dot" />
-          )}
-          <div className="desktop-task-group-title-block">
-            <span className="desktop-task-group-title">{groupTitle}</span>
-            {metadataText && <span className="desktop-task-group-metadata">{metadataText}</span>}
-          </div>
-        </div>
-      </div>
-
-      {groupChips.length > 0 && (
-        <div className="desktop-task-group-chip-row" style={{ padding: '0 14px', marginBottom: 10 }}>
-          {groupChips.map((chip, idx) => (
-            <div key={idx} className="desktop-task-group-chip">
-              {chip}
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="desktop-task-group-list" style={{ padding: 0 }}>
-        {displayTasks.map((task) => (
-          <div key={task.id} className="desktop-task-group-row" style={{ minHeight: 40, padding: '4px 8px' }}>
-            <TaskCardContent task={task} appearance={appearance} labels={labels} />
-          </div>
-        ))}
-        {tasks.length > 4 && (
-          <div className="desktop-task-group-more-label">
-            {tasks.length} tasks
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-
 
 const DesktopGroupPrompt = ({
   prompt,
