@@ -73,13 +73,13 @@ export const getDesktopCanvasResolvedPosition = (tasks, dateString, movingTaskId
     ? getDesktopGroupCardHeight(movingTasks.length)
     : DESKTOP_CANVAS_CARD_HEIGHT;
   const maxX = Math.max(0, DESKTOP_MAIN_CONTENT_MAX_WIDTH - DESKTOP_CANVAS_CARD_WIDTH);
-  const clampedX = Math.max(0, Math.min(maxX, preferredPosition.x));
+  const clampedX = Math.min(maxX, preferredPosition.x);
   const stepY = DESKTOP_CANVAS_CARD_GAP + 12;
 
   for (let attempt = 0; attempt < 80; attempt += 1) {
     const candidate = {
       x: clampedX,
-      y: Math.max(0, preferredPosition.y + (attempt * stepY)),
+      y: preferredPosition.y + (attempt * stepY),
     };
     const result = getDesktopCanvasOverlapEntry(tasks, dateString, movingTaskIds, candidate, 0.01);
     if (!result) return candidate;
@@ -92,7 +92,7 @@ export const getDesktopCanvasResolvedPosition = (tasks, dateString, movingTaskId
 
   return {
     x: clampedX,
-    y: Math.max(0, preferredPosition.y),
+    y: preferredPosition.y,
   };
 };
 
