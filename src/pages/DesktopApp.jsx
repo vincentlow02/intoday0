@@ -12,6 +12,15 @@ import { useDesktopPreferences } from '../hooks/useDesktopPreferences';
 import { useUploadedFileCleanup } from '../hooks/useUploadedFileCleanup';
 import { useDesktopWorkspaceState, MAX_DESKTOP_WORKSPACES, DEFAULT_DESKTOP_WORKSPACE_ID } from '../hooks/useDesktopWorkspaceState';
 import { useDesktopSelection } from '../hooks/useDesktopSelection';
+import {
+  useDesktopViewportState,
+  DESKTOP_CANVAS_DEFAULT_ZOOM,
+  DESKTOP_CANVAS_MIN_SCALE,
+  DESKTOP_CANVAS_MAX_SCALE,
+  DESKTOP_CANVAS_SCALE_STEP,
+  DESKTOP_APP_WINDOW_SCALE,
+  DESKTOP_FIXED_UI_SCALE,
+} from '../hooks/useDesktopViewportState';
 import { createUpdatedTimestamp } from '../lib/packMetadata';
 import { getUploadedFileRecord, saveUploadedFileBlob } from '../lib/uploadedFileStorage';
 import {
@@ -124,10 +133,6 @@ const DESKTOP_TIME_AXIS_LINE_BOTTOM = 36;
 const DESKTOP_TIME_MARKER_SIZE = 7;
 const DESKTOP_SLOT_MIN_HEIGHT = 98;
 const DESKTOP_SLOT_GAP = 22;
-const DESKTOP_CANVAS_DEFAULT_ZOOM = 0.76;
-const DESKTOP_CANVAS_MIN_SCALE = 0.25;
-const DESKTOP_CANVAS_MAX_SCALE = 2;
-const DESKTOP_CANVAS_SCALE_STEP = 0.12;
 const DESKTOP_CANVAS_CARD_WIDTH = 336;
 const DESKTOP_CANVAS_CARD_HEIGHT = 92;
 const DESKTOP_PHOTO_CARD_HEIGHT = 236;
@@ -136,19 +141,7 @@ const DESKTOP_CANVAS_CARD_GAP = 20;
 const DESKTOP_CANVAS_MIN_HEIGHT = 560;
 const DESKTOP_CANVAS_HITBOX_HORIZONTAL_PADDING = 10;
 const DESKTOP_CANVAS_HITBOX_VERTICAL_PADDING = 18;
-// Pure coordinate utility functions (no DOM refs, no closures)
-const canvasToScreen = (canvasX, canvasY, vp) => ({
-  x: canvasX + vp.panX,
-  y: canvasY + vp.panY,
-});
-const screenToCanvas = (screenX, screenY, vp) => ({
-  x: screenX - vp.panX,
-  y: screenY - vp.panY,
-});
-// Root-level app window scale baseline. The live scale is driven by viewport.zoom
-// so toolbar +/- behaves like Ctrl+Plus/Ctrl+Minus for the whole prototype UI.
-const DESKTOP_APP_WINDOW_SCALE = 0.76;
-const DESKTOP_FIXED_UI_SCALE = 0.95;
+
 
 
 const isValidDesktopSlot = (value) => Number.isInteger(value) && value >= 0;
@@ -329,7 +322,6 @@ const applyDesktopTaskDrop = ({
   return nextTasks.map(normalizeTask);
 };
 
-const clampDesktopCanvasScale = (value) => Math.min(DESKTOP_CANVAS_MAX_SCALE, Math.max(DESKTOP_CANVAS_MIN_SCALE, value));
 const isEditableElement = (target) => (
   target instanceof HTMLElement
   && Boolean(target.closest('input, textarea, button, select, [contenteditable="true"], [role="dialog"]'))
@@ -929,24 +921,35 @@ function App() {
   const suppressTaskClickTimeoutRef = useRef(null);
   const desktopLayoutRectsRef = useRef(new Map());
   const desktopCanvasContentRef = useRef(null);
-  const viewportContainerRef = useRef(null);
   const searchDragSeparateRef = useRef(false);
   const editCopyResetTimerRef = useRef(null);
   const canvasFileDragDepthRef = useRef(0);
-  const [viewport, setViewport] = useState({ panX: 0, panY: 0, zoom: DESKTOP_CANVAS_DEFAULT_ZOOM });
-  const viewportRef = useRef({ panX: 0, panY: 0, zoom: DESKTOP_CANVAS_DEFAULT_ZOOM });
-  const [desktopCanvasPanReady, setDesktopCanvasPanReady] = useState(false);
-  const [desktopCanvasPanActive, setDesktopCanvasPanActive] = useState(false);
-  const [desktopZoomMenuOpen, setDesktopZoomMenuOpen] = useState(false);
   const [desktopConnectionDraft, setDesktopConnectionDraft] = useState(null);
   const [selectedDesktopConnectionKey, setSelectedDesktopConnectionKey] = useState(null);
   const desktopConnectionDraftRef = useRef(null);
-  const desktopCanvasPanStateRef = useRef({
-    pointerId: null,
-    startX: 0,
-    startY: 0,
-    startPanX: 0,
-    startPanY: 0,
+
+  const {
+    viewport,
+    setViewport,
+    viewportRef,
+    viewportContainerRef,
+    desktopCanvasPanReady,
+    setDesktopCanvasPanReady,
+    desktopCanvasPanActive,
+    setDesktopCanvasPanActive,
+    desktopCanvasPanStateRef,
+    desktopZoomMenuOpen,
+    setDesktopZoomMenuOpen,
+
+    fitDesktopCanvas,
+    getCanvasPointFromClient,
+    getDragCanvasPointFromClient,
+    clampViewportPan,
+    updateDesktopCanvasZoom,
+    handleDesktopCanvasWheel,
+    handleDesktopZoomPresetSelect,
+  } = useDesktopViewportState({
+    desktopDragContainerRectRef,
   });
 
   useEffect(() => {
@@ -956,31 +959,6 @@ function App() {
   useEffect(() => {
     tasksRef.current = currentWorkspaceTasks;
   }, [currentWorkspaceTasks]);
-  useEffect(() => {
-    viewportRef.current = viewport;
-  }, [viewport]);
-  useEffect(() => {
-    if (!desktopZoomMenuOpen) return undefined;
-
-    const handlePointerDown = (event) => {
-      if (!(event.target instanceof HTMLElement)) return;
-      if (event.target.closest('.desktop-canvas-zoom-toolbar')) return;
-      setDesktopZoomMenuOpen(false);
-    };
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setDesktopZoomMenuOpen(false);
-      }
-    };
-
-    window.addEventListener('pointerdown', handlePointerDown);
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('pointerdown', handlePointerDown);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [desktopZoomMenuOpen]);
   useEffect(() => {
     if (!quickAddMenuOpen) return undefined;
 
@@ -1036,58 +1014,9 @@ function App() {
   const todaySelected = sameDay(selectedDate, logicalToday);
   const currentBlock = currentSection(currentTime);
 
-  const fitDesktopCanvas = useCallback(() => {
-    const container = viewportContainerRef.current;
-    if (!container) return;
-    const vw = container.clientWidth;
-    const zoom = clampDesktopCanvasScale(Math.min(vw / DESKTOP_MAIN_CONTENT_MAX_WIDTH, DESKTOP_CANVAS_DEFAULT_ZOOM));
-    const contentW = DESKTOP_MAIN_CONTENT_MAX_WIDTH;
-    const nextPanX = vw > contentW ? (vw - contentW) / 2 : 0;
-    const nextVp = { panX: nextPanX, panY: 0, zoom };
-    viewportRef.current = nextVp;
-    setViewport(nextVp);
-  }, []);
 
-  useEffect(() => {
-    let isMounted = true;
-    const attemptFit = () => {
-      if (!isMounted) return;
-      if (viewportContainerRef.current && viewportContainerRef.current.clientWidth > 0) {
-        if (viewportRef.current.panX === 0 && viewportRef.current.panY === 0) {
-          fitDesktopCanvas();
-        }
-      } else {
-        setTimeout(attemptFit, 50);
-      }
-    };
-    attemptFit();
-    return () => { isMounted = false; };
-  }, [fitDesktopCanvas]);
 
-  const getCanvasPointFromClient = useCallback((clientX, clientY) => {
-    const container = viewportContainerRef.current;
-    if (!container) return null;
-    const rect = container.getBoundingClientRect();
-    const appScale = viewportRef.current.zoom || DESKTOP_APP_WINDOW_SCALE;
-    return screenToCanvas(
-      (clientX - rect.left) / appScale,
-      (clientY - rect.top) / appScale,
-      viewportRef.current,
-    );
-  }, []);
 
-  const getDragCanvasPointFromClient = useCallback((clientX, clientY) => {
-    const rect = desktopDragContainerRectRef.current;
-    if (rect) {
-      const appScale = viewportRef.current.zoom || DESKTOP_APP_WINDOW_SCALE;
-      return screenToCanvas(
-        (clientX - rect.left) / appScale,
-        (clientY - rect.top) / appScale,
-        viewportRef.current,
-      );
-    }
-    return getCanvasPointFromClient(clientX, clientY);
-  }, [getCanvasPointFromClient]);
 
   const getDesktopDragAnchorPosition = useCallback((canvasPoint) => {
     if (!canvasPoint) return null;
@@ -1110,63 +1039,7 @@ function App() {
     };
   }, []);
 
-  // Clamp panX/panY so the canvas content is always at least MIN_VISIBLE px
-  // inside the viewport — prevents tasks from floating completely off-screen.
-  const clampViewportPan = useCallback((vp) => {
-    const container = viewportContainerRef.current;
-    if (!container) return vp;
-    const MIN_VISIBLE = 128; // px — minimum overlap required on each axis
-    const cw = container.clientWidth;
-    const ch = container.clientHeight;
-    const contentW = DESKTOP_MAIN_CONTENT_MAX_WIDTH;
-    // Horizontal: canvas right edge must be at least MIN_VISIBLE from the left;
-    //             canvas left edge must be at most (cw - MIN_VISIBLE) from the left.
-    const minPanX = MIN_VISIBLE - contentW;  // canvas almost entirely right of viewport
-    const maxPanX = cw - MIN_VISIBLE;         // canvas almost entirely left of viewport
-    // Vertical: keep top of canvas reachable (panY should not exceed containerHeight - MIN_VISIBLE).
-    //           Infinite height downward is fine, but don't push top too far down.
-    const minPanY = -(ch * 4);               // generous — allow lots of vertical canvas
-    const maxPanY = ch - MIN_VISIBLE;
-    return {
-      panX: Math.min(maxPanX, Math.max(minPanX, vp.panX)),
-      panY: Math.min(maxPanY, Math.max(minPanY, vp.panY)),
-      zoom: vp.zoom,
-    };
-  }, []);
 
-  // Zoom only changes the canvas background density. Cards keep fixed screen
-  // size and fixed canvas coordinates, so groups do not drift when zooming.
-  const updateDesktopCanvasZoomAnchored = useCallback((nextZoom, anchor) => {
-    const current = viewportRef.current;
-    const clampedZoom = clampDesktopCanvasScale(Number(nextZoom.toFixed(3)));
-    if (Math.abs(clampedZoom - current.zoom) < 0.001) return;
-
-    const nextVp = clampViewportPan({ ...current, zoom: clampedZoom });
-    viewportRef.current = nextVp;
-    setViewport(nextVp);
-  }, [clampViewportPan]);
-
-  // Zoom around the visible viewport center so toolbar buttons and shortcuts
-  // keep the current canvas focus in place.
-  const updateDesktopCanvasZoom = useCallback((nextZoom) => {
-    const container = viewportContainerRef.current;
-    if (!container) return;
-    const rect = container.getBoundingClientRect();
-    updateDesktopCanvasZoomAnchored(nextZoom, {
-      clientX: rect.left + rect.width / 2,
-      clientY: rect.top + rect.height / 2,
-    });
-  }, [updateDesktopCanvasZoomAnchored]);
-
-  const handleDesktopCanvasWheel = useCallback((event) => {
-    if (!(event.ctrlKey || event.metaKey)) return;
-    event.preventDefault();
-    const direction = event.deltaY > 0 ? -1 : 1;
-    updateDesktopCanvasZoomAnchored(
-      viewportRef.current.zoom + (direction * DESKTOP_CANVAS_SCALE_STEP),
-      { clientX: event.clientX, clientY: event.clientY },
-    );
-  }, [updateDesktopCanvasZoomAnchored]);
 
   const handleDesktopCanvasPointerDown = useCallback((event) => {
     if (event.button !== 0 || isEditableElement(event.target)) return;
@@ -1210,7 +1083,7 @@ function App() {
     };
     setDesktopSelectionRect({ x: origin.x, y: origin.y, width: 0, height: 0 });
     clearSelection();
-  }, [clearSelection, desktopCanvasPanReady, desktopSelectionStateRef, getCanvasPointFromClient, setDesktopSelectionRect]);
+  }, [clearSelection, desktopCanvasPanReady, desktopSelectionStateRef, getCanvasPointFromClient, setDesktopSelectionRect, desktopCanvasPanStateRef, setDesktopCanvasPanActive, viewportRef]);
 
   const handleDesktopCanvasPointerMove = useCallback((event) => {
     if (desktopSelectionStateRef.current.pointerId === event.pointerId) {
@@ -1232,7 +1105,7 @@ function App() {
     const nextVp = clampViewportPan({ ...viewportRef.current, panX: nextPanX, panY: nextPanY });
     viewportRef.current = nextVp;
     setViewport(nextVp);
-  }, [clampViewportPan, desktopCanvasPanActive, desktopSelectionStateRef, getCanvasPointFromClient, setDesktopSelectionRect, updateDesktopSelectionFromRect]);
+  }, [clampViewportPan, desktopCanvasPanActive, desktopSelectionStateRef, getCanvasPointFromClient, setDesktopSelectionRect, updateDesktopSelectionFromRect, desktopCanvasPanStateRef, setViewport, viewportRef]);
 
   const handleDesktopCanvasPointerEnd = useCallback((event) => {
     if (desktopSelectionStateRef.current.pointerId === event.pointerId) {
@@ -1246,7 +1119,7 @@ function App() {
     event.currentTarget.releasePointerCapture?.(event.pointerId);
     desktopCanvasPanStateRef.current.pointerId = null;
     setDesktopCanvasPanActive(false);
-  }, [desktopSelectionStateRef, setDesktopSelectionRect]);
+  }, [desktopSelectionStateRef, setDesktopSelectionRect, desktopCanvasPanStateRef, setDesktopCanvasPanActive]);
   const handleDesktopConnectionPointerDown = useCallback((sourceId, side, event) => {
     if (!event.isPrimary || event.button !== 0) return;
     event.preventDefault();
@@ -1490,19 +1363,8 @@ function App() {
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('blur', handleWindowBlur);
     };
-  }, [activeGroupView, deleteDesktopConnection, editingTaskId, fitDesktopCanvas, panelOpen, selectedDesktopConnectionKey, selectedTaskIdsRef, t, updateDesktopCanvasZoom]);
-  const handleDesktopZoomPresetSelect = useCallback((preset) => {
-    if (preset === 'in') {
-      updateDesktopCanvasZoom(viewportRef.current.zoom + DESKTOP_CANVAS_SCALE_STEP);
-    } else if (preset === 'out') {
-      updateDesktopCanvasZoom(viewportRef.current.zoom - DESKTOP_CANVAS_SCALE_STEP);
-    } else if (preset === 'fit') {
-      fitDesktopCanvas();
-    } else if (typeof preset === 'number') {
-      updateDesktopCanvasZoom(preset);
-    }
-    setDesktopZoomMenuOpen(false);
-  }, [fitDesktopCanvas, updateDesktopCanvasZoom]);
+  }, [activeGroupView, deleteDesktopConnection, editingTaskId, fitDesktopCanvas, panelOpen, selectedDesktopConnectionKey, selectedTaskIdsRef, t, updateDesktopCanvasZoom, desktopCanvasPanStateRef, setDesktopCanvasPanActive, setDesktopCanvasPanReady, viewportRef]);
+
 
   const suppressNextTaskClick = useCallback((taskId) => {
     if (suppressTaskClickTimeoutRef.current !== null) {
@@ -1882,7 +1744,7 @@ function App() {
     // Center-locked snap: force a visual sync immediately when drag mode begins.
     syncDesktopDraggedTaskPosition(desktopDragPointerRef.current.x, desktopDragPointerRef.current.y);
     scheduleDesktopDragVisualUpdate(desktopDragPointerRef.current.x, desktopDragPointerRef.current.y, taskId);
-  }, [getCanvasPointFromClient, scheduleDesktopDragVisualUpdate, setDesktopDragSourceHidden, setHistoryOpen, syncDesktopDraggedTaskPosition]);
+  }, [getCanvasPointFromClient, scheduleDesktopDragVisualUpdate, setDesktopDragSourceHidden, setHistoryOpen, syncDesktopDraggedTaskPosition, viewportContainerRef]);
 
   // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const finishDesktopTaskDrag = useCallback((task, pointerTarget, pointerId) => {
