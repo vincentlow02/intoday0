@@ -8,7 +8,7 @@ import DesktopProfilePage from '../components/DesktopProfilePage';
 import DesktopHistoryModal from '../components/DesktopHistoryModal';
 import IntoDayLogo from '../components/IntoDayLogo';
 import { DAY_BOUNDARY_HOUR, getLogicalToday } from '../lib/dateHelpers';
-import { getInitialLanguage } from '../lib/language';
+import { useDesktopPreferences } from '../hooks/useDesktopPreferences';
 import { createUpdatedTimestamp } from '../lib/packMetadata';
 import { deleteUploadedFileBlob, getUploadedFileRecord, saveUploadedFileBlob } from '../lib/uploadedFileStorage';
 import {
@@ -106,9 +106,6 @@ import {
 
 
 
-const SHARED_SELECTED_DATE_KEY = 'shared_selected_date';
-const DESKTOP_LANGUAGE_KEY = 'desktop_profile_language';
-const DESKTOP_APPEARANCE_KEY = 'desktop_profile_appearance';
 const DESKTOP_WORKSPACES_KEY = 'desktop_workspace_items';
 const DESKTOP_ACTIVE_WORKSPACE_KEY = 'desktop_active_workspace';
 const DESKTOP_WORKSPACE_SCHEMA_KEY = 'desktop_workspace_schema_version';
@@ -793,24 +790,21 @@ const DESKTOP_VIEW_MODES = {
   COLLECTION: 'collection',
 };
 
-const normalizeDesktopAppearancePreference = (value) => (
-  ['light', 'dark'].includes(value) ? value : 'dark'
-);
-
 function App() {
   const user = MOCK_USER;
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const savedDate = parseSharedSelectedDate(localStorage.getItem(SHARED_SELECTED_DATE_KEY));
-    return savedDate || getLogicalToday();
-  });
-  const [language, setLanguage] = useState(getInitialLanguage);
-  const [appearancePreference, setAppearancePreferenceState] = useState(() => (
-    normalizeDesktopAppearancePreference(localStorage.getItem(DESKTOP_APPEARANCE_KEY))
-  ));
-  const setAppearancePreference = useCallback((value) => {
-    setAppearancePreferenceState(normalizeDesktopAppearancePreference(value));
-  }, []);
-  const appearance = appearancePreference;
+  const {
+    selectedDate,
+    setSelectedDate,
+    language,
+    setLanguage,
+    appearancePreference,
+    setAppearancePreference,
+    appearance,
+    profileOpen,
+    setProfileOpen,
+    historyOpen,
+    setHistoryOpen,
+  } = useDesktopPreferences();
   const [workspaces, setWorkspaces] = useState(() => {
     try {
       return normalizeDesktopWorkspaces(JSON.parse(localStorage.getItem(DESKTOP_WORKSPACES_KEY) || 'null'));
@@ -833,11 +827,7 @@ function App() {
   const [workspaceNameDraft, setWorkspaceNameDraft] = useState('');
   const [desktopViewMode, setDesktopViewMode] = useState(DESKTOP_VIEW_MODES.CANVAS);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [profileOpen, setProfileOpenState] = useState(false);
-  const setProfileOpen = useCallback((val) => {
-    sessionStorage.setItem('shared_profile_open', String(Boolean(val)));
-    setProfileOpenState(val);
-  }, []);
+
   const [panelOpen, setPanelOpen] = useState(false);
   const [showAddPreview, setShowAddPreview] = useState(false);
   const hoverAddTimeoutRef = useRef(null);
@@ -866,7 +856,7 @@ function App() {
   const [desktopDragOverlapTargetId, setDesktopDragOverlapTargetId] = useState(null);
   const [desktopDragOverlayActive, setDesktopDragOverlayActive] = useState(false);
   const [desktopDragOverlaySnapshot, setDesktopDragOverlaySnapshot] = useState(null);
-  const [historyOpen, setHistoryOpenState] = useState(false);
+
   const [toastMessage, setToastMessage] = useState(null);
   const [pendingGroupPrompt, setPendingGroupPrompt] = useState(null);
   const [pendingGroupName, setPendingGroupName] = useState('');
@@ -880,10 +870,7 @@ function App() {
   const quickAddTextareaRef = useRef(null);
   const quickAddFileInputRef = useRef(null);
   const quickAddPhotoInputRef = useRef(null);
-  const setHistoryOpen = useCallback((val) => {
-    sessionStorage.setItem('shared_history_open', String(Boolean(val)));
-    setHistoryOpenState(val);
-  }, []);
+
   const [tasks, setTasks] = useSyncedTodos({
     normalizeTodo: normalizeTask,
   });
@@ -958,10 +945,7 @@ function App() {
   useEffect(() => {
     selectedDateRef.current = selectedDate;
   }, [selectedDate]);
-  useEffect(() => {
-    sessionStorage.setItem('shared_profile_open', 'false');
-    sessionStorage.setItem('shared_history_open', 'false');
-  }, []);
+
   useEffect(() => {
     tasksRef.current = currentWorkspaceTasks;
   }, [currentWorkspaceTasks]);
@@ -1118,15 +1102,7 @@ function App() {
       editCopyResetTimerRef.current = null;
     }
   }, []);
-  useEffect(() => {
-    localStorage.setItem(SHARED_SELECTED_DATE_KEY, dateKey(selectedDate));
-  }, [selectedDate]);
-  useEffect(() => {
-    localStorage.setItem(DESKTOP_LANGUAGE_KEY, language);
-  }, [language]);
-  useEffect(() => {
-    localStorage.setItem(DESKTOP_APPEARANCE_KEY, appearancePreference);
-  }, [appearancePreference]);
+
   useEffect(() => {
     localStorage.setItem(DESKTOP_WORKSPACES_KEY, JSON.stringify(workspaces));
     localStorage.setItem(DESKTOP_WORKSPACE_SCHEMA_KEY, DESKTOP_WORKSPACE_SCHEMA_VERSION);
@@ -1144,15 +1120,7 @@ function App() {
     localStorage.setItem(DESKTOP_ACTIVE_WORKSPACE_KEY, fallbackWorkspaceId);
   }, [activeWorkspaceId, workspaces]);
 
-  useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key === DESKTOP_APPEARANCE_KEY && e.newValue) {
-        setAppearancePreference(normalizeDesktopAppearancePreference(e.newValue));
-      }
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+
   const logicalToday = getLogicalToday();
   const todaySelected = sameDay(selectedDate, logicalToday);
   const currentBlock = currentSection(currentTime);
