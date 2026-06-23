@@ -11,6 +11,7 @@ import { DAY_BOUNDARY_HOUR, getLogicalToday } from '../lib/dateHelpers';
 import { useDesktopPreferences } from '../hooks/useDesktopPreferences';
 import { useUploadedFileCleanup } from '../hooks/useUploadedFileCleanup';
 import { useDesktopWorkspaceState, MAX_DESKTOP_WORKSPACES, DEFAULT_DESKTOP_WORKSPACE_ID } from '../hooks/useDesktopWorkspaceState';
+import { useDesktopSelection } from '../hooks/useDesktopSelection';
 import { createUpdatedTimestamp } from '../lib/packMetadata';
 import { getUploadedFileRecord, saveUploadedFileBlob } from '../lib/uploadedFileStorage';
 import {
@@ -815,7 +816,7 @@ function App() {
     cancelWorkspaceDeletion,
   } = useDesktopWorkspaceState({
     onWorkspaceChange: () => {
-      setSelectedTaskIds([]);
+      clearSelection();
       setPendingCanvasDeletion(null);
       setActiveGroupView(null);
       setHistoryOpen(false);
@@ -844,8 +845,6 @@ function App() {
   const [notePanelCollapsed, setNotePanelCollapsed] = useState(false);
   const [draggedTaskId, setDraggedTaskId] = useState(null);
   const [isGroupDragActive, setIsGroupDragActive] = useState(false);
-  const [selectedTaskIds, setSelectedTaskIds] = useState([]);
-  const [desktopSelectionRect, setDesktopSelectionRect] = useState(null);
   const [dragOverSection, setDragOverSection] = useState(null);
   const [dragOverSlot, setDragOverSlot] = useState(null);
   const [isCanvasFileDragActive, setIsCanvasFileDragActive] = useState(false);
@@ -874,6 +873,24 @@ function App() {
     () => tasks.filter((task) => taskBelongsToWorkspace(task, activeWorkspaceId)),
     [activeWorkspaceId, tasks],
   );
+  const selectedDayEntriesRef = useRef([]);
+  const {
+    selectedTaskIds,
+    setSelectedTaskIds,
+    selectedTaskIdsRef,
+    desktopSelectionRect,
+    setDesktopSelectionRect,
+    desktopSelectionStateRef,
+    updateDesktopSelectionFromRect,
+    clearSelection,
+  } = useDesktopSelection({
+    currentWorkspaceTasks,
+    selectedDayEntriesRef,
+    getDesktopCanvasEntryHeight,
+    getDesktopCanvasEntryTaskIds,
+    doDesktopRectsIntersect,
+    DESKTOP_CANVAS_CARD_WIDTH,
+  });
   const selectedDateRef = useRef(selectedDate);
   const tasksRef = useRef(currentWorkspaceTasks);
   const desktopDragStateRef = useRef({
@@ -902,9 +919,6 @@ function App() {
   const desktopDragSourceEntryIdRef = useRef(null);
   const desktopDragOverlapTimeoutRef = useRef(null);
   const desktopDragOverlapStateLastTsRef = useRef(0);
-  const selectedTaskIdsRef = useRef(new Set());
-  const selectedDayEntriesRef = useRef([]);
-  const desktopSelectionStateRef = useRef({ pointerId: null, origin: null });
   const dragOverSectionRef = useRef(null);
   const dragOverSlotRef = useRef(null);
   const desktopDragOverlapTargetIdRef = useRef(null);
@@ -942,27 +956,6 @@ function App() {
   useEffect(() => {
     tasksRef.current = currentWorkspaceTasks;
   }, [currentWorkspaceTasks]);
-  useEffect(() => {
-    const existingIds = new Set(currentWorkspaceTasks.map((task) => task.id));
-    console.debug('[desktop-workspace] prune selected tasks effect', {
-      taskCount: currentWorkspaceTasks.length,
-      taskIds: currentWorkspaceTasks.map((task) => task.id),
-    });
-    setSelectedTaskIds((current) => {
-      const next = current.filter((taskId) => existingIds.has(taskId));
-      const changed = next.length !== current.length;
-      console.debug('[desktop-workspace] prune selected tasks setState', {
-        previous: current,
-        next,
-        changed,
-      });
-      return changed ? next : current;
-    });
-  }, [currentWorkspaceTasks]);
-
-  useEffect(() => {
-    selectedTaskIdsRef.current = new Set(selectedTaskIds);
-  }, [selectedTaskIds]);
   useEffect(() => {
     viewportRef.current = viewport;
   }, [viewport]);
@@ -1117,23 +1110,6 @@ function App() {
     };
   }, []);
 
-  const updateDesktopSelectionFromRect = useCallback((selectionRect) => {
-    const nextSelectedTaskIds = selectedDayEntriesRef.current.flatMap((entry) => {
-      const entryRect = {
-        x: entry.x,
-        y: entry.y,
-        width: DESKTOP_CANVAS_CARD_WIDTH,
-        height: getDesktopCanvasEntryHeight(entry),
-      };
-
-      return doDesktopRectsIntersect(selectionRect, entryRect)
-        ? getDesktopCanvasEntryTaskIds(entry)
-        : [];
-    });
-
-    setSelectedTaskIds([...new Set(nextSelectedTaskIds)]);
-  }, []);
-
   // Clamp panX/panY so the canvas content is always at least MIN_VISIBLE px
   // inside the viewport — prevents tasks from floating completely off-screen.
   const clampViewportPan = useCallback((vp) => {
@@ -1233,10 +1209,9 @@ function App() {
       origin,
     };
     setDesktopSelectionRect({ x: origin.x, y: origin.y, width: 0, height: 0 });
-    setSelectedTaskIds([]);
-  }, [desktopCanvasPanReady, getCanvasPointFromClient]);
+    clearSelection();
+  }, [clearSelection, desktopCanvasPanReady, desktopSelectionStateRef, getCanvasPointFromClient, setDesktopSelectionRect]);
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleDesktopCanvasPointerMove = useCallback((event) => {
     if (desktopSelectionStateRef.current.pointerId === event.pointerId) {
       const nextPoint = getCanvasPointFromClient(event.clientX, event.clientY);
@@ -1257,9 +1232,8 @@ function App() {
     const nextVp = clampViewportPan({ ...viewportRef.current, panX: nextPanX, panY: nextPanY });
     viewportRef.current = nextVp;
     setViewport(nextVp);
-  }, [clampViewportPan, desktopCanvasPanActive, getCanvasPointFromClient, updateDesktopSelectionFromRect]);
+  }, [clampViewportPan, desktopCanvasPanActive, desktopSelectionStateRef, getCanvasPointFromClient, setDesktopSelectionRect, updateDesktopSelectionFromRect]);
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleDesktopCanvasPointerEnd = useCallback((event) => {
     if (desktopSelectionStateRef.current.pointerId === event.pointerId) {
       event.currentTarget.releasePointerCapture?.(event.pointerId);
@@ -1272,7 +1246,7 @@ function App() {
     event.currentTarget.releasePointerCapture?.(event.pointerId);
     desktopCanvasPanStateRef.current.pointerId = null;
     setDesktopCanvasPanActive(false);
-  }, []);
+  }, [desktopSelectionStateRef, setDesktopSelectionRect]);
   const handleDesktopConnectionPointerDown = useCallback((sourceId, side, event) => {
     if (!event.isPrimary || event.button !== 0) return;
     event.preventDefault();
@@ -1516,7 +1490,7 @@ function App() {
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('blur', handleWindowBlur);
     };
-  }, [activeGroupView, deleteDesktopConnection, editingTaskId, fitDesktopCanvas, panelOpen, selectedDesktopConnectionKey]);
+  }, [activeGroupView, deleteDesktopConnection, editingTaskId, fitDesktopCanvas, panelOpen, selectedDesktopConnectionKey, selectedTaskIdsRef, t, updateDesktopCanvasZoom]);
   const handleDesktopZoomPresetSelect = useCallback((preset) => {
     if (preset === 'in') {
       updateDesktopCanvasZoom(viewportRef.current.zoom + DESKTOP_CANVAS_SCALE_STEP);
@@ -2091,7 +2065,6 @@ function App() {
   }, [getActiveDraggedCanvasRect, getDesktopCanvasOverlapEntryFromDom, getDesktopDragAnchorPosition, getDragCanvasPointFromClient, resetDesktopDragInteraction, setDesktopDragSourceHidden, setTasks, suppressNextTaskClick]);
 
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleTaskPointerDown = useCallback((task, event) => {
     if (!event.isPrimary || event.button !== 0) return;
 
@@ -2134,7 +2107,7 @@ function App() {
     }
     desktopDragDetachedFromGroupRef.current = false;
     event.currentTarget.setPointerCapture?.(event.pointerId);
-  }, [getCanvasPointFromClient]);
+  }, [desktopSelectionStateRef, getCanvasPointFromClient, selectedTaskIdsRef, setDesktopSelectionRect]);
 
   const processDesktopDragMove = useCallback((task, clientX, clientY, nativeEvent = null) => {
     desktopDragPointerRef.current = { x: clientX, y: clientY };
@@ -2437,7 +2410,7 @@ function App() {
     setSelectedTaskIds((current) => current.filter((taskId) => !taskIdSet.has(taskId)));
     setNotePanelTaskId((current) => (taskIdSet.has(current) ? null : current));
     setNotePanelCollapsed((current) => (taskIdSet.has(notePanelTaskId) ? false : current));
-  }, [notePanelTaskId, setTasks]);
+  }, [notePanelTaskId, setTasks, setSelectedTaskIds, setNotePanelTaskId, setNotePanelCollapsed]);
 
   const handleTaskDelete = useCallback((task) => {
     deleteTasksByIds([task.id]);
@@ -3418,7 +3391,7 @@ function App() {
     setWorkspaceMenuOpen(false);
     setWorkspaceActionMenu(null);
     setPendingWorkspaceDeletion(null);
-    setSelectedTaskIds([]);
+    clearSelection();
     setPendingCanvasDeletion(null);
     setActiveGroupView(null);
     setHistoryOpen(false);
