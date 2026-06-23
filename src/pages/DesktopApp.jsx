@@ -9,8 +9,9 @@ import DesktopHistoryModal from '../components/DesktopHistoryModal';
 import IntoDayLogo from '../components/IntoDayLogo';
 import { DAY_BOUNDARY_HOUR, getLogicalToday } from '../lib/dateHelpers';
 import { useDesktopPreferences } from '../hooks/useDesktopPreferences';
+import { useUploadedFileCleanup } from '../hooks/useUploadedFileCleanup';
 import { createUpdatedTimestamp } from '../lib/packMetadata';
-import { deleteUploadedFileBlob, getUploadedFileRecord, saveUploadedFileBlob } from '../lib/uploadedFileStorage';
+import { getUploadedFileRecord, saveUploadedFileBlob } from '../lib/uploadedFileStorage';
 import {
   normalizePackCover,
   normalizePackIcon,
@@ -874,6 +875,7 @@ function App() {
   const [tasks, setTasks] = useSyncedTodos({
     normalizeTodo: normalizeTask,
   });
+  useUploadedFileCleanup(tasks);
   const t = useMemo(() => getTranslationsForLanguage(language), [language]);
   const userProfile = useMemo(() => getUserProfile(user), [user]);
   const currentWorkspaceTasks = useMemo(
@@ -909,7 +911,6 @@ function App() {
   const desktopDragOverlapTimeoutRef = useRef(null);
   const desktopDragOverlapStateLastTsRef = useRef(0);
   const selectedTaskIdsRef = useRef(new Set());
-  const previousUploadedFileKeysRef = useRef(new Set());
   const selectedDayEntriesRef = useRef([]);
   const desktopSelectionStateRef = useRef({ pointerId: null, origin: null });
   const dragOverSectionRef = useRef(null);
@@ -949,22 +950,6 @@ function App() {
   useEffect(() => {
     tasksRef.current = currentWorkspaceTasks;
   }, [currentWorkspaceTasks]);
-  useEffect(() => {
-    const nextKeys = new Set(
-      tasks
-        .map((task) => task.uploadedFileStorageKey)
-        .filter((storageKey) => typeof storageKey === 'string' && storageKey.trim())
-    );
-    const previousKeys = previousUploadedFileKeysRef.current;
-    previousKeys.forEach((storageKey) => {
-      if (!nextKeys.has(storageKey)) {
-        deleteUploadedFileBlob(storageKey).catch((error) => {
-          console.error('Failed to delete uploaded file blob:', error);
-        });
-      }
-    });
-    previousUploadedFileKeysRef.current = nextKeys;
-  }, [tasks]);
   useEffect(() => {
     const existingIds = new Set(currentWorkspaceTasks.map((task) => task.id));
     console.debug('[desktop-workspace] prune selected tasks effect', {
