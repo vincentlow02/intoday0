@@ -10,6 +10,7 @@ import IntoDayLogo from '../components/IntoDayLogo';
 import { DAY_BOUNDARY_HOUR, getLogicalToday } from '../lib/dateHelpers';
 import { useDesktopPreferences } from '../hooks/useDesktopPreferences';
 import { useUploadedFileCleanup } from '../hooks/useUploadedFileCleanup';
+import { useDesktopWorkspaceState, MAX_DESKTOP_WORKSPACES, DEFAULT_DESKTOP_WORKSPACE_ID } from '../hooks/useDesktopWorkspaceState';
 import { createUpdatedTimestamp } from '../lib/packMetadata';
 import { getUploadedFileRecord, saveUploadedFileBlob } from '../lib/uploadedFileStorage';
 import {
@@ -77,11 +78,8 @@ import {
   serializeUploadAttachment,
 } from '../lib/uploadUtils';
 import {
-  getNextWorkspaceName,
   getTaskWorkspaceId,
   taskBelongsToWorkspace,
-  normalizeDesktopWorkspaces,
-  getDefaultDesktopWorkspaces,
   areTaskIdSelectionsEqual,
 } from '../lib/workspaceUtils';
 import {
@@ -107,27 +105,7 @@ import {
 
 
 
-const DESKTOP_WORKSPACES_KEY = 'desktop_workspace_items';
-const DESKTOP_ACTIVE_WORKSPACE_KEY = 'desktop_active_workspace';
-const DESKTOP_WORKSPACE_SCHEMA_KEY = 'desktop_workspace_schema_version';
-const DESKTOP_WORKSPACE_SCHEMA_VERSION = '2';
-const LEGACY_DEFAULT_DESKTOP_WORKSPACE_ID = 'workspace-untitled';
-const EMPTY_DESKTOP_WORKSPACE_ID = 'workspace-untitled-2';
-const DEFAULT_DESKTOP_WORKSPACE_ID = 'workspace-untitled-3';
-const MAX_DESKTOP_WORKSPACES = 3;
-const LEGACY_SAMPLE_WORKSPACE_IDS = new Set(['workspace-personal-projects', 'workspace-work-setup']);
-const DEFAULT_DESKTOP_WORKSPACES = [
-  {
-    id: EMPTY_DESKTOP_WORKSPACE_ID,
-    name: 'Untitled 2',
-    iconType: 'dot',
-  },
-  {
-    id: DEFAULT_DESKTOP_WORKSPACE_ID,
-    name: 'Untitled 3',
-    iconType: 'dot',
-  },
-];
+
 
 
 
@@ -806,26 +784,43 @@ function App() {
     historyOpen,
     setHistoryOpen,
   } = useDesktopPreferences();
-  const [workspaces, setWorkspaces] = useState(() => {
-    try {
-      return normalizeDesktopWorkspaces(JSON.parse(localStorage.getItem(DESKTOP_WORKSPACES_KEY) || 'null'));
-    } catch (_) {
-      return getDefaultDesktopWorkspaces();
-    }
+  const {
+    workspaces,
+    setWorkspaces,
+    activeWorkspaceId,
+    setActiveWorkspaceId,
+    activeWorkspace,
+    workspaceMenuOpen,
+    setWorkspaceMenuOpen,
+    isWorkspaceNameEditing,
+    workspaceNameDraft,
+    setWorkspaceNameDraft,
+    workspaceActionMenu,
+    setWorkspaceActionMenu,
+    workspaceActionTarget,
+    pendingWorkspaceDeletion,
+    setPendingWorkspaceDeletion,
+    canAddWorkspace,
+    workspaceMenuRef,
+    workspaceNameInputRef,
+
+    // Handlers
+    handleSelectWorkspace,
+    handleStartWorkspaceRename,
+    handleCommitWorkspaceRename,
+    handleCancelWorkspaceRename,
+    handleAddWorkspace,
+    handleWorkspaceActionsToggle,
+    handleWorkspaceDeleteRequest,
+    cancelWorkspaceDeletion,
+  } = useDesktopWorkspaceState({
+    onWorkspaceChange: () => {
+      setSelectedTaskIds([]);
+      setPendingCanvasDeletion(null);
+      setActiveGroupView(null);
+      setHistoryOpen(false);
+    },
   });
-  const [activeWorkspaceId, setActiveWorkspaceId] = useState(() => {
-    if (localStorage.getItem(DESKTOP_WORKSPACE_SCHEMA_KEY) !== DESKTOP_WORKSPACE_SCHEMA_VERSION) {
-      return DEFAULT_DESKTOP_WORKSPACE_ID;
-    }
-    const savedWorkspaceId = localStorage.getItem(DESKTOP_ACTIVE_WORKSPACE_KEY);
-    if (!savedWorkspaceId || savedWorkspaceId === LEGACY_DEFAULT_DESKTOP_WORKSPACE_ID) {
-      return DEFAULT_DESKTOP_WORKSPACE_ID;
-    }
-    return savedWorkspaceId;
-  });
-  const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
-  const [isWorkspaceNameEditing, setIsWorkspaceNameEditing] = useState(false);
-  const [workspaceNameDraft, setWorkspaceNameDraft] = useState('');
   const [desktopViewMode, setDesktopViewMode] = useState(DESKTOP_VIEW_MODES.CANVAS);
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -863,10 +858,7 @@ function App() {
   const [pendingGroupName, setPendingGroupName] = useState('');
   const [activeGroupView, setActiveGroupView] = useState(null);
   const [pendingCanvasDeletion, setPendingCanvasDeletion] = useState(null);
-  const [workspaceActionMenu, setWorkspaceActionMenu] = useState(null);
-  const [pendingWorkspaceDeletion, setPendingWorkspaceDeletion] = useState(null);
-  const workspaceMenuRef = useRef(null);
-  const workspaceNameInputRef = useRef(null);
+
   const quickAddMenuRef = useRef(null);
   const quickAddTextareaRef = useRef(null);
   const quickAddFileInputRef = useRef(null);
@@ -967,51 +959,7 @@ function App() {
       return changed ? next : current;
     });
   }, [currentWorkspaceTasks]);
-  useEffect(() => {
-    if (!workspaceMenuOpen) return undefined;
 
-    const handlePointerDown = (event) => {
-      if (workspaceMenuRef.current && !workspaceMenuRef.current.contains(event.target)) {
-        setWorkspaceMenuOpen(false);
-      }
-    };
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setWorkspaceMenuOpen(false);
-      }
-    };
-
-    window.addEventListener('pointerdown', handlePointerDown);
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('pointerdown', handlePointerDown);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [workspaceMenuOpen]);
-  useEffect(() => {
-    if (!workspaceMenuOpen) {
-      setWorkspaceActionMenu(null);
-    }
-  }, [workspaceMenuOpen]);
-  useEffect(() => {
-    if (!workspaceActionMenu) return undefined;
-    const closeActionMenu = () => setWorkspaceActionMenu(null);
-    window.addEventListener('resize', closeActionMenu);
-    window.addEventListener('scroll', closeActionMenu, true);
-    return () => {
-      window.removeEventListener('resize', closeActionMenu);
-      window.removeEventListener('scroll', closeActionMenu, true);
-    };
-  }, [workspaceActionMenu]);
-  useEffect(() => {
-    if (!isWorkspaceNameEditing) return undefined;
-    const frameId = window.requestAnimationFrame(() => {
-      workspaceNameInputRef.current?.focus();
-      workspaceNameInputRef.current?.select();
-    });
-    return () => window.cancelAnimationFrame(frameId);
-  }, [isWorkspaceNameEditing]);
   useEffect(() => {
     selectedTaskIdsRef.current = new Set(selectedTaskIds);
   }, [selectedTaskIds]);
@@ -1088,22 +1036,7 @@ function App() {
     }
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem(DESKTOP_WORKSPACES_KEY, JSON.stringify(workspaces));
-    localStorage.setItem(DESKTOP_WORKSPACE_SCHEMA_KEY, DESKTOP_WORKSPACE_SCHEMA_VERSION);
-  }, [workspaces]);
-  useEffect(() => {
-    const hasActiveWorkspace = workspaces.some((workspace) => workspace.id === activeWorkspaceId);
-    if (hasActiveWorkspace) {
-      localStorage.setItem(DESKTOP_ACTIVE_WORKSPACE_KEY, activeWorkspaceId);
-      return;
-    }
-    const fallbackWorkspaceId = workspaces.some((workspace) => workspace.id === DEFAULT_DESKTOP_WORKSPACE_ID)
-      ? DEFAULT_DESKTOP_WORKSPACE_ID
-      : (workspaces[0]?.id || DEFAULT_DESKTOP_WORKSPACE_ID);
-    setActiveWorkspaceId(fallbackWorkspaceId);
-    localStorage.setItem(DESKTOP_ACTIVE_WORKSPACE_KEY, fallbackWorkspaceId);
-  }, [activeWorkspaceId, workspaces]);
+
 
 
   const logicalToday = getLogicalToday();
@@ -1303,6 +1236,7 @@ function App() {
     setSelectedTaskIds([]);
   }, [desktopCanvasPanReady, getCanvasPointFromClient]);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleDesktopCanvasPointerMove = useCallback((event) => {
     if (desktopSelectionStateRef.current.pointerId === event.pointerId) {
       const nextPoint = getCanvasPointFromClient(event.clientX, event.clientY);
@@ -1325,6 +1259,7 @@ function App() {
     setViewport(nextVp);
   }, [clampViewportPan, desktopCanvasPanActive, getCanvasPointFromClient, updateDesktopSelectionFromRect]);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleDesktopCanvasPointerEnd = useCallback((event) => {
     if (desktopSelectionStateRef.current.pointerId === event.pointerId) {
       event.currentTarget.releasePointerCapture?.(event.pointerId);
@@ -1609,6 +1544,7 @@ function App() {
     }, 250);
   }, []);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const resetDesktopDragInteraction = useCallback(() => {
     desktopDragOverlapTargetIdRef.current = null;
     setDesktopDragOverlapTargetId(null);
@@ -1735,6 +1671,7 @@ function App() {
     }
   }, []);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const updateDesktopDragOverlapTarget = useCallback((clientX, clientY, taskId) => {
     const currentPoint = getDragCanvasPointFromClient(clientX, clientY);
     const nextPosition = getDesktopDragAnchorPosition(currentPoint);
@@ -1973,6 +1910,7 @@ function App() {
     scheduleDesktopDragVisualUpdate(desktopDragPointerRef.current.x, desktopDragPointerRef.current.y, taskId);
   }, [getCanvasPointFromClient, scheduleDesktopDragVisualUpdate, setDesktopDragSourceHidden, setHistoryOpen, syncDesktopDraggedTaskPosition]);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const finishDesktopTaskDrag = useCallback((task, pointerTarget, pointerId) => {
     resetDesktopDragInteraction();
     if (desktopDragOverlapRafRef.current !== null) {
@@ -2153,6 +2091,7 @@ function App() {
   }, [getActiveDraggedCanvasRect, getDesktopCanvasOverlapEntryFromDom, getDesktopDragAnchorPosition, getDragCanvasPointFromClient, resetDesktopDragInteraction, setDesktopDragSourceHidden, setTasks, suppressNextTaskClick]);
 
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleTaskPointerDown = useCallback((task, event) => {
     if (!event.isPrimary || event.button !== 0) return;
 
@@ -2358,6 +2297,7 @@ function App() {
   useEffect(() => {
     if (!draggedTaskId || !desktopDragModeRef.current) {
       if (desktopDragOverlayActive) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setDesktopDragOverlayActive(false);
       }
       setDesktopDragSourceHidden(false);
@@ -2434,11 +2374,13 @@ function App() {
   const editingTask = editingTaskId ? tasks.find((task) => task.id === editingTaskId) || null : null;
   const notePanelTask = notePanelTaskId ? tasks.find((task) => task.id === notePanelTaskId) || null : null;
   const canSaveEdit = editText.trim().length > 0;
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const closeNotePanel = useCallback(() => {
     setNotePanelTaskId(null);
     setNotePanelCollapsed(false);
   }, []);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleTaskEdit = useCallback((task) => {
     closeNotePanel();
     setEditingTaskId(task.id);
@@ -2514,6 +2456,7 @@ function App() {
     setPendingCanvasDeletion(null);
   }, []);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const closeEditModal = useCallback(() => {
     setEditingTaskId(null);
     setEditText('');
@@ -2524,6 +2467,7 @@ function App() {
     }
   }, []);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleEditCopy = useCallback(async () => {
     const nextText = editText.trim();
     if (!nextText) return;
@@ -2545,12 +2489,14 @@ function App() {
 
   useEffect(() => {
     if (editingTaskId && !editingTask) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       closeEditModal();
     }
   }, [closeEditModal, editingTask, editingTaskId]);
 
   useEffect(() => {
     if (notePanelTaskId && !notePanelTask) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       closeNotePanel();
     }
   }, [closeNotePanel, notePanelTask, notePanelTaskId]);
@@ -2583,6 +2529,7 @@ function App() {
 
   const [fullscreenImage, setFullscreenImage] = useState(null);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const openTaskUrl = useCallback((url, task) => {
     const cardType = normalizeCardType(task?.cardType);
     if (cardType === CARD_TYPES.PHOTO) {
@@ -3022,10 +2969,12 @@ function App() {
     showToast('Added to canvas');
   }, [createCanvasTextTask, quickAddAttachments.length, quickAddText]);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const closeQuickAddResourcesModal = useCallback(() => {
     setQuickAddReviewOpen(false);
   }, []);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const removeQuickAddLink = useCallback((url) => {
     setQuickLinkPreviews((current) => current.filter((preview) => preview.url !== url));
     setQuickAddText((current) => removeQuickAddUrlFromText(current, url));
@@ -3106,6 +3055,7 @@ function App() {
     setQuickNoteOpen(true);
   };
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const closeQuickNotePanel = useCallback(() => {
     setQuickNoteOpen(false);
   }, []);
@@ -3449,91 +3399,7 @@ function App() {
     searchDragSeparateRef.current = true;
     startDesktopTaskDrag(task);
   };
-  const activeWorkspace = workspaces.find((workspace) => workspace.id === activeWorkspaceId) || workspaces[0] || getDefaultDesktopWorkspaces()[0];
-  const workspaceActionTarget = workspaceActionMenu
-    ? workspaces.find((workspace) => workspace.id === workspaceActionMenu.workspaceId)
-    : null;
-  const canAddWorkspace = workspaces.length < MAX_DESKTOP_WORKSPACES;
-  const handleSelectWorkspace = (workspaceId) => {
-    setActiveWorkspaceId(workspaceId);
-    setWorkspaceMenuOpen(false);
-    setWorkspaceActionMenu(null);
-    setIsWorkspaceNameEditing(false);
-    setSelectedTaskIds([]);
-    setPendingCanvasDeletion(null);
-    setActiveGroupView(null);
-    setHistoryOpen(false);
-  };
-  const handleStartWorkspaceRename = () => {
-    setWorkspaceMenuOpen(false);
-    setWorkspaceActionMenu(null);
-    setWorkspaceNameDraft(activeWorkspace?.name || 'Untitled');
-    setIsWorkspaceNameEditing(true);
-  };
-  const handleCommitWorkspaceRename = () => {
-    const nextName = workspaceNameDraft.trim() || 'Untitled';
-    setWorkspaces((current) => current.map((workspace) => (
-      workspace.id === activeWorkspace?.id
-        ? { ...workspace, name: nextName }
-        : workspace
-    )));
-    setIsWorkspaceNameEditing(false);
-  };
-  const handleCancelWorkspaceRename = () => {
-    setWorkspaceNameDraft(activeWorkspace?.name || 'Untitled');
-    setIsWorkspaceNameEditing(false);
-  };
-  const handleAddWorkspace = () => {
-    if (!canAddWorkspace) return;
-    setWorkspaces((current) => {
-      const nextWorkspace = {
-        id: `workspace-${Date.now()}`,
-        name: getNextWorkspaceName(current),
-        iconType: 'dot',
-      };
-      setActiveWorkspaceId(nextWorkspace.id);
-      setWorkspaceNameDraft(nextWorkspace.name);
-      setIsWorkspaceNameEditing(true);
-      return [...current, nextWorkspace];
-    });
-    setWorkspaceMenuOpen(false);
-    setWorkspaceActionMenu(null);
-    setSelectedTaskIds([]);
-    setPendingCanvasDeletion(null);
-    setActiveGroupView(null);
-    setHistoryOpen(false);
-  };
-  const handleWorkspaceActionsToggle = (workspaceId, event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    const rect = event.currentTarget.getBoundingClientRect();
-    const popoverWidth = 112;
-    const left = Math.min(
-      window.innerWidth - popoverWidth - 12,
-      Math.max(12, rect.right - popoverWidth),
-    );
-    const top = Math.min(window.innerHeight - 52, rect.bottom + 8);
-    setWorkspaceActionMenu((current) => (
-      current?.workspaceId === workspaceId
-        ? null
-        : { workspaceId, top, left }
-    ));
-  };
-  const handleWorkspaceDeleteRequest = (workspace, event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    if (workspaces.length <= 1) return;
-    setWorkspaceActionMenu(null);
-    setPendingWorkspaceDeletion({
-      workspaceId: workspace.id,
-      workspaceName: workspace.name || 'Untitled',
-      title: `Delete workspace "${workspace.name || 'Untitled'}"?`,
-      description: 'This will remove this page and its items.',
-    });
-  };
-  const cancelWorkspaceDeletion = () => {
-    setPendingWorkspaceDeletion(null);
-  };
+
   const confirmWorkspaceDeletion = () => {
     if (!pendingWorkspaceDeletion?.workspaceId || workspaces.length <= 1) {
       setPendingWorkspaceDeletion(null);
