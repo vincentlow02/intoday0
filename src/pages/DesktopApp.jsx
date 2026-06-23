@@ -12,6 +12,8 @@ import { useDesktopPreferences } from '../hooks/useDesktopPreferences';
 import { useUploadedFileCleanup } from '../hooks/useUploadedFileCleanup';
 import { useDesktopWorkspaceState, MAX_DESKTOP_WORKSPACES, DEFAULT_DESKTOP_WORKSPACE_ID } from '../hooks/useDesktopWorkspaceState';
 import { useDesktopSelection } from '../hooks/useDesktopSelection';
+import { useDesktopNoteState } from '../hooks/useDesktopNoteState';
+import { useDesktopEditState } from '../hooks/useDesktopEditState';
 import {
   useDesktopViewportState,
   DESKTOP_CANVAS_DEFAULT_ZOOM,
@@ -830,11 +832,6 @@ function App() {
   const [quickNoteTitle, setQuickNoteTitle] = useState('');
   const [quickNoteBody, setQuickNoteBody] = useState('');
   const [addPanelAttachments, setAddPanelAttachments] = useState([]);
-  const [editingTaskId, setEditingTaskId] = useState(null);
-  const [editText, setEditText] = useState('');
-  const [editCopied, setEditCopied] = useState(false);
-  const [notePanelTaskId, setNotePanelTaskId] = useState(null);
-  const [notePanelCollapsed, setNotePanelCollapsed] = useState(false);
   const [draggedTaskId, setDraggedTaskId] = useState(null);
   const [isGroupDragActive, setIsGroupDragActive] = useState(false);
   const [dragOverSection, setDragOverSection] = useState(null);
@@ -859,6 +856,35 @@ function App() {
     normalizeTodo: normalizeTask,
   });
   useUploadedFileCleanup(tasks);
+
+  const {
+    notePanelTaskId,
+    setNotePanelTaskId,
+    notePanelCollapsed,
+    setNotePanelCollapsed,
+    notePanelTask,
+    closeNotePanel,
+    handleNotePanelTextChange,
+  } = useDesktopNoteState({
+    tasks,
+    setTasks,
+    setActiveGroupView,
+  });
+
+  const {
+    editingTaskId,
+    setEditingTaskId,
+    editText,
+    setEditText,
+    editCopied,
+    editingTask,
+    canSaveEdit,
+    closeEditModal,
+    handleEditCopy,
+  } = useDesktopEditState({
+    tasks,
+  });
+
   const t = useMemo(() => getTranslationsForLanguage(language), [language]);
   const userProfile = useMemo(() => getUserProfile(user), [user]);
   const currentWorkspaceTasks = useMemo(
@@ -922,7 +948,6 @@ function App() {
   const desktopLayoutRectsRef = useRef(new Map());
   const desktopCanvasContentRef = useRef(null);
   const searchDragSeparateRef = useRef(false);
-  const editCopyResetTimerRef = useRef(null);
   const canvasFileDragDepthRef = useRef(0);
   const [desktopConnectionDraft, setDesktopConnectionDraft] = useState(null);
   const [selectedDesktopConnectionKey, setSelectedDesktopConnectionKey] = useState(null);
@@ -1000,10 +1025,6 @@ function App() {
     if (suppressTaskClickTimeoutRef.current !== null) {
       window.clearTimeout(suppressTaskClickTimeoutRef.current);
       suppressTaskClickTimeoutRef.current = null;
-    }
-    if (editCopyResetTimerRef.current !== null) {
-      window.clearTimeout(editCopyResetTimerRef.current);
-      editCopyResetTimerRef.current = null;
     }
   }, []);
 
@@ -2206,49 +2227,11 @@ function App() {
     return () => window.cancelAnimationFrame(frameId);
   }, [draggedTaskId, selectedDateKey, syncDesktopDraggedTaskPosition]);
 
-  const editingTask = editingTaskId ? tasks.find((task) => task.id === editingTaskId) || null : null;
-  const notePanelTask = notePanelTaskId ? tasks.find((task) => task.id === notePanelTaskId) || null : null;
-  const canSaveEdit = editText.trim().length > 0;
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
-  const closeNotePanel = useCallback(() => {
-    setNotePanelTaskId(null);
-    setNotePanelCollapsed(false);
-  }, []);
-
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleTaskEdit = useCallback((task) => {
     closeNotePanel();
     setEditingTaskId(task.id);
     setEditText(task.text);
-  }, [closeNotePanel]);
-
-  const handleNotePanelTextChange = useCallback((taskId, nextText) => {
-    const nextUpdatedAt = createUpdatedTimestamp();
-    setTasks((prev) => prev.map((task) => (
-      task.id === taskId
-        ? normalizeTask({
-          ...task,
-          text: nextText,
-          updatedAt: nextUpdatedAt,
-        })
-        : task
-    )));
-    setActiveGroupView((prev) => {
-      if (!prev?.tasks?.some((task) => task.id === taskId)) return prev;
-      return {
-        ...prev,
-        tasks: prev.tasks.map((task) => (
-          task.id === taskId
-            ? normalizeTask({
-              ...task,
-              text: nextText,
-              updatedAt: nextUpdatedAt,
-            })
-            : task
-        )),
-      };
-    });
-  }, [setTasks]);
+  }, [closeNotePanel, setEditingTaskId, setEditText]);
 
   const deleteTasksByIds = useCallback((taskIds) => {
     if (!Array.isArray(taskIds) || taskIds.length === 0) return;
@@ -2291,50 +2274,7 @@ function App() {
     setPendingCanvasDeletion(null);
   }, []);
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
-  const closeEditModal = useCallback(() => {
-    setEditingTaskId(null);
-    setEditText('');
-    setEditCopied(false);
-    if (editCopyResetTimerRef.current !== null) {
-      window.clearTimeout(editCopyResetTimerRef.current);
-      editCopyResetTimerRef.current = null;
-    }
-  }, []);
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
-  const handleEditCopy = useCallback(async () => {
-    const nextText = editText.trim();
-    if (!nextText) return;
-
-    try {
-      await navigator.clipboard.writeText(editText);
-      setEditCopied(true);
-      if (editCopyResetTimerRef.current !== null) {
-        window.clearTimeout(editCopyResetTimerRef.current);
-      }
-      editCopyResetTimerRef.current = window.setTimeout(() => {
-        setEditCopied(false);
-        editCopyResetTimerRef.current = null;
-      }, 1400);
-    } catch (_) {
-      // Ignore clipboard failures so editing is unaffected.
-    }
-  }, [editText]);
-
-  useEffect(() => {
-    if (editingTaskId && !editingTask) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      closeEditModal();
-    }
-  }, [closeEditModal, editingTask, editingTaskId]);
-
-  useEffect(() => {
-    if (notePanelTaskId && !notePanelTask) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      closeNotePanel();
-    }
-  }, [closeNotePanel, notePanelTask, notePanelTaskId]);
 
   useEffect(() => {
     if (!editingTaskId && !notePanelTaskId) return undefined;
@@ -2360,11 +2300,10 @@ function App() {
     }
     setEditingTaskId(task.id);
     setEditText(task.text || '');
-  }, [selectedDate]);
+  }, [selectedDate, setEditingTaskId, setEditText]);
 
   const [fullscreenImage, setFullscreenImage] = useState(null);
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const openTaskUrl = useCallback((url, task) => {
     const cardType = normalizeCardType(task?.cardType);
     if (cardType === CARD_TYPES.PHOTO) {
