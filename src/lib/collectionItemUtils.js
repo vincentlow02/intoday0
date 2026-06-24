@@ -1,7 +1,7 @@
 import { extractPrimaryUrl, normalizeCardType } from '../taskCardUtils';
 import { deriveTaskDisplayTitle, deriveTaskDisplaySubtitle } from './taskDisplayUtils';
 
-export const getPackItemPrimaryUrl = (task) => (
+export const getCollectionItemPrimaryUrl = (task) => (
   task?.primaryUrl
   || task?.videoUrl
   || task?.mapUrl
@@ -10,9 +10,9 @@ export const getPackItemPrimaryUrl = (task) => (
   || ''
 );
 
-export const getPackExportBodyText = (task) => {
+export const getCollectionExportBodyText = (task) => {
   const title = deriveTaskDisplayTitle(task).trim();
-  const primaryUrl = getPackItemPrimaryUrl(task).trim();
+  const primaryUrl = getCollectionItemPrimaryUrl(task).trim();
   const candidates = [
     task?.content,
     task?.body,
@@ -36,9 +36,9 @@ export const getPackExportBodyText = (task) => {
   return '';
 };
 
-export const getPackItemSourceMeta = (task, labels) => {
+export const getCollectionItemSourceMeta = (task, labels) => {
   const cardType = normalizeCardType(task?.cardType);
-  const primaryUrl = getPackItemPrimaryUrl(task);
+  const primaryUrl = getCollectionItemPrimaryUrl(task);
   const subtitle = deriveTaskDisplaySubtitle(task, labels) || 'Item';
 
   let host = '';
@@ -82,7 +82,6 @@ export const getPackItemSourceMeta = (task, labels) => {
     return { key: 'link', label: 'Reddit', domain: 'reddit.com' };
   }
   if (domain) {
-    // generic website — use favicon
     return { key: 'link', label: domain, domain };
   }
 

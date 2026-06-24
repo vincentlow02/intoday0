@@ -1,5 +1,5 @@
 import { DESKTOP_APP_WINDOW_SCALE, DESKTOP_GROUP_OVERLAP_THRESHOLD, DESKTOP_CANVAS_CARD_HEIGHT, DESKTOP_CANVAS_CARD_WIDTH } from './desktopConstants';
-import { getDesktopGroupCardHeight } from './groupMetadata';
+import { getCollectionCardHeight } from './collectionUtils';
 import { resolveDesktopCanvasEntries, getDesktopCanvasEntryHeight } from './canvasEntries';
 
 // Converts screen-space coordinates to canvas-space given the current viewport.
@@ -33,7 +33,7 @@ export const getDesktopCanvasOverlapEntry = (tasks, dateString, movingTaskIds, n
   if (movingTasks.length === 0) return null;
 
   const movingHeight = movingTasks.length > 1
-    ? getDesktopGroupCardHeight(movingTasks.length)
+    ? getCollectionCardHeight(movingTasks.length)
     : DESKTOP_CANVAS_CARD_HEIGHT;
   const movingRect = {
     x: nextPosition.x,

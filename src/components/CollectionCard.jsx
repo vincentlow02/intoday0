@@ -2,20 +2,21 @@ import React, { useState } from 'react';
 import { TaskCardContent } from './TaskCard';
 import { OpenFullViewIcon } from './icons/AppIcons';
 import {
-  getDesktopGroupDisplayName,
-  getDesktopGroupIcon,
-  getDesktopGroupDisplayTags,
-} from '../lib/groupMetadata';
-import { getPackMetadataTextFromItems } from '../lib/packMetadata';
+  getCollectionDisplayName,
+  getCollectionIcon,
+  getCollectionDisplayTags,
+  getTaskCollectionId,
+} from '../lib/collectionUtils';
+import { getCollectionMetadataText } from '../lib/collectionMetadataUtils';
 import {
-  DESKTOP_GROUP_CARD_COLLAPSED_LIST_MAX_HEIGHT,
-  DESKTOP_GROUP_CARD_EXPANDED_LIST_MAX_HEIGHT,
-  getDesktopVisibleGroupTaskCount,
-  getDesktopGroupCardHeight,
-  getDesktopGroupListHeight,
-} from '../lib/groupCardLayout';
+  DESKTOP_COLLECTION_CARD_COLLAPSED_LIST_MAX_HEIGHT,
+  DESKTOP_COLLECTION_CARD_EXPANDED_LIST_MAX_HEIGHT,
+  getDesktopVisibleCollectionTaskCount,
+  getDesktopCollectionCardHeight,
+  getDesktopCollectionListHeight,
+} from '../lib/collectionCardLayout';
 
-const GroupedTaskCard = ({
+const CollectionCard = ({
   tasks,
   appearance,
   labels,
@@ -34,29 +35,30 @@ const GroupedTaskCard = ({
 }) => {
   const leadTask = tasks[0];
   const [isExpanded, setIsExpanded] = useState(false);
-  const groupTitle = getDesktopGroupDisplayName(tasks);
-  const groupMetadataText = getPackMetadataTextFromItems(tasks);
-  const groupChips = getDesktopGroupDisplayTags(tasks);
-  const groupIcon = getDesktopGroupIcon(tasks);
-  const groupTask = {
+  const collectionTitle = getCollectionDisplayName(tasks);
+  const collectionMetadataText = getCollectionMetadataText(tasks);
+  const collectionChips = getCollectionDisplayTags(tasks);
+  const collectionIcon = getCollectionIcon(tasks);
+  const collectionTask = {
     ...leadTask,
     groupTaskIds: tasks.map((task) => task.id),
     groupSize: tasks.length,
-    desktopGroupName: groupTitle,
+    desktopGroupName: collectionTitle,
+    collectionId: getTaskCollectionId(leadTask),
+    collectionName: collectionTitle,
     updatedAt: leadTask.updatedAt,
     isGroupInitiator: true,
   };
 
-  // If we are dragging a single item out of this group, hide it from the group preview
-  const isDraggingGroup = isDragging && isGroupDragActive;
-  const filteredTasks = tasks.filter((t) => isDraggingGroup || t.id !== draggedTaskId);
-  const collapsedVisibleCount = getDesktopVisibleGroupTaskCount(filteredTasks, DESKTOP_GROUP_CARD_COLLAPSED_LIST_MAX_HEIGHT);
-  const expandedVisibleCount = getDesktopVisibleGroupTaskCount(filteredTasks, DESKTOP_GROUP_CARD_EXPANDED_LIST_MAX_HEIGHT);
+  const isDraggingCollection = isDragging && isGroupDragActive;
+  const filteredTasks = tasks.filter((t) => isDraggingCollection || t.id !== draggedTaskId);
+  const collapsedVisibleCount = getDesktopVisibleCollectionTaskCount(filteredTasks, DESKTOP_COLLECTION_CARD_COLLAPSED_LIST_MAX_HEIGHT);
+  const expandedVisibleCount = getDesktopVisibleCollectionTaskCount(filteredTasks, DESKTOP_COLLECTION_CARD_EXPANDED_LIST_MAX_HEIGHT);
   const visibleItemCount = isExpanded ? expandedVisibleCount : collapsedVisibleCount;
   const collapsedHiddenTaskCount = Math.max(0, filteredTasks.length - collapsedVisibleCount);
   const hiddenTaskCount = Math.max(0, filteredTasks.length - visibleItemCount);
-  const groupCardMinHeight = getDesktopGroupCardHeight(filteredTasks, visibleItemCount);
-  const groupListMaxHeight = getDesktopGroupListHeight(filteredTasks, visibleItemCount);
+  const collectionCardMinHeight = getDesktopCollectionCardHeight(filteredTasks, visibleItemCount);
+  const collectionListMaxHeight = getDesktopCollectionListHeight(filteredTasks, visibleItemCount);
   const canScrollExpandedList = isExpanded && hiddenTaskCount > 0;
 
   return (
@@ -64,12 +66,12 @@ const GroupedTaskCard = ({
         <div
           id={`desktop-group-card-${leadTask.id}`}
           className={`desktop-task-card desktop-task-group-card ${isDragging ? 'is-dragging' : ''} ${isExpanded ? 'is-expanded' : ''}`}
-          onPointerDown={(event) => onPointerDown(groupTask, event)}
-          onPointerMove={(event) => onPointerMove(groupTask, event)}
-          onPointerUp={(event) => onPointerUp(groupTask, event)}
-          onPointerCancel={(event) => onPointerCancel(groupTask, event)}
+          onPointerDown={(event) => onPointerDown(collectionTask, event)}
+          onPointerMove={(event) => onPointerMove(collectionTask, event)}
+          onPointerUp={(event) => onPointerUp(collectionTask, event)}
+          onPointerCancel={(event) => onPointerCancel(collectionTask, event)}
           onMouseLeave={() => setIsExpanded(false)}
-          style={{ width: '100%', minHeight: groupCardMinHeight, touchAction: 'none', userSelect: 'none' }}
+          style={{ width: '100%', minHeight: collectionCardMinHeight, touchAction: 'none', userSelect: 'none' }}
         >
           <button
             type="button"
@@ -78,7 +80,7 @@ const GroupedTaskCard = ({
             onMouseDown={(event) => event.stopPropagation()}
             onPointerDown={(event) => {
               event.stopPropagation();
-              onPointerDown?.(groupTask, event);
+              onPointerDown?.(collectionTask, event);
             }}
             onClick={(event) => {
               event.stopPropagation();
@@ -87,8 +89,8 @@ const GroupedTaskCard = ({
           >
             <div className="desktop-task-group-header">
               <div className="desktop-task-group-title-wrap">
-                {groupIcon ? (
-                  <span className="desktop-task-group-title-icon">{groupIcon}</span>
+                {collectionIcon ? (
+                  <span className="desktop-task-group-title-icon">{collectionIcon}</span>
                 ) : (
                   <span className="desktop-task-group-title-dot" />
                 )}
@@ -98,14 +100,14 @@ const GroupedTaskCard = ({
                     onDragStart={(e) => e.preventDefault()}
                     style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
                   >
-                    {groupTitle}
+                    {collectionTitle}
                   </span>
-                  {groupMetadataText ? (
+                  {collectionMetadataText ? (
                     <span
                       className="desktop-task-group-metadata"
                       style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
                     >
-                      {groupMetadataText}
+                      {collectionMetadataText}
                     </span>
                   ) : null}
                 </div>
@@ -116,9 +118,9 @@ const GroupedTaskCard = ({
                 </span>
               </div>
             </div>
-            {groupChips.length > 0 ? (
+            {collectionChips.length > 0 ? (
               <div className="desktop-task-group-chip-row">
-                {groupChips.map((chip) => (
+                {collectionChips.map((chip) => (
                   <span key={chip} className="desktop-task-group-chip">{chip}</span>
                 ))}
               </div>
@@ -127,31 +129,30 @@ const GroupedTaskCard = ({
           <div className="desktop-task-group-divider" />
         <div
           className="desktop-task-group-list"
-          style={{ maxHeight: groupListMaxHeight, overflowY: canScrollExpandedList ? 'auto' : 'hidden' }}
+          style={{ maxHeight: collectionListMaxHeight, overflowY: canScrollExpandedList ? 'auto' : 'hidden' }}
           onPointerDown={(event) => {
-            // Only trigger if clicking the list container itself (empty space)
             if (event.target === event.currentTarget) {
-              onPointerDown?.(groupTask, event);
+              onPointerDown?.(collectionTask, event);
             }
           }}
           onPointerMove={(event) => {
             if (event.target === event.currentTarget) {
-              onPointerMove?.(groupTask, event);
+              onPointerMove?.(collectionTask, event);
             }
           }}
           onPointerUp={(event) => {
             if (event.target === event.currentTarget) {
-              onPointerUp?.(groupTask, event);
+              onPointerUp?.(collectionTask, event);
             }
           }}
           onPointerCancel={(event) => {
             if (event.target === event.currentTarget) {
-              onPointerCancel?.(groupTask, event);
+              onPointerCancel?.(collectionTask, event);
             }
           }}
         >
           {filteredTasks.map((task) => {
-            const isTaskDragging = draggedTaskId === task.id && !isDraggingGroup;
+            const isTaskDragging = draggedTaskId === task.id && !isDraggingCollection;
             return (
               <div id={`desktop-task-wrapper-${task.id}`} key={task.id} style={{ display: 'block', width: '100%', visibility: isTaskDragging ? 'hidden' : 'visible' }}>
                 <button
@@ -206,4 +207,4 @@ const GroupedTaskCard = ({
   );
 };
 
-export default GroupedTaskCard;
+export default CollectionCard;

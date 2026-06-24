@@ -1,100 +1,28 @@
-import { normalizeCardType, CARD_TYPES, extractPrimaryUrl } from '../taskCardUtils';
-import { deriveTaskDisplaySubtitle, deriveTaskDisplayTitle } from './taskDisplayUtils';
+import { normalizeCardType, CARD_TYPES } from '../taskCardUtils';
+import { deriveTaskDisplayTitle } from './taskDisplayUtils';
 import { getUploadedFileRecord } from './uploadedFileStorage';
 import JSZip from 'jszip';
+import { getCollectionItemPrimaryUrl, getCollectionItemSourceMeta, getCollectionExportBodyText } from './collectionItemUtils';
+import { getCollectionMetadataText } from './collectionMetadataUtils';
+import { getCollectionDisplayTags, getCollectionDisplayName } from './collectionUtils';
 
-export const getPackItemPrimaryUrl = (task) => (
-  task?.primaryUrl
-  || task?.videoUrl
-  || task?.mapUrl
-  || task?.redirectUrl
-  || extractPrimaryUrl(task?.text || '')
-  || ''
-);
-
-export const getPackItemSourceMeta = (task, labels) => {
-  const cardType = normalizeCardType(task?.cardType);
-  const primaryUrl = getPackItemPrimaryUrl(task);
-  const subtitle = deriveTaskDisplaySubtitle(task, labels) || 'Item';
-
-  let host = '';
-  let domain = '';
-  try {
-    if (primaryUrl) {
-      const parsed = new URL(primaryUrl.startsWith('http') ? primaryUrl : `https://${primaryUrl}`);
-      host = parsed.hostname.toLowerCase();
-      domain = host.replace(/^www\./, '');
-    }
-  } catch {
-    host = '';
-    domain = '';
-  }
-
-  if (host.includes('youtube.com') || host.includes('youtu.be')) {
-    return { key: 'youtube', label: 'YouTube', domain: 'youtube.com' };
-  }
-  if (host.includes('chatgpt.com') || host.includes('openai.com')) {
-    return { key: 'gpt', label: 'ChatGPT', domain: 'chatgpt.com' };
-  }
-  if (host.includes('notion.so') || host.includes('notion.site')) {
-    return { key: 'notion', label: 'Notion', domain: 'notion.so' };
-  }
-  if (host.includes('github.com')) {
-    return { key: 'github', label: 'GitHub', domain: 'github.com' };
-  }
-  if (host.includes('spotify.com') || host.includes('spoti.fi')) {
-    return { key: 'spotify', label: 'Spotify', domain: 'spotify.com' };
-  }
-  if (host.includes('instagram.com')) {
-    return { key: 'link', label: 'Instagram', domain: 'instagram.com' };
-  }
-  if (host.includes('twitter.com') || host.includes('x.com')) {
-    return { key: 'link', label: 'X (Twitter)', domain: 'x.com' };
-  }
-  if (host.includes('tiktok.com')) {
-    return { key: 'video', label: 'TikTok', domain: 'tiktok.com' };
-  }
-  if (host.includes('reddit.com')) {
-    return { key: 'link', label: 'Reddit', domain: 'reddit.com' };
-  }
-  if (domain) {
-    // generic website — use favicon
-    return { key: 'link', label: domain, domain };
-  }
-
-  switch (cardType) {
-    case 'photo':
-      return { key: 'photo', label: labels?.photo || 'Photo', domain: null };
-    case 'video':
-      return { key: 'video', label: subtitle, domain: null };
-    case 'document':
-      return { key: 'document', label: subtitle, domain: null };
-    case 'ai_tool':
-      return { key: 'gpt', label: subtitle, domain: null };
-    case 'text':
-      return { key: 'text', label: subtitle, domain: null };
-    default:
-      return { key: 'link', label: subtitle, domain: null };
-  }
-};
-
-export const PACK_EXPORT_SECTION_ORDER = [
+export const COLLECTION_EXPORT_SECTION_ORDER = [
   { role: 'Context', heading: 'Context' },
   { role: 'Code', heading: 'Tech' },
   { role: 'Notes', heading: 'Notes' },
   { role: 'Reference', heading: 'Reference' },
 ];
 
-export const PACK_FILTER_ORDER = ['All', 'Context', 'Code', 'Notes', 'Reference'];
+export const COLLECTION_FILTER_ORDER = ['All', 'Context', 'Code', 'Notes', 'Reference'];
 
-export const getPackRoleHeading = (role) => PACK_EXPORT_SECTION_ORDER.find((entry) => entry.role === role)?.heading || role;
+export const getCollectionRoleHeading = (role) => COLLECTION_EXPORT_SECTION_ORDER.find((entry) => entry.role === role)?.heading || role;
 
-export const getPackFilterLabel = (filter) => (filter === 'Code' ? 'Tech' : filter);
+export const getCollectionFilterLabel = (filter) => (filter === 'Code' ? 'Tech' : filter);
 
-export const getPackTaskRoles = (task, labels) => {
+export const getCollectionTaskRoles = (task, labels) => {
   const q = (task?.text || '').toLowerCase();
   const title = (deriveTaskDisplayTitle(task) || '').toLowerCase();
-  const sourceMeta = getPackItemSourceMeta(task, labels);
+  const sourceMeta = getCollectionItemSourceMeta(task, labels);
   const source = sourceMeta.key.toLowerCase();
   const sourceLabel = String(sourceMeta.label || '').toLowerCase();
   const sourceDomain = String(sourceMeta.domain || '').toLowerCase();
@@ -151,16 +79,16 @@ export const getPackTaskRoles = (task, labels) => {
   return roles;
 };
 
-export const getPrimaryPackTaskRole = (task, labels) => {
-  const roles = getPackTaskRoles(task, labels);
-  return PACK_EXPORT_SECTION_ORDER.find(({ role }) => roles.includes(role))?.role || null;
+export const getPrimaryCollectionTaskRole = (task, labels) => {
+  const roles = getCollectionTaskRoles(task, labels);
+  return COLLECTION_EXPORT_SECTION_ORDER.find(({ role }) => roles.includes(role))?.role || null;
 };
 
-export const getPackTasksByRole = (tasks, labels, role) => (
-  tasks.filter((task) => getPrimaryPackTaskRole(task, labels) === role)
+export const getCollectionTasksByRole = (tasks, labels, role) => (
+  tasks.filter((task) => getPrimaryCollectionTaskRole(task, labels) === role)
 );
 
-export const sanitizePackFilename = (value) => {
+export const sanitizeCollectionFilename = (value) => {
   const normalized = String(value || '')
     .replace(/[\\/:*?"<>|]+/g, ' ')
     .trim()
@@ -168,33 +96,7 @@ export const sanitizePackFilename = (value) => {
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '')
     .toLowerCase();
-  return normalized || 'untitled-pack';
-};
-
-const getPackExportBodyText = (task) => {
-  const title = deriveTaskDisplayTitle(task).trim();
-  const primaryUrl = getPackItemPrimaryUrl(task).trim();
-  const candidates = [
-    task?.content,
-    task?.body,
-    task?.previewText,
-    task?.preview,
-    task?.description,
-    task?.summary,
-    task?.note,
-    task?.text,
-  ];
-
-  for (const candidate of candidates) {
-    if (typeof candidate !== 'string') continue;
-    const trimmed = candidate.trim();
-    if (!trimmed) continue;
-    if (title && trimmed === title) continue;
-    if (primaryUrl && trimmed === primaryUrl) continue;
-    return trimmed;
-  }
-
-  return '';
+  return normalized || 'untitled-collection';
 };
 
 const isCodeLikeContent = (value) => {
@@ -207,12 +109,16 @@ const isCodeLikeContent = (value) => {
   if (/=>/.test(text)) return true;
   return false;
 };
-const shouldIncludePackExportUrl = (value) => /^(https?:\/\/|www\.)/i.test(String(value || '').trim());
+
+const shouldIncludeCollectionExportUrl = (value) => /^(https?:\/\/|www\.)/i.test(String(value || '').trim());
+
 const isBundleExportableUploadedAsset = (task) => (
   Boolean(task?.uploadedFileStorageKey)
   && ['pdf', 'word', 'image'].includes(String(task?.uploadedFileType || '').toLowerCase())
 );
+
 const isDataUrl = (value) => /^data:/i.test(String(value || '').trim());
+
 const dataUrlToBlob = async (value) => {
   const [header, base64Data = ''] = String(value).split(',');
   const mimeMatch = /^data:([^;]+);base64$/i.exec(header || '');
@@ -221,6 +127,7 @@ const dataUrlToBlob = async (value) => {
   const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
   return new Blob([bytes], { type: mimeType });
 };
+
 const sanitizeAssetFilename = (value, fallback = 'file') => {
   const trimmed = String(value || '').trim();
   const extensionMatch = /\.([a-z0-9]+)$/i.exec(trimmed);
@@ -251,7 +158,7 @@ export const ensureUniqueAssetFilename = (fileName, usedNames) => {
   return candidate;
 };
 
-export const collectPackAssets = async (tasks) => {
+export const collectCollectionAssets = async (tasks) => {
   const usedNames = new Set();
   const assetPathByStorageKey = new Map();
   const assetPathByTaskId = new Map();
@@ -325,11 +232,11 @@ export const collectPackAssets = async (tasks) => {
   };
 };
 
-export const buildPackExportItemMarkdown = (task, labels, role, options = {}) => {
+export const buildCollectionExportItemMarkdown = (task, labels, role, options = {}) => {
   const title = deriveTaskDisplayTitle(task).trim() || task?.text?.trim() || 'Untitled item';
-  const sourceMeta = getPackItemSourceMeta(task, labels);
-  const primaryUrl = getPackItemPrimaryUrl(task).trim();
-  const bodyText = getPackExportBodyText(task);
+  const sourceMeta = getCollectionItemSourceMeta(task, labels);
+  const primaryUrl = getCollectionItemPrimaryUrl(task).trim();
+  const bodyText = getCollectionExportBodyText(task);
   const cardType = normalizeCardType(task?.cardType);
   const isPhotoCard = cardType === CARD_TYPES.PHOTO;
   const assetReferencePath = (
@@ -350,7 +257,7 @@ export const buildPackExportItemMarkdown = (task, labels, role, options = {}) =>
     lines.push(`File: ${assetReferencePath}`);
   }
 
-  if (shouldIncludePackExportUrl(primaryUrl)) {
+  if (shouldIncludeCollectionExportUrl(primaryUrl)) {
     lines.push(`URL: ${primaryUrl}`);
   }
 
@@ -368,13 +275,13 @@ export const buildPackExportItemMarkdown = (task, labels, role, options = {}) =>
   return lines.join('\n');
 };
 
-export const buildPackSectionMarkdown = (tasks, labels, role, heading, options = {}) => {
-  const sectionTasks = getPackTasksByRole(tasks, labels, role);
+export const buildCollectionSectionMarkdown = (tasks, labels, role, heading, options = {}) => {
+  const sectionTasks = getCollectionTasksByRole(tasks, labels, role);
   if (!sectionTasks.length) return '';
 
   const lines = [`## ${heading}`, ''];
   sectionTasks.forEach((task, index) => {
-    lines.push(buildPackExportItemMarkdown(task, labels, role, options));
+    lines.push(buildCollectionExportItemMarkdown(task, labels, role, options));
     if (index < sectionTasks.length - 1) {
       lines.push('');
     }
@@ -384,9 +291,9 @@ export const buildPackSectionMarkdown = (tasks, labels, role, heading, options =
   return `${lines.join('\n').trim()}\n`;
 };
 
-export const buildPackExportHeaderLines = (tasks, title) => {
-  const updatedLabel = getPackMetadataTextFromItems(tasks);
-  const tags = getDesktopGroupDisplayTags(tasks);
+export const buildCollectionExportHeaderLines = (tasks, title) => {
+  const updatedLabel = getCollectionMetadataText(tasks);
+  const tags = getCollectionDisplayTags(tasks);
   const lines = [`# ${title}`, ''];
 
   lines.push(`- Updated: ${updatedLabel || 'Not available'}`);
@@ -398,20 +305,20 @@ export const buildPackExportHeaderLines = (tasks, title) => {
 };
 
 export const buildRoleMarkdown = (tasks, labels, role) => {
-  const roleConfig = PACK_EXPORT_SECTION_ORDER.find((entry) => entry.role === role);
+  const roleConfig = COLLECTION_EXPORT_SECTION_ORDER.find((entry) => entry.role === role);
   if (!roleConfig) return '';
 
-  const sectionTasks = getPackTasksByRole(tasks, labels, role);
+  const sectionTasks = getCollectionTasksByRole(tasks, labels, role);
   if (!sectionTasks.length) return '';
 
-  const packTitle = getDesktopGroupDisplayName(tasks) || 'Untitled pack';
-  const lines = buildPackExportHeaderLines(tasks, `${packTitle} — ${roleConfig.heading}`);
+  const collectionTitle = getCollectionDisplayName(tasks) || 'Untitled collection';
+  const lines = buildCollectionExportHeaderLines(tasks, `${collectionTitle} — ${roleConfig.heading}`);
   lines.push('');
   lines.push(`## ${roleConfig.heading}`);
   lines.push('');
 
   sectionTasks.forEach((task, index) => {
-    lines.push(buildPackExportItemMarkdown(task, labels, role));
+    lines.push(buildCollectionExportItemMarkdown(task, labels, role));
     if (index < sectionTasks.length - 1) {
       lines.push('');
     }
@@ -422,11 +329,11 @@ export const buildRoleMarkdown = (tasks, labels, role) => {
 };
 
 export const buildCopyForAIText = (tasks, labels, exportType) => {
-  const packTitle = getDesktopGroupDisplayName(tasks) || 'Untitled pack';
+  const collectionTitle = getCollectionDisplayName(tasks) || 'Untitled collection';
 
   if (exportType === 'all') {
-    const sectionBlocks = PACK_EXPORT_SECTION_ORDER
-      .map(({ role, heading }) => buildPackSectionMarkdown(tasks, labels, role, heading))
+    const sectionBlocks = COLLECTION_EXPORT_SECTION_ORDER
+      .map(({ role, heading }) => buildCollectionSectionMarkdown(tasks, labels, role, heading))
       .filter(Boolean);
 
     if (!sectionBlocks.length) return '';
@@ -434,7 +341,7 @@ export const buildCopyForAIText = (tasks, labels, exportType) => {
     return [
       'Here is the context for my current task.',
       '',
-      `# ${packTitle}`,
+      `# ${collectionTitle}`,
       '',
       sectionBlocks.join('\n'),
       '',
@@ -449,16 +356,16 @@ export const buildCopyForAIText = (tasks, labels, exportType) => {
     reference: 'Reference',
   };
   const role = roleMap[exportType];
-  const heading = getPackRoleHeading(role);
+  const heading = getCollectionRoleHeading(role);
   if (!role || !heading) return '';
 
-  const sectionBlock = buildPackSectionMarkdown(tasks, labels, role, heading);
+  const sectionBlock = buildCollectionSectionMarkdown(tasks, labels, role, heading);
   if (!sectionBlock) return '';
 
   return [
     `Here is the ${heading.toLowerCase()} for my current task.`,
     '',
-    `# ${packTitle} — ${heading}`,
+    `# ${collectionTitle} — ${heading}`,
     '',
     sectionBlock.trim(),
     '',
@@ -466,26 +373,26 @@ export const buildCopyForAIText = (tasks, labels, exportType) => {
   ].join('\n').trim();
 };
 
-export const buildWholePackMarkdown = (tasks, labels, options = {}) => {
-  const packTitle = getDesktopGroupDisplayName(tasks) || 'Untitled pack';
-  const sectionMap = new Map(PACK_EXPORT_SECTION_ORDER.map(({ role }) => [role, []]));
+export const buildCollectionMarkdown = (tasks, labels, options = {}) => {
+  const collectionTitle = getCollectionDisplayName(tasks) || 'Untitled collection';
+  const sectionMap = new Map(COLLECTION_EXPORT_SECTION_ORDER.map(({ role }) => [role, []]));
 
   tasks.forEach((task) => {
-    const role = getPrimaryPackTaskRole(task, labels);
+    const role = getPrimaryCollectionTaskRole(task, labels);
     if (!role || !sectionMap.has(role)) return;
     sectionMap.get(role).push(task);
   });
 
-  const lines = buildPackExportHeaderLines(tasks, packTitle);
+  const lines = buildCollectionExportHeaderLines(tasks, collectionTitle);
 
-  PACK_EXPORT_SECTION_ORDER.forEach(({ role, heading }) => {
+  COLLECTION_EXPORT_SECTION_ORDER.forEach(({ role, heading }) => {
     const sectionTasks = sectionMap.get(role) || [];
     if (!sectionTasks.length) return;
     lines.push('');
     lines.push(`## ${heading}`);
     lines.push('');
     sectionTasks.forEach((task, index) => {
-      lines.push(buildPackExportItemMarkdown(task, labels, role, options));
+      lines.push(buildCollectionExportItemMarkdown(task, labels, role, options));
       if (index < sectionTasks.length - 1) {
         lines.push('');
       }
@@ -518,4 +425,24 @@ export const downloadMarkdown = (filename, markdown) => {
 
 export const copyTextToClipboard = async (text) => {
   await navigator.clipboard.writeText(text);
+};
+
+export const exportCollectionAsZipBundle = async (tasks, labels) => {
+  const collectionTitle = getCollectionDisplayName(tasks) || 'Untitled collection';
+  const safeFilename = sanitizeCollectionFilename(collectionTitle);
+  const zip = new JSZip();
+
+  const collected = await collectCollectionAssets(tasks);
+  for (const asset of collected.assets) {
+    zip.file(asset.path, asset.blob);
+  }
+
+  const markdownContent = buildCollectionMarkdown(tasks, labels, {
+    assetPathByStorageKey: collected.assetPathByStorageKey,
+    assetPathByTaskId: collected.assetPathByTaskId,
+  });
+  zip.file('collection.md', markdownContent);
+
+  const content = await zip.generateAsync({ type: 'blob' });
+  downloadBlob(`${safeFilename}.zip`, content);
 };

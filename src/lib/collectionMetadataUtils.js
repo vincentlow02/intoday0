@@ -1,4 +1,4 @@
-export const RECENT_PACK_UPDATE_HOURS = 24;
+export const RECENT_COLLECTION_UPDATE_HOURS = 24;
 export const UPDATED_RECENTLY_LABEL = 'Updated recently';
 
 const SAME_YEAR_DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
@@ -15,7 +15,7 @@ const normalizeDate = (value) => {
 
 export const createUpdatedTimestamp = (date = new Date()) => date.toISOString();
 
-export const getPackUpdatedAt = (items = []) => {
+export const getCollectionUpdatedAt = (items = []) => {
   const values = Array.isArray(items) ? items : [items];
   let latestDate = null;
 
@@ -30,7 +30,7 @@ export const getPackUpdatedAt = (items = []) => {
   return latestDate;
 };
 
-export const formatPackUpdatedDate = (value, now = new Date()) => {
+export const formatCollectionUpdatedDate = (value, now = new Date()) => {
   const updatedDate = normalizeDate(value);
   if (!updatedDate) return '';
 
@@ -41,9 +41,9 @@ export const formatPackUpdatedDate = (value, now = new Date()) => {
   return SAME_YEAR_DATE_FORMATTER.format(updatedDate);
 };
 
-export const getPackMetadataText = (
+export const getCollectionMetadataTextRaw = (
   updatedAt,
-  { now = new Date(), recentUpdateHours = RECENT_PACK_UPDATE_HOURS } = {},
+  { now = new Date(), recentUpdateHours = RECENT_COLLECTION_UPDATE_HOURS } = {},
 ) => {
   const updatedDate = normalizeDate(updatedAt);
   if (!updatedDate) return '';
@@ -53,34 +53,8 @@ export const getPackMetadataText = (
     return UPDATED_RECENTLY_LABEL;
   }
 
-  return formatPackUpdatedDate(updatedDate, now);
+  return formatCollectionUpdatedDate(updatedDate, now);
 };
 
-export const getPackMetadataTextFromItems = (items, options) =>
-  getPackMetadataText(getPackUpdatedAt(items), options);
-
-export const PACK_METADATA_SAMPLE_NOW = '2026-04-10T12:00:00.000Z';
-
-export const PACK_METADATA_SAMPLE_CASES = [
-  {
-    id: 'updated-recently',
-    updatedAt: '2026-04-10T10:30:00.000Z',
-    expectedLabel: getPackMetadataText('2026-04-10T10:30:00.000Z', {
-      now: new Date(PACK_METADATA_SAMPLE_NOW),
-    }),
-  },
-  {
-    id: 'updated-yesterday',
-    updatedAt: '2026-04-09T09:00:00.000Z',
-    expectedLabel: getPackMetadataText('2026-04-09T09:00:00.000Z', {
-      now: new Date(PACK_METADATA_SAMPLE_NOW),
-    }),
-  },
-  {
-    id: 'updated-several-days-ago',
-    updatedAt: '2026-04-04T14:00:00.000Z',
-    expectedLabel: getPackMetadataText('2026-04-04T14:00:00.000Z', {
-      now: new Date(PACK_METADATA_SAMPLE_NOW),
-    }),
-  },
-];
+export const getCollectionMetadataText = (items, options) =>
+  getCollectionMetadataTextRaw(getCollectionUpdatedAt(items), options);

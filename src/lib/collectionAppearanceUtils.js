@@ -1,6 +1,6 @@
-export const PACK_ICON_SUGGESTIONS = ['📦', '🧠', '📝', '✨', '🔖', '📚', '🎯', '🌿'];
+export const COLLECTION_ICON_SUGGESTIONS = ['📦', '🧠', '📝', '✨', '🔖', '📚', '🎯', '🌿'];
 
-export const PACK_COVER_PRESETS = [
+export const COLLECTION_COVER_PRESETS = [
   {
     id: 'sand',
     label: 'Sand',
@@ -28,19 +28,19 @@ const normalizeTextValue = (value) => {
   return value.trim();
 };
 
-export const normalizePackIcon = (value) => {
+export const normalizeCollectionIcon = (value) => {
   const normalized = normalizeTextValue(value);
   if (!normalized) return null;
   return Array.from(normalized).slice(0, 2).join('');
 };
 
-export const normalizePackCover = (value) => {
+export const normalizeCollectionCover = (value) => {
   const normalized = normalizeTextValue(value);
   if (!normalized) return null;
-  return PACK_COVER_PRESETS.some((preset) => preset.id === normalized) ? normalized : null;
+  return COLLECTION_COVER_PRESETS.some((preset) => preset.id === normalized) ? normalized : null;
 };
 
-export const normalizePackTags = (value) => {
+export const normalizeCollectionTags = (value) => {
   const values = Array.isArray(value)
     ? value
     : typeof value === 'string'
@@ -69,19 +69,19 @@ const getFirstGroupValue = (tasks, selector) => {
   return null;
 };
 
-export const getPackIconFromTasks = (tasks = []) =>
-  getFirstGroupValue(tasks, (task) => normalizePackIcon(task?.desktopGroupIcon));
+export const getCollectionIconFromTasks = (tasks = []) =>
+  getFirstGroupValue(tasks, (task) => normalizeCollectionIcon(task?.collectionIcon || task?.desktopGroupIcon));
 
-export const getPackCoverFromTasks = (tasks = []) =>
-  getFirstGroupValue(tasks, (task) => normalizePackCover(task?.desktopGroupCover));
+export const getCollectionCoverFromTasks = (tasks = []) =>
+  getFirstGroupValue(tasks, (task) => normalizeCollectionCover(task?.collectionCover || task?.desktopGroupCover));
 
-export const getPackTagsFromTasks = (tasks = []) => {
+export const getCollectionTagsFromTasks = (tasks = []) => {
   for (const task of tasks) {
-    const tags = normalizePackTags(task?.desktopGroupTags);
+    const tags = normalizeCollectionTags(task?.collectionTags || task?.desktopGroupTags);
     if (tags.length > 0) return tags;
   }
   return [];
 };
 
-export const getPackCoverPreset = (coverId) =>
-  PACK_COVER_PRESETS.find((preset) => preset.id === coverId) || null;
+export const getCollectionCoverPreset = (coverId) =>
+  COLLECTION_COVER_PRESETS.find((preset) => preset.id === coverId) || null;

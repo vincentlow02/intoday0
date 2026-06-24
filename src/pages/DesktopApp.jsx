@@ -23,14 +23,14 @@ import {
   DESKTOP_APP_WINDOW_SCALE,
   DESKTOP_FIXED_UI_SCALE,
 } from '../hooks/useDesktopViewportState';
-import { createUpdatedTimestamp } from '../lib/packMetadata';
+import { createUpdatedTimestamp } from '../lib/collectionMetadataUtils';
 import { getUploadedFileRecord, saveUploadedFileBlob } from '../lib/uploadedFileStorage';
 import {
-  normalizePackCover,
-  normalizePackIcon,
-  normalizePackTags,
-  PACK_ICON_SUGGESTIONS,
-} from '../lib/packPageUtils';
+  normalizeCollectionCover,
+  normalizeCollectionIcon,
+  normalizeCollectionTags,
+  COLLECTION_ICON_SUGGESTIONS,
+} from '../lib/collectionAppearanceUtils';
 
 import {
   CARD_TYPES,
@@ -52,25 +52,25 @@ import DesktopNoteSidePanel from '../components/DesktopNoteSidePanel';
 import { composeDesktopNoteText } from '../lib/noteUtils';
 import DesktopAddResourcesModal from '../components/DesktopAddResourcesModal';
 import DesktopDeleteConfirmModal from '../components/DesktopDeleteConfirmModal';
-import DesktopGroupPrompt from '../components/DesktopGroupPrompt';
-import DesktopPackPageHeader from '../components/DesktopPackPageHeader';
-import GroupedTaskCard from '../components/GroupedTaskCard';
+import DesktopCollectionPrompt from '../components/DesktopCollectionPrompt';
+import CollectionHeader from '../components/CollectionHeader';
+import CollectionCard from '../components/CollectionCard';
 import DailyTaskList from '../components/DailyTaskList';
 import AddPanel from '../components/AddPanel';
 import PackItemSourceIcon from '../components/PackItemSourceIcon';
-import DesktopGroupFullViewModal from '../components/DesktopGroupFullViewModal';
+import CollectionDetailModal from '../components/CollectionDetailModal';
 import CollectionViewBoard from '../components/CollectionViewBoard';
 import {
-  DESKTOP_GROUP_CARD_MIN_HEIGHT,
-  DESKTOP_GROUP_CARD_ITEM_HEIGHT,
-  DESKTOP_GROUP_CARD_ROW_GAP,
-  DESKTOP_GROUP_CARD_COLLAPSED_LIST_MAX_HEIGHT,
-  DESKTOP_GROUP_CARD_EXPANDED_LIST_MAX_HEIGHT,
-  DESKTOP_GROUP_CARD_BASE_HEIGHT,
-  DESKTOP_GROUP_CARD_MORE_LABEL_HEIGHT,
-  getDesktopCollapsedGroupVisibleCount,
-  getDesktopGroupCardHeight,
-} from '../lib/groupCardLayout';
+  DESKTOP_COLLECTION_CARD_MIN_HEIGHT,
+  DESKTOP_COLLECTION_CARD_ITEM_HEIGHT,
+  DESKTOP_COLLECTION_CARD_ROW_GAP,
+  DESKTOP_COLLECTION_CARD_COLLAPSED_LIST_MAX_HEIGHT,
+  DESKTOP_COLLECTION_CARD_EXPANDED_LIST_MAX_HEIGHT,
+  DESKTOP_COLLECTION_CARD_BASE_HEIGHT,
+  DESKTOP_COLLECTION_CARD_MORE_LABEL_HEIGHT,
+  getDesktopCollapsedCollectionVisibleCount,
+  getDesktopCollectionCardHeight,
+} from '../lib/collectionCardLayout';
 import {
   dateKey,
   sameDay,
@@ -95,10 +95,10 @@ import {
   areTaskIdSelectionsEqual,
 } from '../lib/workspaceUtils';
 import {
-  getDesktopGroupDisplayName,
-  getDesktopGroupDisplayTags,
-  getSuggestedDesktopGroupName,
-} from '../lib/groupMetadata';
+  getCollectionDisplayName,
+  getCollectionDisplayTags,
+  getSuggestedCollectionName,
+} from '../lib/collectionUtils';
 import {
   sectionIdToMobileId,
   currentSection,
@@ -343,7 +343,7 @@ const getDesktopDragTaskIds = (task) => (
 );
 const getDesktopCanvasEntryHeight = (entry) => (
   entry?.type === 'group'
-    ? getDesktopGroupCardHeight(entry.tasks, getDesktopCollapsedGroupVisibleCount(entry.tasks))
+    ? getDesktopCollectionCardHeight(entry.tasks, getDesktopCollapsedCollectionVisibleCount(entry.tasks))
     : getDesktopCanvasTaskHeight(entry?.task)
 );
 const getDesktopCanvasEntryTaskIds = (entry) => (
@@ -540,7 +540,7 @@ const getDesktopCanvasOverlapEntry = (tasks, dateString, movingTaskIds, nextPosi
   if (movingTasks.length === 0) return null;
 
   const movingHeight = movingTasks.length > 1
-    ? getDesktopGroupCardHeight(movingTasks, getDesktopCollapsedGroupVisibleCount(movingTasks))
+    ? getDesktopCollectionCardHeight(movingTasks, getDesktopCollapsedCollectionVisibleCount(movingTasks))
     : DESKTOP_CANVAS_CARD_HEIGHT;
   const movingRect = {
     x: nextPosition.x,
@@ -608,7 +608,7 @@ const getDesktopCanvasResolvedPosition = (tasks, dateString, movingTaskIds, pref
   if (movingTasks.length === 0) return preferredPosition;
 
   const movingHeight = movingTasks.length > 1
-    ? getDesktopGroupCardHeight(movingTasks, getDesktopCollapsedGroupVisibleCount(movingTasks))
+    ? getDesktopCollectionCardHeight(movingTasks, getDesktopCollapsedCollectionVisibleCount(movingTasks))
     : DESKTOP_CANVAS_CARD_HEIGHT;
   const maxX = Math.max(0, DESKTOP_MAIN_CONTENT_MAX_WIDTH - DESKTOP_CANVAS_CARD_WIDTH);
   const clampedX = Math.min(maxX, preferredPosition.x);
@@ -634,7 +634,7 @@ const getDesktopCanvasResolvedPosition = (tasks, dateString, movingTaskIds, pref
   };
 };
 
-const cleanupDesktopGroupMetadata = (tasks) => {
+const cleanupCollectionMetadata = (tasks) => {
   // Keep group metadata even when one task remains so dragging one item out of a
   // group does not collapse the pack into a plain standalone task.
   return tasks;
@@ -661,9 +661,9 @@ const normalizeTask = (task) => {
     desktopWorkspaceId: getTaskWorkspaceId(task),
     desktopGroupId: typeof task.desktopGroupId === 'string' && task.desktopGroupId.trim() ? task.desktopGroupId : null,
     desktopGroupName: typeof task.desktopGroupName === 'string' && task.desktopGroupName.trim() ? task.desktopGroupName : null,
-    desktopGroupIcon: normalizePackIcon(task.desktopGroupIcon),
-    desktopGroupCover: normalizePackCover(task.desktopGroupCover),
-    desktopGroupTags: normalizePackTags(task.desktopGroupTags),
+    desktopGroupIcon: normalizeCollectionIcon(task.desktopGroupIcon),
+    desktopGroupCover: normalizeCollectionCover(task.desktopGroupCover),
+    desktopGroupTags: normalizeCollectionTags(task.desktopGroupTags),
     desktopCollectionLabel: typeof task.desktopCollectionLabel === 'string' && task.desktopCollectionLabel.trim() ? task.desktopCollectionLabel.trim() : null,
     desktopLinkIds: Array.isArray(task.desktopLinkIds)
       ? [...new Set(task.desktopLinkIds.map((id) => String(id).trim()).filter(Boolean))]
@@ -1890,7 +1890,7 @@ function App() {
                   y: overlapEntry.y + getDesktopCanvasEntryHeight(overlapEntry) + DESKTOP_CANVAS_CARD_GAP,
                 }),
               });
-              setPendingGroupName(getSuggestedDesktopGroupName(movingTasks, overlapEntry));
+              setPendingGroupName(getSuggestedCollectionName(movingTasks, overlapEntry));
               return applyDroppedPosition(prev);
             }
 
@@ -2250,7 +2250,7 @@ function App() {
             ? normalizeTask({ ...item, updatedAt: nextUpdatedAt })
             : item
         ));
-      return cleanupDesktopGroupMetadata(remainingTasks);
+      return cleanupCollectionMetadata(remainingTasks);
     });
     setSelectedTaskIds((current) => current.filter((taskId) => !taskIdSet.has(taskId)));
     setNotePanelTaskId((current) => (taskIdSet.has(current) ? null : current));
@@ -2322,7 +2322,7 @@ function App() {
     openTaskEditor,
     openTaskUrl,
   });
-  const updateActiveGroupMetadata = useCallback((changes) => {
+  const updateActiveCollectionMetadata = useCallback((changes) => {
     const groupId = activeGroupView?.groupId;
     if (!groupId) return;
 
@@ -2331,15 +2331,19 @@ function App() {
       nextFields.desktopGroupName = typeof changes.desktopGroupName === 'string'
         ? changes.desktopGroupName.trim() || null
         : null;
+      nextFields.collectionName = nextFields.desktopGroupName;
     }
     if (Object.prototype.hasOwnProperty.call(changes, 'desktopGroupIcon')) {
-      nextFields.desktopGroupIcon = normalizePackIcon(changes.desktopGroupIcon);
+      nextFields.desktopGroupIcon = normalizeCollectionIcon(changes.desktopGroupIcon);
+      nextFields.collectionIcon = nextFields.desktopGroupIcon;
     }
     if (Object.prototype.hasOwnProperty.call(changes, 'desktopGroupCover')) {
-      nextFields.desktopGroupCover = normalizePackCover(changes.desktopGroupCover);
+      nextFields.desktopGroupCover = normalizeCollectionCover(changes.desktopGroupCover);
+      nextFields.collectionCover = nextFields.desktopGroupCover;
     }
     if (Object.prototype.hasOwnProperty.call(changes, 'desktopGroupTags')) {
-      nextFields.desktopGroupTags = normalizePackTags(changes.desktopGroupTags);
+      nextFields.desktopGroupTags = normalizeCollectionTags(changes.desktopGroupTags);
+      nextFields.collectionTags = nextFields.desktopGroupTags;
     }
     if (!Object.keys(nextFields).length) return;
 
@@ -2362,7 +2366,7 @@ function App() {
       }));
       return {
         ...prev,
-        title: getDesktopGroupDisplayName(nextTasks),
+        title: getCollectionDisplayName(nextTasks),
         tasks: nextTasks,
       };
     });
@@ -2413,7 +2417,7 @@ function App() {
       if (!prev || prev.groupId !== activeGroupId) return prev;
       return {
         ...prev,
-        title: getDesktopGroupDisplayName(nextGroupTasks),
+        title: getCollectionDisplayName(nextGroupTasks),
         tasks: nextGroupTasks,
       };
     });
@@ -3129,7 +3133,7 @@ function App() {
     if (!groupTasks?.length) return;
     const nextView = {
       groupId: groupTasks[0].desktopGroupId || `group-${groupTasks[0].id}`,
-      title: getDesktopGroupDisplayName(groupTasks),
+      title: getCollectionDisplayName(groupTasks),
       tasks: groupTasks.map((task) => normalizeTask(task)),
       focusTaskId,
       originRect,
@@ -3208,7 +3212,7 @@ function App() {
     const nextUpdatedAt = createUpdatedTimestamp();
     setTasks((prev) => {
       const groupedTasks = prev.filter((task) => groupedTaskIds.has(task.id));
-      const nextGroupTags = getDesktopGroupDisplayTags(groupedTasks);
+      const nextGroupTags = getCollectionDisplayTags(groupedTasks);
       return prev.map((task) => (
         groupedTaskIds.has(task.id)
           ? normalizeTask({
@@ -3551,7 +3555,7 @@ function App() {
                       >
                         <div className="desktop-canvas-card-shell is-dragging">
                           {desktopDragOverlaySnapshot.type === 'group' && Array.isArray(desktopDragOverlaySnapshot.tasks) ? (
-                            <GroupedTaskCard
+                            <CollectionCard
                               tasks={desktopDragOverlaySnapshot.tasks}
                               appearance={appearance}
                               labels={t}
@@ -4067,14 +4071,14 @@ function App() {
           onTaskLongPress={handleHistorySearchLongPress}
         />
 
-        <DesktopGroupPrompt
+        <DesktopCollectionPrompt
           prompt={pendingGroupPrompt}
-          groupName={pendingGroupName}
-          setGroupName={setPendingGroupName}
+          collectionName={pendingGroupName}
+          setCollectionName={setPendingGroupName}
           onConfirm={handleConfirmGroupPrompt}
           onCancel={handleCancelGroupPrompt}
         />
-        <DesktopGroupFullViewModal
+        <CollectionDetailModal
           view={activeGroupView}
           appearance={appearance}
           labels={t}
@@ -4085,7 +4089,7 @@ function App() {
             handleTaskEdit(task);
           }}
           onDeleteTasks={deleteTasksByIds}
-          onUpdateGroup={updateActiveGroupMetadata}
+          onUpdateCollection={updateActiveCollectionMetadata}
           onToast={showToast}
           onTaskOpen={(task) => {
             closeActiveGroupView();

@@ -4,7 +4,7 @@ import { dateKey } from './dateUtils';
 import { getLogicalToday } from './dateHelpers';
 import { isValidDesktopSlot, isFiniteCanvasCoordinate } from './domUtils';
 import { getTaskWorkspaceId } from './workspaceUtils';
-import { normalizePackIcon, normalizePackCover, normalizePackTags } from './packPageUtils';
+import { normalizeCollectionIcon, normalizeCollectionCover, normalizeCollectionTags } from './collectionAppearanceUtils';
 
 export const normalizeTask = (task) => {
   const derivedFields = getDerivedTaskFields(task.text || '');
@@ -25,9 +25,9 @@ export const normalizeTask = (task) => {
     desktopWorkspaceId: getTaskWorkspaceId(task),
     desktopGroupId: typeof task.desktopGroupId === 'string' && task.desktopGroupId.trim() ? task.desktopGroupId : null,
     desktopGroupName: typeof task.desktopGroupName === 'string' && task.desktopGroupName.trim() ? task.desktopGroupName : null,
-    desktopGroupIcon: normalizePackIcon(task.desktopGroupIcon),
-    desktopGroupCover: normalizePackCover(task.desktopGroupCover),
-    desktopGroupTags: normalizePackTags(task.desktopGroupTags),
+    desktopGroupIcon: normalizeCollectionIcon(task.desktopGroupIcon),
+    desktopGroupCover: normalizeCollectionCover(task.desktopGroupCover),
+    desktopGroupTags: normalizeCollectionTags(task.desktopGroupTags),
     desktopCollectionLabel: typeof task.desktopCollectionLabel === 'string' && task.desktopCollectionLabel.trim() ? task.desktopCollectionLabel.trim() : null,
     photoDataUrl: typeof task.photoDataUrl === 'string' && task.photoDataUrl.trim() ? task.photoDataUrl : null,
     photoFileName: typeof task.photoFileName === 'string' && task.photoFileName.trim() ? task.photoFileName : null,

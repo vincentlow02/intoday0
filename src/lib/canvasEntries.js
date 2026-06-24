@@ -1,9 +1,9 @@
 import { DESKTOP_CANVAS_CARD_WIDTH, DESKTOP_CANVAS_CARD_GAP, DESKTOP_CANVAS_MIN_HEIGHT, DESKTOP_CANVAS_CARD_HEIGHT, DESKTOP_MAIN_CONTENT_MAX_WIDTH, DESKTOP_MAIN_CONTENT_HORIZONTAL_PADDING } from './desktopConstants';
-import { getDesktopGroupCardHeight } from './groupMetadata';
+import { getCollectionCardHeight } from './collectionUtils';
 import { getDesktopCanvasTaskHeight } from './taskOrder';
-import { doDesktopRectsIntersect, getDesktopCanvasOverlapEntry } from './canvasGeometry';
+import { getDesktopCanvasOverlapEntry } from './canvasGeometry';
 import { isFiniteCanvasCoordinate } from './domUtils';
-import { isPackActiveOnDate } from './packPageUtils';
+import { isPackActiveOnDate } from './collectionAppearanceUtils';
 
 export const resolveDesktopCanvasEntries = (tasks, dateString) => {
   const selectedTasks = tasks
@@ -69,9 +69,6 @@ export const getDesktopCanvasResolvedPosition = (tasks, dateString, movingTaskId
   const movingTasks = tasks.filter((task) => movingTaskIds.has(task.id));
   if (movingTasks.length === 0) return preferredPosition;
 
-  const movingHeight = movingTasks.length > 1
-    ? getDesktopGroupCardHeight(movingTasks.length)
-    : DESKTOP_CANVAS_CARD_HEIGHT;
   const maxX = Math.max(0, DESKTOP_MAIN_CONTENT_MAX_WIDTH - DESKTOP_CANVAS_CARD_WIDTH);
   const clampedX = Math.min(maxX, preferredPosition.x);
   const stepY = DESKTOP_CANVAS_CARD_GAP + 12;
@@ -98,7 +95,7 @@ export const getDesktopCanvasResolvedPosition = (tasks, dateString, movingTaskId
 
 export const getDesktopCanvasEntryHeight = (entry) => (
   entry?.type === 'group'
-    ? getDesktopGroupCardHeight(entry.tasks.length)
+    ? getCollectionCardHeight(entry.tasks.length)
     : getDesktopCanvasTaskHeight(entry?.task)
 );
 

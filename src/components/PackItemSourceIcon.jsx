@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { getTaskCardPresentation, normalizeCardType, CARD_TYPES } from '../taskCardUtils';
-import { getPackItemSourceMeta } from '../lib/packItemUtils';
+import { getCollectionItemSourceMeta } from '../lib/collectionItemUtils';
 
 const PackItemSourceIcon = ({ task, appearance, labels }) => {
   const [imgError, setImgError] = useState(false);
   const { cfg } = getTaskCardPresentation(task, labels || {});
-  const { sourceKey, domain } = getPackItemSourceMeta(task, labels || {});
+  const { sourceKey, domain } = getCollectionItemSourceMeta(task, labels || {});
   const iconBackground = appearance === 'dark' ? cfg.darkBg : cfg.bg;
   const iconBorder = appearance === 'dark' ? `1px solid ${cfg.darkStroke}` : 'none';
   const photoPreview = task?.photoDataUrl || task?.photoUrl;

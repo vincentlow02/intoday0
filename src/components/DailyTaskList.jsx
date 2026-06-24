@@ -1,7 +1,7 @@
 import React from 'react';
 import { DESKTOP_MAIN_CONTENT_MAX_WIDTH, DESKTOP_CANVAS_CARD_WIDTH } from '../lib/desktopConstants';
 import { TaskCard } from './TaskCard';
-import GroupedTaskCard from './GroupedTaskCard';
+import CollectionCard from './CollectionCard';
 
 const DailyTaskList = ({
   entries,
@@ -143,7 +143,7 @@ const DailyTaskList = ({
                 />
               ))}
               {entry.type === 'group' ? (
-                <GroupedTaskCard
+                <CollectionCard
                   tasks={entry.tasks}
                   appearance={appearance}
                   labels={labels}

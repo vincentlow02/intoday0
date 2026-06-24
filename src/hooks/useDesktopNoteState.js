@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { createUpdatedTimestamp } from '../lib/packMetadata';
+import { createUpdatedTimestamp } from '../lib/collectionMetadataUtils';
 import { normalizeTask } from '../lib/taskNormalize';
 
 /**

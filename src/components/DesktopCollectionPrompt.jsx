@@ -1,9 +1,9 @@
 import React from 'react';
 
-const DesktopGroupPrompt = ({
+const DesktopCollectionPrompt = ({
   prompt,
-  groupName,
-  setGroupName,
+  collectionName,
+  setCollectionName,
   onConfirm,
   onCancel,
 }) => {
@@ -43,12 +43,12 @@ const DesktopGroupPrompt = ({
               <path d="M6.167 5.5H4.833a2.333 2.333 0 0 0 0 4.667h1.334M9.833 5.5h1.334a2.333 2.333 0 0 1 0 4.667H9.833M5.667 8h4.666" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
-          <span>Merge into group</span>
+          <span>Merge into collection</span>
         </div>
         <input
           type="text"
-          value={groupName}
-          onChange={(event) => setGroupName(event.target.value)}
+          value={collectionName}
+          onChange={(event) => setCollectionName(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
               event.preventDefault();
@@ -59,7 +59,7 @@ const DesktopGroupPrompt = ({
             }
           }}
           autoFocus
-          placeholder="Group title"
+          placeholder="Collection title"
           className="desktop-group-prompt-input"
         />
         <div className="desktop-group-prompt-actions">
@@ -75,7 +75,7 @@ const DesktopGroupPrompt = ({
             onClick={onConfirm}
             className="desktop-group-prompt-primary"
           >
-            Group items <span aria-hidden="true">→</span>
+            Create collection <span aria-hidden="true">→</span>
           </button>
         </div>
       </div>
@@ -83,4 +83,4 @@ const DesktopGroupPrompt = ({
   );
 };
 
-export default DesktopGroupPrompt;
+export default DesktopCollectionPrompt;

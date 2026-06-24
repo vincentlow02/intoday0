@@ -1,16 +1,16 @@
 import React, { useState, useCallback } from 'react';
 import EmojiPicker from 'emoji-picker-react';
 import {
-  getDesktopGroupDisplayName,
-  getDesktopGroupIcon,
-  getDesktopGroupDisplayTags,
-} from '../lib/groupMetadata';
-import { getPackMetadataTextFromItems } from '../lib/packMetadata';
-import { normalizePackTags } from '../lib/packPageUtils';
+  getCollectionDisplayName,
+  getCollectionIcon,
+  getCollectionDisplayTags,
+} from '../lib/collectionUtils';
+import { getCollectionMetadataText } from '../lib/collectionMetadataUtils';
+import { normalizeCollectionTags } from '../lib/collectionAppearanceUtils';
 
-const DesktopPackPageHeader = ({
+const CollectionHeader = ({
   tasks,
-  onUpdateGroup,
+  onUpdateCollection,
   appearance,
   language,
   labels = {},
@@ -20,10 +20,10 @@ const DesktopPackPageHeader = ({
   onExitSelectMode,
   onDeleteSelected,
 }) => {
-  const groupTitle = getDesktopGroupDisplayName(tasks);
-  const groupIcon = getDesktopGroupIcon(tasks);
-  const groupTags = getDesktopGroupDisplayTags(tasks);
-  const updatedLabel = getPackMetadataTextFromItems(tasks);
+  const collectionTitle = getCollectionDisplayName(tasks);
+  const collectionIcon = getCollectionIcon(tasks);
+  const collectionTags = getCollectionDisplayTags(tasks);
+  const updatedLabel = getCollectionMetadataText(tasks);
   const metadataParts = [
     `${tasks.length} ${tasks.length === 1 ? 'item' : 'items'}`,
     updatedLabel,
@@ -37,9 +37,12 @@ const DesktopPackPageHeader = ({
   const commitTitle = useCallback(() => {
     const nextTitle = draftTitle.trim();
     setIsTitleEditing(false);
-    if (!nextTitle || nextTitle === groupTitle) return;
-    onUpdateGroup({ desktopGroupName: nextTitle });
-  }, [draftTitle, groupTitle, onUpdateGroup]);
+    if (!nextTitle || nextTitle === collectionTitle) return;
+    onUpdateCollection({
+      desktopGroupName: nextTitle,
+      collectionName: nextTitle,
+    });
+  }, [draftTitle, collectionTitle, onUpdateCollection]);
 
   const handleTitleKeyDown = useCallback((event) => {
     if (event.key === 'Enter') {
@@ -47,10 +50,10 @@ const DesktopPackPageHeader = ({
       commitTitle();
     }
     if (event.key === 'Escape') {
-      setDraftTitle(groupTitle);
+      setDraftTitle(collectionTitle);
       setIsTitleEditing(false);
     }
-  }, [commitTitle, groupTitle]);
+  }, [commitTitle, collectionTitle]);
 
   const handleTagSubmit = useCallback(() => {
     const nextTag = draftTag.trim();
@@ -60,25 +63,27 @@ const DesktopPackPageHeader = ({
       return;
     }
 
-    const nextTags = normalizePackTags([...groupTags, nextTag]);
-    onUpdateGroup({ desktopGroupTags: nextTags });
+    const nextTags = normalizeCollectionTags([...collectionTags, nextTag]);
+    onUpdateCollection({
+      desktopGroupTags: nextTags,
+      collectionTags: nextTags,
+    });
     setDraftTag('');
     setIsTagInputOpen(false);
-  }, [draftTag, groupTags, onUpdateGroup]);
-
+  }, [draftTag, collectionTags, onUpdateCollection]);
 
   return (
     <div className="desktop-pack-page-header">
       <div className="desktop-pack-page-header-body">
         <div className="desktop-pack-page-header-tools">
-          {groupIcon ? (
+          {collectionIcon ? (
             <button
               type="button"
               className="desktop-pack-page-icon"
               onClick={() => setIsIconPickerOpen((current) => !current)}
               aria-label="Change icon"
             >
-              {groupIcon}
+              {collectionIcon}
             </button>
           ) : (
             <button
@@ -89,7 +94,7 @@ const DesktopPackPageHeader = ({
               {labels.addIcon || 'Add icon'}
             </button>
           )}
-          {!groupTags.length && !isTagInputOpen ? (
+          {!collectionTags.length && !isTagInputOpen ? (
             <button
               type="button"
               className="desktop-pack-page-inline-action"
@@ -105,7 +110,10 @@ const DesktopPackPageHeader = ({
             <EmojiPicker
               theme={appearance === 'dark' ? 'dark' : 'light'}
               onEmojiClick={(emojiData) => {
-                onUpdateGroup({ desktopGroupIcon: emojiData.emoji });
+                onUpdateCollection({
+                  desktopGroupIcon: emojiData.emoji,
+                  collectionIcon: emojiData.emoji,
+                });
                 setIsIconPickerOpen(false);
               }}
               skinTonesDisabled
@@ -113,7 +121,7 @@ const DesktopPackPageHeader = ({
               width={320}
               height={400}
             />
-            {groupIcon ? (
+            {collectionIcon ? (
               <button
                 type="button"
                 className="desktop-pack-page-inline-action is-inline"
@@ -126,7 +134,10 @@ const DesktopPackPageHeader = ({
                   borderRadius: 8,
                 }}
                 onClick={() => {
-                  onUpdateGroup({ desktopGroupIcon: null });
+                  onUpdateCollection({
+                    desktopGroupIcon: null,
+                    collectionIcon: null,
+                  });
                   setIsIconPickerOpen(false);
                 }}
               >
@@ -152,11 +163,11 @@ const DesktopPackPageHeader = ({
               id="desktop-group-full-view-title"
               className="desktop-pack-page-title"
               onClick={() => {
-                setDraftTitle(groupTitle);
+                setDraftTitle(collectionTitle);
                 setIsTitleEditing(true);
               }}
             >
-              {groupTitle}
+              {collectionTitle}
             </button>
           )}
           <div className="desktop-pack-page-metadata">
@@ -165,14 +176,15 @@ const DesktopPackPageHeader = ({
         </div>
 
         <div className="desktop-pack-page-tags">
-          {groupTags.map((tag) => (
+          {collectionTags.map((tag) => (
             <span key={tag} className="desktop-pack-page-tag">
               <span>{tag}</span>
               <button
                 type="button"
                 className="desktop-pack-page-tag-remove"
-                onClick={() => onUpdateGroup({
-                  desktopGroupTags: groupTags.filter((currentTag) => currentTag !== tag),
+                onClick={() => onUpdateCollection({
+                  desktopGroupTags: collectionTags.filter((currentTag) => currentTag !== tag),
+                  collectionTags: collectionTags.filter((currentTag) => currentTag !== tag),
                 })}
                 aria-label={`Remove ${tag}`}
               >
@@ -236,4 +248,4 @@ const DesktopPackPageHeader = ({
   );
 };
 
-export default DesktopPackPageHeader;
+export default CollectionHeader;

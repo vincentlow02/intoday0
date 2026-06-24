@@ -2,9 +2,9 @@ import React, { useState, useRef, useLayoutEffect, useMemo, useCallback } from '
 import { TaskCardFaviconIcon } from './TaskCard';
 import PackItemSourceIcon from './PackItemSourceIcon';
 import { getTaskCardPresentation, normalizeCardType, CARD_TYPES } from '../taskCardUtils';
-import { getPackItemSourceMeta, getPackExportBodyText } from '../lib/packItemUtils';
+import { getCollectionItemSourceMeta, getCollectionExportBodyText } from '../lib/collectionItemUtils';
 import { getLocaleForLanguage, dateKey, shiftDateByDays, parseSharedSelectedDate } from '../lib/dateUtils';
-import { getDesktopGroupDisplayName, getDesktopGroupIcon } from '../lib/groupMetadata';
+import { getCollectionDisplayName, getCollectionIcon } from '../lib/collectionUtils';
 
 const getDesktopCollectionTimestamp = (tasks) => Math.max(
   0,
@@ -38,7 +38,7 @@ const getDesktopCollectionLabel = (tasks) => (
 
 const getDesktopCollectionDescription = (task, labels) => {
   const { displayTitle, displaySub } = getTaskCardPresentation(task, labels || {});
-  const bodyText = getPackExportBodyText(task);
+  const bodyText = getCollectionExportBodyText(task);
   if (bodyText && bodyText !== displayTitle) return bodyText;
   return displaySub || '';
 };
@@ -282,7 +282,7 @@ const CollectionViewBoard = ({
 
   const renderTaskCard = (task) => {
     const { cfg, displayTitle, faviconUrl } = getTaskCardPresentation(task, labels || {});
-    const sourceMeta = getPackItemSourceMeta(task, labels || {});
+    const sourceMeta = getCollectionItemSourceMeta(task, labels || {});
     const description = getDesktopCollectionDescription(task, labels);
     const isVisual = [CARD_TYPES.PHOTO, CARD_TYPES.VIDEO].includes(normalizeCardType(task?.cardType));
     const photoPreview = task?.photoDataUrl || task?.photoUrl;
@@ -374,8 +374,8 @@ const CollectionViewBoard = ({
             <CollectionConnectionLayer edges={entry.edges} markerId={markerId} />
           ) : null}
           {entry.groups.map((group, groupIndex) => {
-            const groupTitle = getDesktopGroupDisplayName(group.tasks);
-            const groupIcon = getDesktopGroupIcon(group.tasks);
+            const groupTitle = getCollectionDisplayName(group.tasks);
+            const groupIcon = getCollectionIcon(group.tasks);
             return (
               <div key={group.id} className="desktop-collection-group-node" data-collection-group-id={group.id}>
                 <div className="desktop-collection-group-card">

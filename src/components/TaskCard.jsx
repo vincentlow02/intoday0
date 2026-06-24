@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { PenLine, Trash2 } from 'lucide-react';
 import { CARD_TYPES, getTaskCardPresentation, normalizeCardType } from '../taskCardUtils';
-import { getPackItemSourceMeta } from '../lib/packExport';
+import { getCollectionItemSourceMeta } from '../lib/collectionItemUtils';
 import { DESKTOP_PHOTO_CARD_HEIGHT } from '../lib/desktopConstants';
 
 const TaskCardFaviconIcon = ({ task, appearance, cfg, faviconUrl: propFaviconUrl }) => {
   const [imgError, setImgError] = useState(false);
-  const { domain } = getPackItemSourceMeta(task, {});
+  const { domain } = getCollectionItemSourceMeta(task, {});
   const iconBackground = appearance === 'dark' ? cfg.darkBg : cfg.bg;
   const iconBorder = appearance === 'dark' ? `1px solid ${cfg.darkStroke}` : 'none';
   const photoPreview = task?.photoDataUrl || task?.photoUrl;
@@ -91,7 +91,7 @@ const TaskCardContent = ({ task, appearance, labels }) => {
   })();
 
   // Source label: e.g. "ChatGPT", "YouTube", "youtube.com"
-  const { label: sourceLabel } = getPackItemSourceMeta(task, labels || {});
+  const { label: sourceLabel } = getCollectionItemSourceMeta(task, labels || {});
 
   // Only show subtitle if it adds different info from the title
   const subtitle = sourceLabel && sourceLabel.toLowerCase() !== contentTitle.toLowerCase()

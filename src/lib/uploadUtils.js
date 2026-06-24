@@ -5,7 +5,7 @@ import {
   SUPPORTED_UPLOAD_WORD_EXTENSIONS,
   SUPPORTED_UPLOAD_PDF_EXTENSIONS,
 } from './desktopConstants';
-import { createUpdatedTimestamp } from './packMetadata';
+import { createUpdatedTimestamp } from './collectionMetadataUtils';
 
 export const getUploadedFileTitle = (fileName = '', fallback = 'Untitled file') => fileName.replace(/\.[^.]+$/, '').trim() || fallback;
 
