@@ -173,14 +173,14 @@ function DesktopProfilePage({
 
           <div className="desktop-profile-storage-card">
             <div className="desktop-profile-storage-header">
-              <span>Storage</span>
+              <span>{t.storage || 'Storage'}</span>
               <span><strong>0.2GB</strong> / 2GB</span>
             </div>
             <div className="desktop-profile-storage-track" aria-hidden="true">
               <span className="desktop-profile-storage-fill" />
             </div>
             <div className="desktop-profile-storage-footer">
-              <span>Manage storage</span>
+              <span>{t.manageStorage || 'Manage storage'}</span>
             </div>
           </div>
 
@@ -253,7 +253,7 @@ function DesktopProfilePage({
 
           <button type="button" className="desktop-profile-logout-button" onClick={handleClose}>
             <LogoutIcon />
-            <span>退出登录</span>
+            <span>{t.signOut || 'Sign out'}</span>
           </button>
         </div>
       </div>

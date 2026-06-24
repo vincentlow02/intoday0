@@ -17,7 +17,14 @@ export const COLLECTION_FILTER_ORDER = ['All', 'Context', 'Code', 'Notes', 'Refe
 
 export const getCollectionRoleHeading = (role) => COLLECTION_EXPORT_SECTION_ORDER.find((entry) => entry.role === role)?.heading || role;
 
-export const getCollectionFilterLabel = (filter) => (filter === 'Code' ? 'Tech' : filter);
+export const getCollectionFilterLabel = (filter, labels = {}) => {
+  if (filter === 'Code') return labels.techFilter || 'Tech';
+  if (filter === 'all') return labels.filterAll || 'All';
+  if (filter === 'file') return labels.filterFile || 'File';
+  if (filter === 'link') return labels.filterLink || 'Link';
+  if (filter === 'memo') return labels.filterMemo || 'Memo';
+  return filter;
+};
 
 export const getCollectionTaskRoles = (task, labels) => {
   const q = (task?.text || '').toLowerCase();

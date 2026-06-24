@@ -3,6 +3,7 @@ import JSZip from 'jszip';
 import { CloseIcon, SearchIcon, PackSelectIcon, PackExportIcon, EditIcon } from './icons/AppIcons';
 import CollectionHeader from './CollectionHeader';
 import DesktopDeleteConfirmModal from './DesktopDeleteConfirmModal';
+import CollectionShareModal from './CollectionShareModal';
 import { getCollectionDisplayName, getCollectionDisplayTags } from '../lib/collectionUtils';
 import { getTaskCardPresentation, normalizeCardType, CARD_TYPES } from '../taskCardUtils';
 import PackItemSourceIcon from './PackItemSourceIcon';
@@ -28,6 +29,14 @@ import {
   downloadMarkdown,
   copyTextToClipboard,
 } from '../lib/collectionExport';
+
+import { Search, Check, Share2, Upload } from 'lucide-react';
+
+const NewSearchIcon = ({ color = 'currentColor' }) => <Search color={color} size={14} strokeWidth={2.5} style={{ flexShrink: 0 }} />;
+const NewSelectIcon = ({ color = 'currentColor' }) => <Check color={color} size={14} strokeWidth={2.5} style={{ flexShrink: 0 }} />;
+const NewShareIcon = ({ color = 'currentColor' }) => <Share2 color={color} size={14} strokeWidth={2.5} style={{ flexShrink: 0 }} />;
+const NewExportIcon = ({ color = 'currentColor' }) => <Upload color={color} size={14} strokeWidth={2.5} style={{ flexShrink: 0 }} />;
+
 
 const PACK_FILE_CARD_TYPES = new Set([
   CARD_TYPES.DOCUMENT,
@@ -87,6 +96,7 @@ const CollectionDetailModal = ({
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedItemIds, setSelectedItemIds] = useState([]);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isBackdropVisible, setIsBackdropVisible] = useState(false);
   const [isContentVisible, setIsContentVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -410,6 +420,10 @@ const CollectionDetailModal = ({
     { id: 'collection-bundle', label: 'Download ZIP' },
   ];
 
+  const handleShareCollection = () => {
+    setIsShareModalOpen(true);
+  };
+
   const handleRequestClose = () => {
     if (isClosing) return;
 
@@ -438,7 +452,7 @@ const CollectionDetailModal = ({
     <div
       role="presentation"
       onClick={handleRequestClose}
-      className="desktop-pack-page-modal"
+      className="desktop-pack-page-modal desktop-collection-detail-modal"
     >
       <div className={`desktop-pack-page-backdrop ${isBackdropVisible ? 'is-visible' : ''}`} />
       <div
@@ -447,20 +461,18 @@ const CollectionDetailModal = ({
         aria-modal="true"
         aria-labelledby="desktop-group-full-view-title"
         onClick={(event) => event.stopPropagation()}
-        className={`desktop-pack-page-shell ${isDark ? 'is-dark' : ''} ${hasOriginTransition ? 'has-origin-transition' : ''} ${isAtSourcePosition ? 'is-from-card' : ''} ${isClosing ? 'is-closing' : ''}`}
+        className={`desktop-pack-page-shell desktop-collection-detail-modal-shell ${isDark ? 'is-dark' : ''} ${hasOriginTransition ? 'has-origin-transition' : ''} ${isAtSourcePosition ? 'is-from-card' : ''} ${isClosing ? 'is-closing' : ''}`}
         style={shellMotionStyle}
       >
         <div className={`desktop-pack-page-shell-inner ${isContentVisible ? 'is-visible' : ''}`}>
-          <div className="desktop-pack-page-topbar">
-            <button
-              type="button"
-              onClick={handleRequestClose}
-              aria-label={labels.close}
-              className="desktop-pack-page-close"
-            >
-              <CloseIcon />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleRequestClose}
+            aria-label={labels.close}
+            className="desktop-pack-page-close"
+          >
+            <CloseIcon />
+          </button>
 
           <CollectionHeader
             tasks={tasks}
@@ -475,105 +487,115 @@ const CollectionDetailModal = ({
             onDeleteSelected={handleDeleteSelected}
           />
 
-          <div className="desktop-pack-page-content">
-            <div className="desktop-pack-page-controls">
-              <div className="desktop-pack-page-controls-bar">
-                <div className="desktop-pack-page-filters" role="tablist" aria-label="Collection filters">
-                  {filters.map((filter) => (
+          <div className="desktop-pack-page-controls desktop-collection-controls">
+            <div className="desktop-pack-page-controls-bar">
+              <div className="desktop-pack-page-filters" role="tablist" aria-label="Collection filters">
+                {filters.map((filter) => (
+                  <button
+                    key={filter}
+                    type="button"
+                    className={`desktop-pack-page-filter-btn ${activeFilter === filter ? 'is-active' : ''}`}
+                    onClick={() => {
+                      setActiveFilter(filter);
+                      setIsSearchVisible(false);
+                      setIsExportMenuOpen(false);
+                    }}
+                  >
+                    {getCollectionFilterLabel(filter, labels)}
+                  </button>
+                ))}
+              </div>
+              <div className={`desktop-pack-page-control-actions ${isSelectMode ? 'is-select-mode' : ''}`}>
+                {isSelectMode ? (
+                  <button
+                    type="button"
+                    className="desktop-pack-page-toolbar-action is-active-pill"
+                    onClick={exitSelectMode}
+                  >
+                    <NewSelectIcon color="currentColor" />
+                    <span>{labels.select || 'Select'}</span>
+                  </button>
+                ) : (
+                  <>
                     <button
-                      key={filter}
                       type="button"
-                      className={`desktop-pack-page-filter-btn ${activeFilter === filter ? 'is-active' : ''}`}
+                      className={`desktop-pack-page-toolbar-action ${isSearchVisible ? 'is-active-pill' : ''}`}
                       onClick={() => {
-                        setActiveFilter(filter);
-                        setIsSearchVisible(false);
+                        setIsSearchVisible((current) => !current);
                         setIsExportMenuOpen(false);
                       }}
+                      aria-label="Search items"
+                      aria-expanded={isSearchVisible}
                     >
-                      {getCollectionFilterLabel(filter, labels)}
+                      <NewSearchIcon color="currentColor" />
+                      <span>{labels.search || 'Search'}</span>
                     </button>
-                  ))}
-                </div>
-                <div className={`desktop-pack-page-control-actions ${isSelectMode ? 'is-select-mode' : ''}`}>
-                  {isSelectMode ? (
+                    
                     <button
                       type="button"
-                      className="desktop-pack-page-toolbar-action desktop-pack-page-toolbar-text-action is-active"
-                      onClick={exitSelectMode}
+                      className="desktop-pack-page-toolbar-action"
+                      onClick={enterSelectMode}
                     >
-                      <PackSelectIcon />
+                      <NewSelectIcon color="currentColor" />
                       <span>{labels.select || 'Select'}</span>
                     </button>
-                  ) : (
-                    <>
+
+                    <button
+                      type="button"
+                      className="desktop-pack-page-toolbar-action desktop-pack-page-toolbar-share"
+                      onClick={handleShareCollection}
+                    >
+                      <NewShareIcon color="var(--color-grey-46, #6B7280)" />
+                      <span>{labels.share || 'Share'}</span>
+                    </button>
+
+                    <div className="desktop-pack-page-toolbar-menu-anchor" ref={exportMenuRef}>
                       <button
                         type="button"
-                        className={`desktop-pack-page-toolbar-action desktop-pack-page-search-toggle ${isSearchVisible ? 'is-active' : ''}`}
-                        onClick={() => {
-                          setIsSearchVisible((current) => !current);
-                          setIsExportMenuOpen(false);
-                        }}
-                        aria-label="Search items"
-                        aria-expanded={isSearchVisible}
+                        className={`desktop-pack-page-toolbar-action desktop-pack-page-toolbar-export ${isExportMenuOpen ? 'is-active' : ''}`}
+                        aria-haspopup="menu"
+                        aria-expanded={isExportMenuOpen}
+                        onClick={() => setIsExportMenuOpen((current) => !current)}
                       >
-                        <SearchIcon />
-                        <span>{labels.search || 'Search'}</span>
+                        <NewExportIcon color="currentColor" />
+                        <span>{labels.exportPack || 'Export'}</span>
                       </button>
-                      <span className="desktop-pack-page-toolbar-divider" aria-hidden="true" />
-                      <button
-                        type="button"
-                        className="desktop-pack-page-toolbar-action desktop-pack-page-toolbar-text-action"
-                        onClick={enterSelectMode}
-                      >
-                        <PackSelectIcon />
-                        <span>{labels.select || 'Select'}</span>
-                      </button>
-                      <div className="desktop-pack-page-toolbar-menu-anchor" ref={exportMenuRef}>
-                        <button
-                          type="button"
-                          className={`desktop-pack-page-toolbar-action desktop-pack-page-toolbar-text-action ${isExportMenuOpen ? 'is-active' : ''}`}
-                          aria-haspopup="menu"
-                          aria-expanded={isExportMenuOpen}
-                          onClick={() => setIsExportMenuOpen((current) => !current)}
-                        >
-                          <PackExportIcon />
-                          <span>{labels.exportPack || 'Export'}</span>
-                        </button>
-                        {isExportMenuOpen ? (
-                          <div className="desktop-pack-page-toolbar-menu" role="menu" aria-label="Export collection">
-                            {exportMenuOptions.map(({ id, label }) => (
-                              <button
-                                key={id}
-                                type="button"
-                                role="menuitem"
-                                className="desktop-pack-page-toolbar-menu-item"
-                                onClick={() => handleExportMenuAction(id)}
-                              >
-                                {label}
-                              </button>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-                    </>
-                  )}
-                </div>
+                      {isExportMenuOpen ? (
+                        <div className="desktop-pack-page-toolbar-menu" role="menu" aria-label="Export collection">
+                          {exportMenuOptions.map(({ id, label }) => (
+                            <button
+                              key={id}
+                              type="button"
+                              role="menuitem"
+                              className="desktop-pack-page-toolbar-menu-item"
+                              onClick={() => handleExportMenuAction(id)}
+                            >
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  </>
+                )}
               </div>
-              {isSearchVisible && (
-                <div className="desktop-pack-page-search-wrapper is-revealed">
-                  <SearchIcon />
-                  <input
-                    type="text"
-                    placeholder={labels.searchInPack || 'Search in collection...'}
-                    value={itemSearchQuery}
-                    onChange={(e) => setItemSearchQuery(e.target.value)}
-                    className="desktop-pack-page-search-input"
-                    autoFocus
-                  />
-                </div>
-              )}
             </div>
-            
+            {isSearchVisible && (
+              <div className="desktop-pack-page-search-wrapper is-revealed">
+                <NewSearchIcon color="currentColor" />
+                <input
+                  type="text"
+                  placeholder={labels.searchInPack || 'Search in collection...'}
+                  value={itemSearchQuery}
+                  onChange={(e) => setItemSearchQuery(e.target.value)}
+                  className="desktop-pack-page-search-input"
+                  autoFocus
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="desktop-pack-page-content">
             <div className="desktop-pack-page-item-list">
               {filteredTasks.length === 0 ? (
                 <div className="desktop-pack-page-empty">{labels.noItemsFound || 'No items found'}</div>
@@ -582,7 +604,7 @@ const CollectionDetailModal = ({
                   <div
                     key={task.id}
                     id={`desktop-pack-page-item-${task.id}`}
-                    className={`desktop-pack-page-item ${highlightedTaskId === task.id ? 'is-highlighted' : ''}`}
+                    className={`desktop-pack-page-item desktop-collection-item ${highlightedTaskId === task.id ? 'is-highlighted' : ''}`}
                   >
                     {isSelectMode ? (
                       <button
@@ -651,6 +673,12 @@ const CollectionDetailModal = ({
           />
         </div>
       </div>
+      <CollectionShareModal 
+        isOpen={isShareModalOpen} 
+        onClose={() => setIsShareModalOpen(false)} 
+        collectionName={getCollectionDisplayName(tasks)} 
+        labels={labels}
+      />
     </div>
   );
 };

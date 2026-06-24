@@ -73,36 +73,17 @@ const CollectionHeader = ({
   }, [draftTag, collectionTags, onUpdateCollection]);
 
   return (
-    <div className="desktop-pack-page-header">
+    <div className="desktop-pack-page-header desktop-collection-header">
       <div className="desktop-pack-page-header-body">
         <div className="desktop-pack-page-header-tools">
-          {collectionIcon ? (
-            <button
-              type="button"
-              className="desktop-pack-page-icon"
-              onClick={() => setIsIconPickerOpen((current) => !current)}
-              aria-label="Change icon"
-            >
-              {collectionIcon}
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="desktop-pack-page-inline-action"
-              onClick={() => setIsIconPickerOpen((current) => !current)}
-            >
-              {labels.addIcon || 'Add icon'}
-            </button>
-          )}
-          {!collectionTags.length && !isTagInputOpen ? (
-            <button
-              type="button"
-              className="desktop-pack-page-inline-action"
-              onClick={() => setIsTagInputOpen(true)}
-            >
-              {labels.addTag || 'Add tag'}
-            </button>
-          ) : null}
+          <button
+            type="button"
+            className="desktop-pack-page-icon"
+            onClick={() => setIsIconPickerOpen((current) => !current)}
+            aria-label="Change icon"
+          >
+            {collectionIcon || '😀'}
+          </button>
         </div>
 
         {isIconPickerOpen ? (

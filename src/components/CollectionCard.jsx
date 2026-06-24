@@ -73,20 +73,21 @@ const CollectionCard = ({
           onMouseLeave={() => setIsExpanded(false)}
           style={{ width: '100%', minHeight: collectionCardMinHeight, touchAction: 'none', userSelect: 'none' }}
         >
-          <button
-            type="button"
-            className="desktop-task-group-summary-button"
-            aria-label="Open full view"
-            onMouseDown={(event) => event.stopPropagation()}
-            onPointerDown={(event) => {
-              event.stopPropagation();
-              onPointerDown?.(collectionTask, event);
-            }}
-            onClick={(event) => {
-              event.stopPropagation();
-              onOpenFullView?.(event);
-            }}
-          >
+        <div
+          role="button"
+          tabIndex={0}
+          className="desktop-task-group-summary-button"
+          aria-label="Open full view"
+          onMouseDown={(event) => event.stopPropagation()}
+          onPointerDown={(event) => {
+            event.stopPropagation();
+            onPointerDown?.(collectionTask, event);
+          }}
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpenFullView?.(event);
+          }}
+        >
             <div className="desktop-task-group-header">
               <div className="desktop-task-group-title-wrap">
                 {collectionIcon ? (
@@ -125,8 +126,8 @@ const CollectionCard = ({
                 ))}
               </div>
             ) : null}
-          </button>
-          <div className="desktop-task-group-divider" />
+        </div>
+        <div className="desktop-task-group-divider" />
         <div
           className="desktop-task-group-list"
           style={{ maxHeight: collectionListMaxHeight, overflowY: canScrollExpandedList ? 'auto' : 'hidden' }}

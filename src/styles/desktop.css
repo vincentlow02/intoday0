@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&family=Inter:wght@400;700;900&display=swap');
 
 .desktop-app {
   position: relative;
@@ -4223,8 +4223,8 @@ body.desktop-task-dragging {
 
 .desktop-pack-page-shell {
   position: relative;
-  width: min(760px, calc(100vw - 48px));
-  max-height: min(860px, calc(100vh - 48px));
+  width: min(1160px, calc(100vw - 48px));
+  max-height: min(960px, calc(100vh - 48px));
   display: flex;
   flex-direction: column;
   border-radius: 20px;
@@ -5677,8 +5677,8 @@ body.desktop-task-dragging {
 }
 
 .desktop-pack-page-shell {
-  width: min(630px, calc(100vw - 60px));
-  max-height: min(760px, calc(100vh - 36px));
+  width: min(780px, calc(100vw - 60px));
+  max-height: min(860px, calc(100vh - 36px));
   border-radius: 28px;
   border: 1px solid rgba(17, 24, 39, 0.06);
   background: #ffffff;
@@ -6907,4 +6907,641 @@ body.desktop-task-dragging {
 
 .desktop-app-dark .desktop-upload-preview-close {
   color: #d1d5db;
+}
+
+/* ========================================================
+   SCOPED COLLECTION VIEW REDESIGN (STAGE A)
+   ======================================================== */
+.desktop-collection-detail-modal-shell {
+  border-radius: 30px !important;
+  box-shadow: 0px 30px 90px rgba(15, 23, 42, 0.18) !important;
+  outline: 1px solid rgba(17, 24, 39, 0.06) !important;
+  outline-offset: -1px !important;
+}
+.desktop-app-dark .desktop-collection-detail-modal-shell {
+  outline-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0px 30px 90px rgba(0, 0, 0, 0.45) !important;
+}
+
+.desktop-collection-detail-modal-shell .desktop-pack-page-close {
+  position: absolute !important;
+  top: 24px !important;
+  right: 24px !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 999px !important;
+  background: var(--color-grey-96-3, #F3F4F6) !important;
+  color: var(--color-grey-26, #3F3F46) !important;
+  border: none !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 100 !important;
+  padding: 0 !important;
+}
+.desktop-collection-detail-modal-shell .desktop-pack-page-close svg {
+  width: 10px !important;
+  height: 10px !important;
+  stroke-width: 2.5 !important;
+}
+.desktop-app-dark .desktop-collection-detail-modal-shell .desktop-pack-page-close {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.desktop-collection-header {
+  padding: 24px 24px 11px !important;
+  gap: 9px !important;
+  border-bottom: none !important;
+}
+.desktop-collection-header .desktop-pack-page-icon {
+  width: 29px !important;
+  height: 29px !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+.desktop-collection-header .desktop-pack-page-title-area {
+  gap: 3px !important;
+}
+.desktop-collection-header .desktop-pack-page-title,
+.desktop-collection-header .desktop-pack-page-title-input {
+  font-family: 'Noto Sans SC', sans-serif !important;
+  font-size: 34px !important;
+  font-weight: 900 !important;
+  line-height: 38px !important;
+  letter-spacing: normal !important;
+  color: var(--color-azure-11, #111827) !important;
+  border-bottom: none !important;
+}
+.desktop-app-dark .desktop-collection-header .desktop-pack-page-title,
+.desktop-app-dark .desktop-collection-header .desktop-pack-page-title-input {
+  color: #ffffff !important;
+}
+.desktop-collection-header .desktop-pack-page-metadata {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  line-height: 18px !important;
+  color: var(--color-azure-67, #A0A8B7) !important;
+}
+.desktop-collection-header .desktop-pack-page-tags {
+  padding-top: 2px !important;
+  gap: 5px !important;
+}
+.desktop-collection-header .desktop-pack-page-tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-height: 22px !important;
+  padding: 4px 12px !important;
+  border: none !important;
+  border-radius: 999px !important;
+  background: var(--color-grey-97, #F5F7FA) !important;
+  color: var(--color-azure-53, #7B8495) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 14px !important;
+}
+.desktop-app-dark .desktop-collection-header .desktop-pack-page-tag {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+.desktop-collection-header .desktop-pack-page-tag-remove {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: var(--color-azure-70, #A7B0BF) !important;
+  cursor: pointer !important;
+  line-height: 14px !important;
+}
+.desktop-app-dark .desktop-collection-header .desktop-pack-page-tag-remove {
+  color: rgba(255, 255, 255, 0.46) !important;
+}
+.desktop-collection-header .desktop-pack-page-inline-action.is-inline {
+  min-height: 22px !important;
+  padding: 4px 12px !important;
+  border: none !important;
+  border-radius: 999px !important;
+  background: var(--color-grey-97, #F5F7FA) !important;
+  color: var(--color-azure-53, #7B8495) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 14px !important;
+  cursor: pointer !important;
+}
+.desktop-app-dark .desktop-collection-header .desktop-pack-page-inline-action.is-inline {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+.desktop-collection-header .desktop-pack-page-tag-input {
+  min-width: 60px !important;
+  height: 16px !important;
+  padding: 2px 8px !important;
+  border: none !important;
+  border-radius: 999px !important;
+  background: var(--color-grey-97, #F5F7FA) !important;
+  color: var(--color-azure-53, #7B8495) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 8px !important;
+  font-weight: 700 !important;
+  outline: none !important;
+}
+.desktop-app-dark .desktop-collection-header .desktop-pack-page-tag-input {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.desktop-collection-controls {
+  background: var(--desktop-root-bg) !important;
+  border-top: 1px solid var(--color-grey-96-3, #F4F5F7) !important;
+  border-bottom: 1px solid var(--color-grey-96-3, #F4F5F7) !important;
+  padding: 10px 24px 9px !important;
+  margin-bottom: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+.desktop-app-dark .desktop-collection-controls {
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+.desktop-collection-controls .desktop-pack-page-controls-bar {
+  gap: 10px !important;
+}
+.desktop-collection-controls .desktop-pack-page-filters {
+  gap: 17px !important;
+}
+.desktop-collection-controls .desktop-pack-page-filter-btn {
+  height: 28px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  font-family: 'Noto Sans SC', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  background: transparent !important;
+  color: var(--Lighttheme-Foreground, #111111) !important;
+  border: none !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background 140ms ease, color 140ms ease !important;
+}
+.desktop-app-dark .desktop-collection-controls .desktop-pack-page-filter-btn {
+  color: #ffffff !important;
+}
+.desktop-collection-controls .desktop-pack-page-filter-btn.is-active {
+  background: var(--color-grey-2, #050505) !important;
+  color: white !important;
+}
+.desktop-app-dark .desktop-collection-controls .desktop-pack-page-filter-btn.is-active {
+  background: #ffffff !important;
+  color: #111111 !important;
+}
+
+.desktop-collection-controls .desktop-pack-page-control-actions {
+  gap: 10px !important;
+}
+.desktop-collection-controls .desktop-pack-page-toolbar-action {
+  height: 28px !important;
+  min-height: 28px !important;
+  border-radius: 999px !important;
+  font-family: 'Noto Sans SC', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 140ms ease !important;
+  background: transparent !important;
+  color: var(--Lighttheme-Foreground, #111111) !important;
+  padding: 0 12px !important;
+  opacity: 1 !important;
+}
+.desktop-app-dark .desktop-collection-controls .desktop-pack-page-toolbar-action {
+  color: #ffffff !important;
+}
+.desktop-collection-controls .desktop-pack-page-toolbar-action.is-active-pill {
+  background: var(--color-grey-2, #050505) !important;
+  color: white !important;
+  padding: 0 14px !important;
+}
+.desktop-app-dark .desktop-collection-controls .desktop-pack-page-toolbar-action.is-active-pill {
+  background: #ffffff !important;
+  color: #111111 !important;
+}
+.desktop-collection-controls .desktop-pack-page-toolbar-share {
+  background: var(--desktop-root-bg, #ffffff) !important;
+  border: 1px solid var(--Lighttheme-border, #E5E5EA) !important;
+  color: var(--Lighttheme-Foreground, #111111) !important;
+  padding: 0 14px !important;
+}
+.desktop-app-dark .desktop-collection-controls .desktop-pack-page-toolbar-share {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+.desktop-collection-controls .desktop-pack-page-toolbar-export {
+  background: var(--color-azure-11, #111827) !important;
+  color: white !important;
+  padding: 0 11px !important;
+}
+.desktop-app-dark .desktop-collection-controls .desktop-pack-page-toolbar-export {
+  background: #ffffff !important;
+  color: #111111 !important;
+}
+
+.desktop-collection-controls .desktop-pack-page-search-wrapper {
+  border-radius: 12px !important;
+  min-height: 38px !important;
+  padding: 0 14px !important;
+  border: 1px solid var(--Lighttheme-border, #E5E5EA) !important;
+  background: var(--desktop-root-bg, #ffffff) !important;
+}
+.desktop-app-dark .desktop-collection-controls .desktop-pack-page-search-wrapper {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+.desktop-collection-controls .desktop-pack-page-search-input {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
+.desktop-collection-detail-modal-shell .desktop-pack-page-content {
+  padding: 14px 24px 23px !important;
+  gap: 11px !important;
+}
+.desktop-collection-item {
+  height: 41px !important;
+  min-height: 41px !important;
+  border-radius: 12px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  gap: 10px !important;
+}
+.desktop-collection-item .desktop-pack-page-item-leading {
+  width: 29px !important;
+  height: 29px !important;
+  border-radius: 9px !important;
+}
+.desktop-collection-item .desktop-pack-page-item-leading img {
+  max-width: 17px !important;
+  max-height: 17px !important;
+  object-fit: contain !important;
+}
+.desktop-collection-item .desktop-pack-page-item-leading-favicon,
+.desktop-collection-item .desktop-pack-page-item-leading-link {
+  background: rgba(255, 255, 255, 0.90) !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+.desktop-app-dark .desktop-collection-item .desktop-pack-page-item-leading-favicon,
+.desktop-app-dark .desktop-collection-item .desktop-pack-page-item-leading-link {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+.desktop-collection-item .desktop-pack-page-item-leading-text {
+  background: var(--color-orange-86, #FFE5B9) !important;
+}
+.desktop-collection-item .desktop-pack-page-item-leading-text img {
+  max-width: 14px !important;
+  max-height: 14px !important;
+}
+.desktop-collection-item .desktop-pack-page-item-title {
+  font-family: 'Noto Sans SC', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 18px !important;
+  color: var(--color-azure-17, #1F2937) !important;
+}
+.desktop-app-dark .desktop-collection-item .desktop-pack-page-item-title {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+.desktop-collection-item .desktop-pack-page-item-subtitle {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 16px !important;
+  color: var(--color-azure-68, #A2ABB9) !important;
+  margin-top: 1px !important;
+}
+.desktop-collection-item .desktop-pack-page-item-actions {
+  opacity: 0 !important;
+  transition: opacity 140ms ease !important;
+}
+.desktop-collection-item:hover .desktop-pack-page-item-actions {
+  opacity: 1 !important;
+}
+
+/* Collection More Menu Styles */
+.desktop-collection-context-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 100;
+  width: 260px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.desktop-app-dark .desktop-collection-context-menu {
+  background: #1f1f1f;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.desktop-collection-context-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  color: #111111;
+  gap: 12px;
+}
+
+.desktop-app-dark .desktop-collection-context-menu-item {
+  color: #ffffff;
+}
+
+.desktop-collection-context-menu-item:hover {
+  background: #f5f5f5;
+}
+
+.desktop-app-dark .desktop-collection-context-menu-item:hover {
+  background: #2a2a2a;
+}
+
+.desktop-collection-context-menu-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #111111;
+  flex-shrink: 0;
+}
+
+.desktop-app-dark .desktop-collection-context-menu-icon {
+  color: #ffffff;
+}
+
+.desktop-collection-context-menu-text {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.desktop-collection-context-menu-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.desktop-collection-context-menu-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: #8e8e93;
+  margin-top: 3px;
+  line-height: 1.2;
+}
+
+.desktop-collection-context-menu-chevron {
+  display: flex;
+  align-items: center;
+  color: #8e8e93;
+}
+
+.desktop-collection-context-menu-item.is-danger .desktop-collection-context-menu-title,
+.desktop-collection-context-menu-item.is-danger .desktop-collection-context-menu-icon {
+  color: #ef4444;
+}
+
+.desktop-collection-context-submenu {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 8px);
+  width: 240px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: desktopSubmenuIn 0.15s ease-out forwards;
+}
+
+.desktop-app-dark .desktop-collection-context-submenu {
+  background: #1f1f1f;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes desktopSubmenuIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.desktop-task-group-more-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: transparent;
+  color: #6b7280;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  margin-left: 4px;
+}
+
+.desktop-task-group-more-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.desktop-app-dark .desktop-task-group-more-btn {
+  color: #a0a4ab;
+}
+
+.desktop-app-dark .desktop-task-group-more-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.desktop-share-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: desktopFadeIn 150ms ease;
+}
+
+.desktop-share-modal-content {
+  width: 480px;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  animation: desktopScaleIn 200ms cubic-bezier(0.175, 0.885, 0.32, 1.1);
+}
+
+.desktop-app-dark .desktop-share-modal-content {
+  background: #1C1C1E;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.desktop-share-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #F0F0F0;
+}
+
+.desktop-app-dark .desktop-share-modal-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.desktop-share-modal-title {
+  font-family: 'Inter', 'Noto Sans SC', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: #111111;
+  margin: 0;
+}
+
+.desktop-app-dark .desktop-share-modal-title {
+  color: #ffffff;
+}
+
+.desktop-share-modal-close {
+  background: transparent;
+  border: none;
+  color: #666666;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 150ms;
+}
+
+.desktop-share-modal-close:hover {
+  background: #F0F0F0;
+}
+
+.desktop-app-dark .desktop-share-modal-close {
+  color: #A0A0A0;
+}
+.desktop-app-dark .desktop-share-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.desktop-share-modal-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.desktop-share-modal-link-container {
+  position: relative;
+  height: 48px;
+  background: #F3F4F6;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 4px;
+}
+
+.desktop-app-dark .desktop-share-modal-link-container {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.desktop-share-modal-copy-btn {
+  height: 40px;
+  background: #050505;
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 100ms, opacity 150ms;
+}
+
+.desktop-share-modal-copy-btn:hover {
+  opacity: 0.85;
+}
+
+.desktop-share-modal-copy-btn:active {
+  transform: scale(0.96);
+}
+
+.desktop-app-dark .desktop-share-modal-copy-btn {
+  background: #ffffff;
+  color: #111111;
+}
+
+.desktop-share-modal-info {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: #8E8E93;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.desktop-share-modal-info-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.desktop-share-modal-info p {
+  margin: 0;
+}
+
+.desktop-share-modal-link-text {
+  color: #007AFF;
+  cursor: pointer;
+}
+
+.desktop-share-modal-link-text:hover {
+  text-decoration: underline;
 }

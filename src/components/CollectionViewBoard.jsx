@@ -5,6 +5,7 @@ import { getTaskCardPresentation, normalizeCardType, CARD_TYPES } from '../taskC
 import { getCollectionItemSourceMeta, getCollectionExportBodyText } from '../lib/collectionItemUtils';
 import { getLocaleForLanguage, dateKey, shiftDateByDays, parseSharedSelectedDate } from '../lib/dateUtils';
 import { getCollectionDisplayName, getCollectionIcon } from '../lib/collectionUtils';
+import CollectionContextMenu from './CollectionContextMenu';
 
 const getDesktopCollectionTimestamp = (tasks) => Math.max(
   0,
@@ -248,6 +249,60 @@ const CollectionConnectionLayer = ({ edges, markerId }) => {
   );
 };
 
+const CollectionLabelTab = ({ entry, isEditing, collectionLabelDraft, setCollectionLabelDraft, startEdit, commitEdit, cancelEdit, collectionLabel }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const anchorRef = useRef(null);
+
+  if (isEditing) {
+    return (
+      <div className="desktop-collection-label-anchor" style={{ zIndex: 100 }}>
+        <input
+          className="desktop-collection-label-input"
+          value={collectionLabelDraft}
+          onChange={(event) => setCollectionLabelDraft(event.target.value)}
+          onBlur={() => commitEdit(entry)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              commitEdit(entry);
+            } else if (event.key === 'Escape') {
+              event.preventDefault();
+              cancelEdit();
+            }
+          }}
+          autoFocus
+          aria-label="Collection label"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="desktop-collection-label-anchor" style={{ zIndex: isMenuOpen ? 100 : 2 }}>
+      <div className="desktop-collection-label-button" style={{ cursor: 'default' }}>
+        <span onClick={() => startEdit(entry)} title="Rename collection label" style={{ cursor: 'text' }}>
+          {collectionLabel}
+        </span>
+        <div style={{ position: 'relative' }} ref={anchorRef}>
+          <span 
+            aria-hidden="true" 
+            onClick={(e) => { e.stopPropagation(); setIsMenuOpen(p => !p); }}
+            style={{ cursor: 'pointer', padding: '0 4px', display: 'inline-block' }}
+          >
+            ...
+          </span>
+          <CollectionContextMenu
+            isOpen={isMenuOpen}
+            onClose={() => setIsMenuOpen(false)}
+            anchorRef={anchorRef}
+            onAction={(action) => console.log('Action selected:', action)}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const CollectionViewBoard = ({
   tasks,
   appearance,
@@ -335,37 +390,16 @@ const CollectionViewBoard = ({
         className={`desktop-collection-column desktop-collection-group-column ${entry.groups.length > 1 ? 'is-linked-collection' : ''}`}
         style={{ width: linkedLayoutWidth + 36, flexBasis: linkedLayoutWidth + 36 }}
       >
-        <div className="desktop-collection-label-anchor">
-          {isEditingCollectionLabel ? (
-            <input
-              className="desktop-collection-label-input"
-              value={collectionLabelDraft}
-              onChange={(event) => setCollectionLabelDraft(event.target.value)}
-              onBlur={() => commitCollectionLabelEdit(entry)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  event.preventDefault();
-                  commitCollectionLabelEdit(entry);
-                } else if (event.key === 'Escape') {
-                  event.preventDefault();
-                  cancelCollectionLabelEdit();
-                }
-              }}
-              autoFocus
-              aria-label="Collection label"
-            />
-          ) : (
-            <button
-              type="button"
-              className="desktop-collection-label-button"
-              onClick={() => startCollectionLabelEdit(entry)}
-              title="Rename collection label"
-            >
-              <span>{collectionLabel}</span>
-              <span aria-hidden="true">...</span>
-            </button>
-          )}
-        </div>
+        <CollectionLabelTab 
+          entry={entry}
+          isEditing={isEditingCollectionLabel}
+          collectionLabelDraft={collectionLabelDraft}
+          setCollectionLabelDraft={setCollectionLabelDraft}
+          startEdit={startCollectionLabelEdit}
+          commitEdit={commitCollectionLabelEdit}
+          cancelEdit={cancelCollectionLabelEdit}
+          collectionLabel={collectionLabel}
+        />
         <div
           className="desktop-collection-linked-layout"
           style={{ width: linkedLayoutWidth, gridTemplateColumns: `repeat(${columnCount}, ${groupCardWidth}px)` }}
