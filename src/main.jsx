@@ -4,7 +4,6 @@ import App from './App.jsx';
 import { PrototypeProvider } from './providers';
 import './styles/tokens.css';
 import './styles/index.css';
-import './styles/timeline.css';
 import './styles/sheets.css';
 import './styles/themes.css';
 import './styles/desktop.css';
