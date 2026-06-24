@@ -207,22 +207,7 @@ const TaskCard = (props) => {
         />
       </button>
       <div className="desktop-task-actions">
-        <button
-          type="button"
-          className="desktop-task-action-button desktop-task-edit-button"
-          aria-label={editLabel}
-          onMouseDown={(event) => event.stopPropagation()}
-          onPointerDown={(event) => event.stopPropagation()}
-          onPointerDownCapture={(event) => event.stopPropagation()}
-          onPointerUp={(event) => event.stopPropagation()}
-          onPointerUpCapture={(event) => event.stopPropagation()}
-          onClick={(event) => {
-            event.stopPropagation();
-            onEdit?.(task);
-          }}
-        >
-          <PenLine size={14} strokeWidth={2.2} />
-        </button>
+
         <button
           type="button"
           className="desktop-task-action-button desktop-task-delete-button"

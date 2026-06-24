@@ -7,6 +7,7 @@ import './styles/index.css';
 import './styles/sheets.css';
 import './styles/themes.css';
 import './styles/desktop.css';
+import './styles/block-editor.css';
 
 class ErrorBoundary extends Component {
   constructor(props) {

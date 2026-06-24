@@ -1,5 +1,5 @@
 export const composeDesktopNoteText = (title, body) => {
-  const safeTitle = title.trim() || 'Untitled note';
+  const safeTitle = (title || '').replace(/\n/g, ' '); // Ensure title is strictly one line
   const normalizedBody = String(body || '').replace(/\r\n/g, '\n');
-  return normalizedBody ? `${safeTitle}\n${normalizedBody}` : safeTitle;
+  return `${safeTitle}\n${normalizedBody}`;
 };

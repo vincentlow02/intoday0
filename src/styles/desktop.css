@@ -3204,6 +3204,15 @@ body.desktop-task-dragging .desktop-canvas-card-shell * {
   -webkit-backdrop-filter: blur(6px);
 }
 
+.desktop-note-side-panel {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  bottom: 12px;
+  width: 500px;
+  display: grid;
+}
+
 .desktop-quick-link-modal {
   position: relative;
   width: min(430px, calc(100vw - 48px));
@@ -5299,7 +5308,7 @@ body.desktop-task-dragging {
   top: 12px;
   right: 12px;
   bottom: 12px;
-  width: min(430px, calc(100vw - 24px));
+  width: min(540px, calc(100vw - 24px));
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
   overflow: hidden;
@@ -5458,30 +5467,18 @@ body.desktop-task-dragging {
   font-weight: 650;
 }
 
-.desktop-note-side-chevron,
-.desktop-note-side-doc-icon {
+.desktop-note-side-icon {
   color: #71757d;
-  font-size: 13px;
 }
 
-.desktop-note-side-doc-icon {
-  width: 12px;
-  height: 14px;
-  display: inline-block;
-  border: 1.5px solid currentColor;
-  border-radius: 2px;
-  position: relative;
-}
-
-.desktop-note-side-doc-icon::after {
-  content: "";
-  position: absolute;
-  left: 3px;
-  right: 3px;
-  top: 4px;
-  height: 1.5px;
-  background: currentColor;
-  box-shadow: 0 4px 0 currentColor;
+.desktop-note-side-custom-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: #FFE5B9;
+  border-radius: 6px;
 }
 
 .desktop-note-side-meta-title {
@@ -5633,9 +5630,13 @@ body.desktop-task-dragging {
 }
 
 .desktop-app-dark .desktop-note-side-meta,
-.desktop-app-dark .desktop-note-side-chevron,
-.desktop-app-dark .desktop-note-side-doc-icon {
+.desktop-app-dark .desktop-note-side-icon {
   color: #9aa3b7;
+}
+
+.desktop-app-dark .desktop-note-side-custom-icon {
+  background: #3B2616;
+  border: 1px solid #6F4318;
 }
 
 .desktop-app-dark .desktop-note-side-title-input,

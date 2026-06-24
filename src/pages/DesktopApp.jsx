@@ -3809,7 +3809,7 @@ function App() {
           </form>
         ) : null}
 
-        {!panelOpen && desktopViewMode === DESKTOP_VIEW_MODES.CANVAS ? (
+        {!panelOpen && !quickNoteOpen && !notePanelTask && desktopViewMode === DESKTOP_VIEW_MODES.CANVAS ? (
           <div
             className="desktop-canvas-zoom-toolbar"
             aria-label="Canvas zoom controls"

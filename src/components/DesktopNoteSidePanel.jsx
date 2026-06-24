@@ -1,16 +1,29 @@
 import React from 'react';
-import { CloseIcon } from './icons/AppIcons';
+import { CloseIcon, DocumentTextIcon } from './icons/AppIcons';
 import { getTaskCardPresentation } from '../taskCardUtils';
 import { composeDesktopNoteText } from '../lib/noteUtils';
+import BlockEditor from './BlockEditor';
+import { Undo2, Redo2, Type, Bold, Italic, Strikethrough, Code, Link as LinkIcon, MoreHorizontal } from 'lucide-react';
 
 const getDesktopNotePanelContent = (task, labels) => {
   const { displayTitle, displaySub } = getTaskCardPresentation(task, labels || {});
   const rawText = String(task?.text || '').replace(/\r\n/g, '\n');
-  const lines = rawText.split('\n');
-  const firstContentIndex = lines.findIndex((line) => line.trim());
-  const hasContent = firstContentIndex >= 0;
-  const title = hasContent ? lines[firstContentIndex].trim() : displayTitle || 'Untitled note';
-  const body = hasContent ? lines.slice(firstContentIndex + 1).join('\n').replace(/^\n+/, '') : '';
+  const delimiterIndex = rawText.indexOf('\n');
+  
+  let title = '';
+  let body = '';
+  
+  if (delimiterIndex === -1) {
+    title = rawText;
+  } else {
+    title = rawText.substring(0, delimiterIndex);
+    body = rawText.substring(delimiterIndex + 1);
+  }
+
+  // Fallback to displayTitle if this is a legacy task with no text at all
+  if (!rawText && displayTitle && displayTitle !== 'Untitled note') {
+    title = displayTitle;
+  }
 
   return {
     title,
@@ -56,42 +69,34 @@ const DesktopNoteSidePanel = ({
         aria-modal="true"
         aria-labelledby="desktop-note-side-title"
         onClick={(event) => event.stopPropagation()}
+        style={{ display: 'flex', flexDirection: 'column' }}
       >
         <div className="desktop-note-side-toolbar">
           <button type="button" className="desktop-note-side-icon-button" aria-label="Collapse note" onClick={onCollapse}>
             <span aria-hidden="true">&raquo;</span>
           </button>
-          <button
-            type="button"
-            className="desktop-note-side-icon-button"
-            aria-label="Edit note"
-            onClick={() => onEdit?.(task)}
-          >
-            <span aria-hidden="true">+</span>
-          </button>
-          <button type="button" className="desktop-note-side-close" aria-label={labels.close || 'Close'} onClick={onClose}>
+          <button type="button" className="desktop-note-side-close" aria-label={labels?.close || 'Close'} onClick={onClose}>
             <CloseIcon />
           </button>
         </div>
-        <div className="desktop-note-side-meta">
-          <span className="desktop-note-side-chevron" aria-hidden="true">v</span>
-          <span className="desktop-note-side-doc-icon" aria-hidden="true" />
-          <span className="desktop-note-side-meta-title">{title}</span>
+        <div className="desktop-note-side-meta" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span className="desktop-note-side-custom-icon" aria-hidden="true" style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/text.png" alt="" width={14} height={14} style={{ objectFit: 'contain' }} />
+          </span>
+          <span className="desktop-note-side-meta-title">{title || 'Untitled note'}</span>
         </div>
-        <div className="desktop-note-side-content">
+        <div className="desktop-note-side-content block-editor-container-wrapper" style={{ paddingLeft: '64px', overflowX: 'visible' }}>
           <input
             id="desktop-note-side-title"
             className="desktop-note-side-title-input"
             value={title}
             placeholder="Untitled note"
+            style={{ fontSize: '24px', fontWeight: 'bold', color: '#111', paddingBottom: '12px', borderBottom: 'none' }}
             onChange={(event) => onTextChange?.(task.id, composeDesktopNoteText(event.target.value, body))}
           />
-          <div className="desktop-note-side-title-divider" aria-hidden="true" />
-          <textarea
-            className="desktop-note-side-body-editor"
+          <BlockEditor
             value={body}
-            placeholder="Start typing..."
-            onChange={(event) => onTextChange?.(task.id, composeDesktopNoteText(title, event.target.value))}
+            onChange={(newBody) => onTextChange?.(task.id, composeDesktopNoteText(title, newBody))}
           />
         </div>
       </aside>
