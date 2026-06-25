@@ -252,12 +252,42 @@ button {
   position: absolute;
   left: 24px;
   top: 22px;
+  z-index: 2;
   margin: 0;
   color: var(--color-subtle);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+.connection-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.connection-line {
+  fill: none;
+  stroke: rgba(20, 20, 20, 0.22);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.connection-label {
+  fill: var(--color-subtle);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.canvas-object-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
 }
 
 .resource-card {
