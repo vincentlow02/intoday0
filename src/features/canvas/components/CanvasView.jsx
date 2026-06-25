@@ -1,15 +1,18 @@
+import { mockResources } from "../../../data/mockResources";
+import ResourceCard from "../../resource/components/ResourceCard";
+
 export default function CanvasView() {
+  const workspaceResources = mockResources.filter(
+    (resource) => resource.workspaceId === "workspace-my",
+  );
+
   return (
-    <div className="canvas-placeholder">
-      <div className="canvas-placeholder-card">
-        <p className="eyebrow">Canvas area</p>
-        <h2>
-          Resource cards, connection lines, and collections will appear here.
-        </h2>
-        <p>
-          This placeholder confirms that the app shell, page layer, and future
-          canvas area are separated correctly.
-        </p>
+    <div className="canvas-placeholder" aria-label="Workspace canvas">
+      <div className="canvas-content">
+        <p className="canvas-label">Canvas area</p>
+        {workspaceResources.map((resource) => (
+          <ResourceCard key={resource.id} resource={resource} />
+        ))}
       </div>
     </div>
   );

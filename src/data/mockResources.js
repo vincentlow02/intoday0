@@ -1,0 +1,37 @@
+export const mockResources = [
+  {
+    id: "resource-note-1",
+    workspaceId: "workspace-my",
+    type: "note",
+    title: "Design research notes",
+    preview:
+      "Collect references, user insights, and early product ideas for IntoDay.",
+    x: 120,
+    y: 120,
+    tags: ["research", "note"],
+    updatedAt: "2026-06-25T10:00:00.000Z",
+  },
+  {
+    id: "resource-link-1",
+    workspaceId: "workspace-my",
+    type: "link",
+    title: "AI product design references",
+    preview: "Useful links and inspiration for future interface direction.",
+    url: "https://example.com",
+    x: 460,
+    y: 180,
+    tags: ["ai", "reference"],
+    updatedAt: "2026-06-25T10:30:00.000Z",
+  },
+  {
+    id: "resource-file-1",
+    workspaceId: "workspace-my",
+    type: "file",
+    title: "Portfolio structure draft",
+    preview: "A document draft for organizing project case studies.",
+    x: 260,
+    y: 390,
+    tags: ["portfolio"],
+    updatedAt: "2026-06-25T11:00:00.000Z",
+  },
+];
