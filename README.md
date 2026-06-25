@@ -1,18 +1,16 @@
-# IntoDay UI Prototype
+# React + Vite
 
-Standalone frontend-only prototype of IntoDay for design presentations and user testing.
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-This repository intentionally has no Supabase, authentication, database, backend API routes, analytics, or server-side conversion logic. Data is seeded from local mock JSON and then persisted in `localStorage` during the browser session.
+Currently, two official plugins are available:
 
-## Run locally
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-```bash
-npm install
-npm run dev
-```
+## React Compiler
 
-Open `http://127.0.0.1:5173`.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Reset mock data
+## Expanding the Oxlint configuration
 
-Clear the browser key `intoday_ui_prototype_tasks` from `localStorage`, then reload the page.
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
