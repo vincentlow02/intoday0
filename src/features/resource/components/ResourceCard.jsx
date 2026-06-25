@@ -1,4 +1,5 @@
 import ResourceTypeBadge from "./ResourceTypeBadge";
+import { CANVAS_OBJECT_DIMENSIONS } from "../../../lib/geometry/canvasObjectGeometry";
 
 const updatedAtFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -11,6 +12,8 @@ export default function ResourceCard({ resource }) {
   const position = {
     "--resource-x": `${resource.x}px`,
     "--resource-y": `${resource.y}px`,
+    width: `${CANVAS_OBJECT_DIMENSIONS.resource.width}px`,
+    minHeight: `${CANVAS_OBJECT_DIMENSIONS.resource.height}px`,
   };
 
   return (

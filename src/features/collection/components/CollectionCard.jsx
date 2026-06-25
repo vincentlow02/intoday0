@@ -1,4 +1,5 @@
 import CollectionItemPreview from "./CollectionItemPreview";
+import { CANVAS_OBJECT_DIMENSIONS } from "../../../lib/geometry/canvasObjectGeometry";
 
 const updatedAtFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -11,6 +12,8 @@ export default function CollectionCard({ collection, resources }) {
   const position = {
     "--collection-x": `${collection.x}px`,
     "--collection-y": `${collection.y}px`,
+    width: `${CANVAS_OBJECT_DIMENSIONS.collection.width}px`,
+    minHeight: `${CANVAS_OBJECT_DIMENSIONS.collection.height}px`,
   };
   const itemLabel = resources.length === 1 ? "item" : "items";
 

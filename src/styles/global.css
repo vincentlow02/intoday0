@@ -294,7 +294,6 @@ button {
   position: absolute;
   left: var(--resource-x);
   top: var(--resource-y);
-  width: 280px;
   padding: 18px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -372,7 +371,6 @@ button {
   position: absolute;
   left: var(--collection-x);
   top: var(--collection-y);
-  width: 320px;
   padding: 20px;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);

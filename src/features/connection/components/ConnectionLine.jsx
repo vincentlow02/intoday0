@@ -1,22 +1,17 @@
 import { calculateConnectionPath } from "../utils/calculateConnectionPath";
-
-function getObjectDimensions(object) {
-  return object.resourceIds
-    ? { width: 300, height: 220 }
-    : { width: 260, height: 180 };
-}
+import { getCanvasObjectAnchorPoints } from "../../../lib/geometry/canvasObjectGeometry";
 
 export default function ConnectionLine({ connection, source, target }) {
   const path = calculateConnectionPath(source, target);
 
   if (!path) return null;
 
-  const sourceDimensions = getObjectDimensions(source);
-  const targetDimensions = getObjectDimensions(target);
-  const startX = source.x + sourceDimensions.width;
-  const startY = source.y + sourceDimensions.height / 2;
-  const endX = target.x;
-  const endY = target.y + targetDimensions.height / 2;
+  const sourceAnchors = getCanvasObjectAnchorPoints(source);
+  const targetAnchors = getCanvasObjectAnchorPoints(target);
+  const startX = sourceAnchors.right.x;
+  const startY = sourceAnchors.right.y;
+  const endX = targetAnchors.left.x;
+  const endY = targetAnchors.left.y;
   const labelX = (startX + endX) / 2;
   const labelY = (startY + endY) / 2 - 8;
 
