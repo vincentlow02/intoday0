@@ -1,3 +1,5 @@
+import CanvasView from "../features/canvas/components/CanvasView";
+
 export default function WorkspacePage() {
   return (
     <section className="workspace-page">
@@ -18,18 +20,7 @@ export default function WorkspacePage() {
         </div>
       </header>
 
-      <div className="canvas-placeholder">
-        <div className="canvas-placeholder-card">
-          <p className="eyebrow">Canvas area</p>
-          <h2>
-            Resource cards, connection lines, and collections will appear here.
-          </h2>
-          <p>
-            This placeholder confirms that the app shell, page layer, and future
-            canvas area are separated correctly.
-          </p>
-        </div>
-      </div>
+      <CanvasView />
     </section>
   );
 }

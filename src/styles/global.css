@@ -119,6 +119,9 @@ button {
 
 .sidebar-item {
   width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   border: 0;
   border-radius: 14px;
   padding: 11px 12px;
@@ -126,6 +129,12 @@ button {
   color: var(--color-muted);
   background: transparent;
   cursor: pointer;
+}
+
+.workspace-item-icon {
+  width: 20px;
+  flex: 0 0 20px;
+  text-align: center;
 }
 
 .sidebar-item:hover {
