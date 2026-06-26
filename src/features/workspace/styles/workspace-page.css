@@ -1,0 +1,19 @@
+.workspace-page {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.redesigned-workspace-page {
+  gap: 0;
+}
+
+/* Blank Workspace */
+.redesign-empty-canvas {
+  flex: 1;
+  min-height: 0;
+  border-radius: var(--radius-lg);
+  background: transparent;
+}

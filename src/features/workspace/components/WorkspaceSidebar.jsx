@@ -1,4 +1,5 @@
 import { mockWorkspaces } from "../../../data/mockWorkspaces";
+import './WorkspaceSidebar.css';
 import WorkspaceItem from "./WorkspaceItem";
 
 export default function WorkspaceSidebar() {

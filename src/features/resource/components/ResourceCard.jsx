@@ -1,4 +1,5 @@
 import ResourceTypeBadge from "./ResourceTypeBadge";
+import '../styles/resource-card.css';
 import { CANVAS_OBJECT_DIMENSIONS } from "../../../lib/geometry/canvasObjectGeometry";
 
 const updatedAtFormatter = new Intl.DateTimeFormat("en-US", {

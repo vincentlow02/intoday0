@@ -1,4 +1,6 @@
 import WorkspacePrompt from '../features/workspace/components/WorkspacePrompt';
+import '../features/workspace/styles/workspace-page.css';
+import '../features/canvas/styles/canvas.css';
 
 export default function WorkspacePage({ activeView = "Canvas" }) {
   if (activeView === "Collection") {

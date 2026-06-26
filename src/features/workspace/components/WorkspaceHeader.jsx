@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './WorkspaceHeader.css';
 import AvatarMenu from './AvatarMenu';
 import WorkspaceSwitcherMenu from './WorkspaceSwitcherMenu';
 

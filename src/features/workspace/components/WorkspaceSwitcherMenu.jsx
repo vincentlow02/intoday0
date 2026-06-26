@@ -1,3 +1,5 @@
+import './WorkspaceSwitcherMenu.css';
+
 export default function WorkspaceSwitcherMenu() {
   return (
     <div className="workspace-switcher-menu">

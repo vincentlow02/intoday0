@@ -1,4 +1,5 @@
 import React from 'react';
+import './WorkspacePrompt.css';
 
 export default function WorkspacePrompt() {
   return (

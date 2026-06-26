@@ -1,0 +1,88 @@
+/* Workspace Prompt */
+.workspace-prompt-container {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(500px, calc(100% - 48px));
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+}
+
+.workspace-prompt-inner {
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 26px;
+  padding: 6.35px 7.30px 6.35px 9.20px;
+  width: 100%;
+  box-shadow: 0px 1px 0px 1px rgba(255, 255, 255, 0.92) inset, 0px 18px 44px rgba(17, 17, 17, 0.12);
+  outline: 1px solid rgba(17, 17, 17, 0.12);
+  outline-offset: -1px;
+  backdrop-filter: blur(11px);
+  -webkit-backdrop-filter: blur(11px);
+  gap: 9.50px;
+}
+
+.workspace-prompt-input-wrapper {
+  flex: 1 1 0;
+  height: 32.29px;
+  max-height: 98.80px;
+  padding-top: 6.65px;
+  padding-bottom: 6.65px;
+  overflow: hidden;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.workspace-prompt-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 13.30px;
+  font-weight: 500;
+  line-height: 19px;
+  color: #AAA9A6;
+  padding: 0;
+  margin: 0;
+  word-wrap: break-word;
+}
+
+.workspace-prompt-input::placeholder {
+  color: #AAA9A6;
+}
+
+.workspace-prompt-icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32.29px;
+  height: 32.29px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.workspace-prompt-icon-button.add-button {
+  background: #F5F5F4;
+}
+
+.workspace-prompt-icon-button.add-button:hover {
+  background: #EAEAE9;
+}
+
+.workspace-prompt-icon-button.send-button {
+  background: #171717;
+}
+
+.workspace-prompt-icon-button.send-button:hover {
+  background: #2D2D2D;
+}
