@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import AvatarMenu from './AvatarMenu';
+
 function ChevronDownIcon() {
   return (
     <svg
@@ -74,7 +77,9 @@ function SearchIcon() {
   );
 }
 
+
 export default function WorkspaceHeader({ activeView = "Canvas", setActiveView }) {
+  const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
   return (
     <header className="workspace-header" aria-label="Workspace header">
       <div className="workspace-header-section left">
@@ -139,10 +144,14 @@ export default function WorkspaceHeader({ activeView = "Canvas", setActiveView }
             type="button"
             className="workspace-avatar-button"
             aria-label="Account"
-            disabled
+            onClick={() => setIsAvatarMenuOpen(!isAvatarMenuOpen)}
           >
             <span className="workspace-avatar-core" aria-hidden="true" />
           </button>
+          
+          {isAvatarMenuOpen && (
+            <AvatarMenu onClose={() => setIsAvatarMenuOpen(false)} />
+          )}
         </div>
       </div>
     </header>
