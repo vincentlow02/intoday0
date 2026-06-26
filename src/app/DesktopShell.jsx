@@ -1,14 +1,17 @@
+import { useState } from "react";
 import WorkspacePage from "../pages/WorkspacePage";
 import WorkspaceHeader from "../features/workspace/components/WorkspaceHeader";
 import GlobalModalRoot from "./modals/GlobalModalRoot";
 
 export default function DesktopShell() {
+  const [activeView, setActiveView] = useState("Canvas");
+
   return (
     <div className="desktop-shell redesigned-shell">
-      <WorkspaceHeader />
+      <WorkspaceHeader activeView={activeView} setActiveView={setActiveView} />
 
       <main className="redesigned-main">
-        <WorkspacePage />
+        <WorkspacePage activeView={activeView} />
       </main>
 
       <GlobalModalRoot />

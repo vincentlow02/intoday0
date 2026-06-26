@@ -74,7 +74,7 @@ function SearchIcon() {
   );
 }
 
-export default function WorkspaceHeader() {
+export default function WorkspaceHeader({ activeView = "Canvas", setActiveView }) {
   return (
     <header className="workspace-header" aria-label="Workspace header">
       <div className="workspace-header-section left">
@@ -92,12 +92,13 @@ export default function WorkspaceHeader() {
       </div>
 
       <div className="workspace-header-section center">
-        <div className="workspace-view-toggle" aria-label="Canvas view">
+        <div className="workspace-view-toggle" aria-label={`${activeView} view`}>
           <button
             type="button"
             className="workspace-view-icon-button active"
-            aria-label="Show canvas"
-            disabled
+            aria-label="Previous view"
+            disabled={activeView === "Canvas"}
+            onClick={() => setActiveView?.("Canvas")}
           >
             <ChevronLeftIcon />
           </button>
@@ -108,14 +109,15 @@ export default function WorkspaceHeader() {
             aria-current="page"
             disabled
           >
-            Canvas
+            {activeView}
           </button>
 
           <button
             type="button"
             className="workspace-view-icon-button"
-            aria-label="Show collection view"
-            disabled
+            aria-label="Next view"
+            disabled={activeView === "Collection"}
+            onClick={() => setActiveView?.("Collection")}
           >
             <ChevronRightIcon />
           </button>
