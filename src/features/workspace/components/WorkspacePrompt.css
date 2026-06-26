@@ -1,5 +1,5 @@
 /* Workspace Prompt */
-.workspace-prompt-container {
+div.workspace-prompt-container {
   position: absolute;
   bottom: 40px;
   left: 50%;
