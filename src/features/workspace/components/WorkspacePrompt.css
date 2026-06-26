@@ -1,7 +1,7 @@
 /* Workspace Prompt */
 div.workspace-prompt-container {
   position: absolute;
-  bottom: 40px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   width: min(500px, calc(100% - 48px));
@@ -69,6 +69,15 @@ div.workspace-prompt-container {
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
+}
+
+.workspace-prompt-icon-button:focus {
+  outline: none;
+}
+
+.workspace-prompt-icon-button:focus-visible {
+  outline: 1px solid rgba(17, 17, 17, 0.24);
+  outline-offset: 2px;
 }
 
 .workspace-prompt-icon-button.add-button {

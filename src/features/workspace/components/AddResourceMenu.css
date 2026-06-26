@@ -1,0 +1,80 @@
+.add-resource-menu {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  z-index: 20;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 150px;
+  padding: 7px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.99);
+  outline: 1px solid rgba(17, 17, 17, 0.13);
+  outline-offset: -1px;
+  box-shadow:
+    0 1px 0 1px rgba(255, 255, 255, 0.95) inset,
+    0 2px 6px rgba(17, 17, 17, 0.06),
+    0 22px 46px rgba(17, 17, 17, 0.16);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+}
+
+.add-resource-menu__item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 32.3px;
+  padding: 0 7.6px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #171717;
+  cursor: pointer;
+  gap: 7.6px;
+  font: inherit;
+  text-align: left;
+}
+
+.add-resource-menu__item:hover,
+.add-resource-menu__item:focus-visible {
+  background: rgba(17, 17, 17, 0.05);
+}
+
+.add-resource-menu__item:focus-visible {
+  outline: 1px solid rgba(17, 17, 17, 0.24);
+  outline-offset: -1px;
+}
+
+.add-resource-menu__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 17.1px;
+  height: 17.1px;
+  color: #111111;
+  flex: 0 0 17.1px;
+}
+
+.add-resource-menu__icon svg {
+  width: 17.1px;
+  height: 17.1px;
+  overflow: hidden;
+}
+
+.add-resource-menu__icon path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.21;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.add-resource-menu__label {
+  color: #171717;
+  font-family: 'Inter', sans-serif;
+  font-size: 13.3px;
+  font-weight: 600;
+  line-height: 17px;
+  white-space: nowrap;
+}

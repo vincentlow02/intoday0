@@ -1,0 +1,231 @@
+.quick-note-panel {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  bottom: 14px;
+  z-index: 14;
+  display: flex;
+  width: min(380px, calc(100% - 28px));
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  outline: 1px solid rgba(17, 17, 17, 0.14);
+  outline-offset: -1px;
+  box-shadow: 0 24px 70px rgba(17, 17, 17, 0.24);
+  animation: quick-note-panel-enter 180ms ease-out;
+}
+
+.desktop-canvas-scroll > .quick-note-panel {
+  position: fixed;
+  z-index: 14;
+}
+
+@keyframes quick-note-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.quick-note-panel__chrome {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 31.92px;
+  padding: 0 7.6px;
+  border-bottom: 0.67px solid rgba(17, 17, 17, 0.08);
+  flex: 0 0 31.92px;
+}
+
+.quick-note-panel__collapse,
+.quick-note-panel__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(17, 17, 17, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+  color: #111111;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.quick-note-panel__collapse {
+  width: 21.28px;
+  height: 18.38px;
+  border-radius: 6px;
+}
+
+.quick-note-panel__close {
+  width: 21.28px;
+  height: 18.24px;
+  border-radius: 9.88px;
+}
+
+.quick-note-panel__collapse:hover,
+.quick-note-panel__close:hover {
+  background: rgba(245, 245, 244, 0.95);
+  border-color: rgba(17, 17, 17, 0.12);
+}
+
+.quick-note-panel__collapse:focus,
+.quick-note-panel__close:focus {
+  outline: none;
+}
+
+.quick-note-panel__collapse:focus-visible,
+.quick-note-panel__close:focus-visible {
+  outline: 1px solid rgba(17, 17, 17, 0.28);
+  outline-offset: 2px;
+}
+
+.quick-note-panel__collapse svg,
+.quick-note-panel__close svg {
+  width: 13.68px;
+  height: 13.68px;
+}
+
+.quick-note-panel__collapse path,
+.quick-note-panel__close path {
+  fill: none;
+  stroke: #2d3035;
+  stroke-width: 1.14;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.quick-note-panel__bar {
+  display: flex;
+  align-items: center;
+  min-height: 28.88px;
+  padding: 0 16px;
+  border-bottom: 0.67px solid rgba(17, 17, 17, 0.08);
+  gap: 8px;
+  flex: 0 0 28.88px;
+}
+
+.quick-note-panel__note-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15.2px;
+  height: 15.2px;
+  border-radius: 6px;
+  background: #ffe5b9;
+  color: #f59e0b;
+  flex: 0 0 15.2px;
+}
+
+.quick-note-panel__note-icon svg {
+  width: 10.64px;
+  height: 10.64px;
+}
+
+.quick-note-panel__note-icon rect,
+.quick-note-panel__note-icon path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.quick-note-panel__bar-title {
+  color: #3f4248;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 15px;
+}
+
+.quick-note-panel__body {
+  flex: 1 1 auto;
+  overflow: hidden;
+  padding: 16.72px 18.24px 24px 48.64px;
+}
+
+.quick-note-panel__title-row {
+  display: flex;
+  align-items: center;
+  min-height: 31.92px;
+  padding-bottom: 9.63px;
+}
+
+.quick-note-panel__title {
+  margin: 0;
+  color: #9aa0aa;
+  font-family: 'Inter', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 31.92px;
+  letter-spacing: 0;
+}
+
+.quick-note-panel__placeholder {
+  margin: 1.52px 0 0;
+  color: rgba(161, 161, 170, 0.8);
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.quick-note-panel__footer {
+  display: flex;
+  align-items: center;
+  min-height: 50.16px;
+  padding: 6.84px 10.64px 14.44px;
+  flex: 0 0 50.16px;
+}
+
+.quick-note-panel__add-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 127.68px;
+  height: 28.88px;
+  padding: 0 15.52px;
+  border: 0;
+  border-radius: 999px;
+  background: #f4f4f4;
+  color: #2d3035;
+  cursor: default;
+  gap: 7.6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 680;
+  line-height: 17px;
+  opacity: 0.45;
+}
+
+.quick-note-panel__add-button svg {
+  width: 15.67px;
+  height: 15.67px;
+  color: #2d3035;
+}
+
+.quick-note-panel__add-button circle,
+.quick-note-panel__add-button path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 720px) {
+  .quick-note-panel {
+    width: calc(100% - 32px);
+    right: 16px;
+  }
+
+  .quick-note-panel__body {
+    padding-inline: 48px;
+  }
+}
