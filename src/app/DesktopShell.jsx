@@ -1,13 +1,13 @@
 import WorkspacePage from "../pages/WorkspacePage";
-import WorkspaceSidebar from "../features/workspace/components/WorkspaceSidebar";
+import WorkspaceHeader from "../features/workspace/components/WorkspaceHeader";
 import GlobalModalRoot from "./modals/GlobalModalRoot";
 
 export default function DesktopShell() {
   return (
-    <div className="desktop-shell">
-      <WorkspaceSidebar />
+    <div className="desktop-shell redesigned-shell">
+      <WorkspaceHeader />
 
-      <main className="desktop-main">
+      <main className="redesigned-main">
         <WorkspacePage />
       </main>
 
