@@ -827,21 +827,43 @@ button {
 }
 
 /* Avatar Menu */
+.avatar-menu__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(17, 17, 17, 0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: backdrop-fade-in 0.18s ease;
+}
+
+@keyframes backdrop-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 .avatar-menu {
-  position: absolute;
-  top: 70px;
-  right: 26px;
+  position: relative;
   width: 310px;
   background: white;
-  box-shadow: 0px 18px 48px rgba(17, 17, 17, 0.08);
+  box-shadow: 0px 18px 48px rgba(17, 17, 17, 0.12);
   border-radius: 26px;
   border: 1px solid rgba(17, 17, 17, 0.04);
   display: flex;
   flex-direction: column;
   align-items: center;
   padding-bottom: 24px;
-  z-index: 100;
+  z-index: 201;
   font-family: 'Manrope', sans-serif;
+  animation: menu-scale-in 0.18s ease;
+}
+
+@keyframes menu-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 .avatar-menu__close {
