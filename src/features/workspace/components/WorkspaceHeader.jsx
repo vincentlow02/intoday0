@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import './WorkspaceHeader.css';
 import AvatarMenu from './AvatarMenu';
+import WorkspaceSwitcherMenu from './WorkspaceSwitcherMenu';
 
 function ChevronDownIcon() {
   return (
@@ -77,23 +79,34 @@ function SearchIcon() {
   );
 }
 
-
 export default function WorkspaceHeader({ activeView = "Canvas", setActiveView }) {
+  const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
+
   return (
     <header className="workspace-header" aria-label="Workspace header">
       <div className="workspace-header-section left">
-        <button
-          type="button"
-          className="workspace-brand-switcher"
-          aria-label="Workspace menu"
-          disabled
-        >
-          <span className="workspace-brand-title">testing3</span>
-          <span className="workspace-brand-menu" aria-hidden="true">
-            <ChevronDownIcon />
-          </span>
-        </button>
+        <div className="workspace-brand-wrap">
+          <button
+            type="button"
+            className="workspace-brand-switcher"
+            aria-label="Workspace menu"
+            aria-expanded={isWorkspaceMenuOpen}
+            onClick={() => {
+              setIsWorkspaceMenuOpen((value) => !value);
+              setIsAvatarMenuOpen(false);
+            }}
+          >
+            <span className="workspace-brand-title">testing3</span>
+            <span className="workspace-brand-menu" aria-hidden="true">
+              <ChevronDownIcon />
+            </span>
+          </button>
+
+          {isWorkspaceMenuOpen && (
+            <WorkspaceSwitcherMenu />
+          )}
+        </div>
       </div>
 
       <div className="workspace-header-section center">
@@ -144,11 +157,15 @@ export default function WorkspaceHeader({ activeView = "Canvas", setActiveView }
             type="button"
             className="workspace-avatar-button"
             aria-label="Account"
-            onClick={() => setIsAvatarMenuOpen(!isAvatarMenuOpen)}
+            aria-expanded={isAvatarMenuOpen}
+            onClick={() => {
+              setIsAvatarMenuOpen((value) => !value);
+              setIsWorkspaceMenuOpen(false);
+            }}
           >
             <span className="workspace-avatar-core" aria-hidden="true" />
           </button>
-          
+
           {isAvatarMenuOpen && (
             <AvatarMenu onClose={() => setIsAvatarMenuOpen(false)} />
           )}

@@ -1,4 +1,5 @@
 import CollectionItemPreview from "./CollectionItemPreview";
+import '../styles/collection-card.css';
 import { CANVAS_OBJECT_DIMENSIONS } from "../../../lib/geometry/canvasObjectGeometry";
 
 const updatedAtFormatter = new Intl.DateTimeFormat("en-US", {
