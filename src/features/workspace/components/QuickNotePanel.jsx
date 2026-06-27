@@ -2,28 +2,27 @@ import './QuickNotePanel.css';
 
 function CollapseIcon() {
   return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M5.9 4.5 9.1 8l-3.2 3.5" />
-      <path d="M9.1 4.5 12.3 8l-3.2 3.5" />
+    <svg className="quick-note-panel__collapse-glyph" viewBox="0 0 11 12" aria-hidden="true">
+      <path d="M2.3 3.3 5 6l-2.7 2.7" />
+      <path d="M5.6 3.3 8.3 6 5.6 8.7" />
     </svg>
   );
 }
 
 function CloseIcon() {
   return (
-    <svg viewBox="0 0 18 18" aria-hidden="true">
-      <path d="M4.7 4.7 13.3 13.3" />
-      <path d="M13.3 4.7 4.7 13.3" />
+    <svg className="quick-note-panel__close-glyph" viewBox="0 0 12 12" aria-hidden="true">
+      <path d="M3.2 3.2 8.8 8.8" />
+      <path d="M8.8 3.2 3.2 8.8" />
     </svg>
   );
 }
 
 function NoteIcon() {
   return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <rect x="3" y="3" width="10" height="10" rx="1.5" />
-      <path d="M5.4 6.1h5.2" />
-      <path d="M5.4 8.1h3.9" />
+    <svg className="quick-note-panel__note-icon-glyph" viewBox="0 0 14 14" aria-hidden="true">
+      <path d="M4 3.5h6" />
+      <path d="M7 3.5v7" />
     </svg>
   );
 }

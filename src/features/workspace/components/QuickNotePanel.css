@@ -5,14 +5,15 @@
   bottom: 14px;
   z-index: 14;
   display: flex;
-  width: min(380px, calc(100% - 28px));
+  width: min(378px, calc(100% - 28px));
   flex-direction: column;
+  justify-content: space-between;
   overflow: hidden;
+  padding: 7px 0 14px;
+  border: 0.7px solid #e0e0e0;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.96);
-  outline: 1px solid rgba(17, 17, 17, 0.14);
-  outline-offset: -1px;
-  box-shadow: 0 24px 70px rgba(17, 17, 17, 0.24);
+  background: #ffffff;
+  box-shadow: 1px 3px 31.4px 3px rgba(0, 0, 0, 0.06);
   animation: quick-note-panel-enter 180ms ease-out;
 }
 
@@ -34,14 +35,12 @@
 }
 
 .quick-note-panel__chrome {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 31.92px;
-  padding: 0 7.6px;
-  border-bottom: 0.67px solid rgba(17, 17, 17, 0.08);
-  flex: 0 0 31.92px;
+  height: 22px;
+  padding: 0 16px 0 17px;
+  flex: 0 0 22px;
 }
 
 .quick-note-panel__collapse,
@@ -49,29 +48,32 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(17, 17, 17, 0.1);
-  background: rgba(255, 255, 255, 0.8);
-  color: #111111;
+  background: #ffffff;
+  color: #2d3035;
   cursor: pointer;
   transition: background 0.18s ease, border-color 0.18s ease;
 }
 
 .quick-note-panel__collapse {
-  width: 21.28px;
-  height: 18.38px;
+  width: 22px;
+  height: 22px;
+  border: 0;
   border-radius: 6px;
 }
 
 .quick-note-panel__close {
-  width: 21.28px;
-  height: 18.24px;
-  border-radius: 9.88px;
+  width: 22.79px;
+  height: 22.79px;
+  padding: 1px;
+  border: 1px solid #f0f0f0;
+  border-radius: 11.4px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .quick-note-panel__collapse:hover,
 .quick-note-panel__close:hover {
-  background: rgba(245, 245, 244, 0.95);
-  border-color: rgba(17, 17, 17, 0.12);
+  background: #f7f7f7;
 }
 
 .quick-note-panel__collapse:focus,
@@ -85,17 +87,32 @@
   outline-offset: 2px;
 }
 
-.quick-note-panel__collapse svg,
-.quick-note-panel__close svg {
-  width: 13.68px;
-  height: 13.68px;
+.quick-note-panel__collapse-glyph {
+  display: block;
+  width: 11px;
+  height: 12px;
+  color: #2d3035;
 }
 
-.quick-note-panel__collapse path,
-.quick-note-panel__close path {
+.quick-note-panel__collapse-glyph path {
   fill: none;
-  stroke: #2d3035;
-  stroke-width: 1.14;
+  stroke: currentColor;
+  stroke-width: 1.45;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.quick-note-panel__close-glyph {
+  display: block;
+  width: 11.39px;
+  height: 11.39px;
+  color: #2d3035;
+}
+
+.quick-note-panel__close-glyph path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -103,111 +120,116 @@
 .quick-note-panel__bar {
   display: flex;
   align-items: center;
-  min-height: 28.88px;
-  padding: 0 16px;
-  border-bottom: 0.67px solid rgba(17, 17, 17, 0.08);
+  height: 36px;
+  margin-top: 5px;
+  padding: 0 17px;
+  border-top: 0.7px solid rgba(17, 17, 17, 0.12);
+  border-bottom: 0.7px solid rgba(17, 17, 17, 0.12);
   gap: 8px;
-  flex: 0 0 28.88px;
+  flex: 0 0 36px;
 }
 
 .quick-note-panel__note-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 15.2px;
-  height: 15.2px;
+  width: 20px;
+  height: 20px;
   border-radius: 6px;
   background: #ffe5b9;
   color: #f59e0b;
-  flex: 0 0 15.2px;
+  flex: 0 0 20px;
 }
 
-.quick-note-panel__note-icon svg {
-  width: 10.64px;
-  height: 10.64px;
+.quick-note-panel__note-icon-glyph {
+  display: block;
+  width: 13.24px;
+  height: 13.24px;
+  color: #ffffff;
 }
 
-.quick-note-panel__note-icon rect,
-.quick-note-panel__note-icon path {
+.quick-note-panel__note-icon-glyph path {
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.35;
+  stroke-width: 1.55;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .quick-note-panel__bar-title {
-  color: #3f4248;
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 650;
-  line-height: 15px;
+  color: #000000;
+  font-family: 'Inter', 'Noto Sans SC', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.3192px;
 }
 
 .quick-note-panel__body {
   flex: 1 1 auto;
   overflow: hidden;
-  padding: 16.72px 18.24px 24px 48.64px;
+  padding: 13px 21px 24px 30px;
 }
 
 .quick-note-panel__title-row {
   display: flex;
   align-items: center;
-  min-height: 31.92px;
-  padding-bottom: 9.63px;
+  min-height: 22px;
 }
 
 .quick-note-panel__title {
   margin: 0;
   color: #9aa0aa;
-  font-family: 'Inter', sans-serif;
-  font-size: 24px;
+  font-family: 'Inter', 'Noto Sans SC', sans-serif;
+  font-size: 18px;
   font-weight: 700;
-  line-height: 31.92px;
+  line-height: 1.22;
   letter-spacing: 0;
 }
 
 .quick-note-panel__placeholder {
-  margin: 1.52px 0 0;
-  color: rgba(161, 161, 170, 0.8);
-  font-family: 'Inter', sans-serif;
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 24px;
+  margin: 4px 0 0;
+  color: #bcbcc2;
+  font-family: 'Inter', 'Noto Sans SC', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.17;
+  letter-spacing: -0.3192px;
 }
 
 .quick-note-panel__footer {
   display: flex;
   align-items: center;
-  min-height: 50.16px;
-  padding: 6.84px 10.64px 14.44px;
-  flex: 0 0 50.16px;
+  min-height: 31px;
+  padding: 0 28px 0 19px;
+  flex: 0 0 31px;
 }
 
 .quick-note-panel__add-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 127.68px;
-  height: 28.88px;
-  padding: 0 15.52px;
+  width: 144px;
+  height: 31px;
+  padding: 0 12.5px;
   border: 0;
-  border-radius: 999px;
-  background: #f4f4f4;
-  color: #2d3035;
+  border-radius: 18px;
+  background: #fbfbfb;
+  color: #8e8e93;
   cursor: default;
-  gap: 7.6px;
-  font-family: 'Inter', sans-serif;
+  gap: 15px;
+  font-family: 'Inter', 'Noto Sans SC', sans-serif;
   font-size: 14px;
-  font-weight: 680;
-  line-height: 17px;
-  opacity: 0.45;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.3192px;
 }
 
 .quick-note-panel__add-button svg {
-  width: 15.67px;
-  height: 15.67px;
-  color: #2d3035;
+  width: 13px;
+  height: 13px;
+  color: #8e8e93;
+  flex: 0 0 13px;
 }
 
 .quick-note-panel__add-button circle,
@@ -223,9 +245,5 @@
   .quick-note-panel {
     width: calc(100% - 32px);
     right: 16px;
-  }
-
-  .quick-note-panel__body {
-    padding-inline: 48px;
   }
 }

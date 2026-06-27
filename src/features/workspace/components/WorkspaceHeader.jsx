@@ -5,76 +5,33 @@ import WorkspaceSwitcherMenu from './WorkspaceSwitcherMenu';
 
 function ChevronDownIcon() {
   return (
-    <svg
-      className="workspace-header-icon"
-      viewBox="0 0 12 12"
-      aria-hidden="true"
-    >
-      <path
-        d="M3.25 4.75 6 7.25l2.75-2.5"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.4"
-      />
+    <svg className="workspace-header-icon workspace-header-icon--menu" viewBox="0 0 12 12" aria-hidden="true">
+      <path d="M3.4 4.8 6 7.2l2.6-2.4" />
     </svg>
   );
 }
 
 function ChevronLeftIcon() {
   return (
-    <svg
-      className="workspace-header-icon"
-      viewBox="0 0 12 12"
-      aria-hidden="true"
-    >
-      <path
-        d="M7.25 3.25 4.75 6l2.5 2.75"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
+    <svg className="workspace-header-icon workspace-header-icon--view" viewBox="0 0 6 9" aria-hidden="true">
+      <path d="M4.7 1.1 1.3 4.5l3.4 3.4" />
     </svg>
   );
 }
 
 function ChevronRightIcon() {
   return (
-    <svg
-      className="workspace-header-icon"
-      viewBox="0 0 12 12"
-      aria-hidden="true"
-    >
-      <path
-        d="M4.75 3.25 7.25 6l-2.5 2.75"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
+    <svg className="workspace-header-icon workspace-header-icon--view" viewBox="0 0 6 9" aria-hidden="true">
+      <path d="M1.3 1.1 4.7 4.5 1.3 7.9" />
     </svg>
   );
 }
 
 function SearchIcon() {
   return (
-    <svg
-      className="workspace-header-icon search"
-      viewBox="0 0 16 16"
-      aria-hidden="true"
-    >
-      <path
-        d="m11.3 11.3 2.2 2.2M7.3 12a4.7 4.7 0 1 1 0-9.4 4.7 4.7 0 0 1 0 9.4Z"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.45"
-      />
+    <svg className="workspace-header-icon workspace-header-icon--search" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="m11.4 11.4 2.1 2.1" />
+      <circle cx="7.2" cy="7.2" r="4.7" />
     </svg>
   );
 }
