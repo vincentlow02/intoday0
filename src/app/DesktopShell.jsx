@@ -7,7 +7,7 @@ export default function DesktopShell() {
   const [activeView, setActiveView] = useState("Canvas");
 
   return (
-    <div className="desktop-shell redesigned-shell">
+    <div className="desktop-shell redesigned-shell desktop-canvas-scroll">
       <WorkspaceHeader activeView={activeView} setActiveView={setActiveView} />
 
       <main className="redesigned-main">

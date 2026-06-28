@@ -11,7 +11,7 @@ export default function WorkspacePage({ activeView = "Canvas" }) {
     return (
       <section className="workspace-page redesigned-workspace-page" style={{ position: 'relative' }}>
         <div
-          className="redesign-empty-canvas desktop-canvas-scroll"
+          className="redesign-empty-canvas"
           aria-label="Blank redesign workspace"
           style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
         >
@@ -26,7 +26,7 @@ export default function WorkspacePage({ activeView = "Canvas" }) {
   return (
     <section className="workspace-page redesigned-workspace-page" style={{ position: 'relative' }}>
       <div
-        className="redesign-empty-canvas desktop-canvas-scroll"
+        className="redesign-empty-canvas"
         aria-label="Blank redesign workspace"
       >
 
