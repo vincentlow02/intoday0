@@ -1,11 +1,15 @@
 import React from 'react';
 import './WorkspacePrompt.css';
 
-export default function WorkspacePrompt() {
+export default function WorkspacePrompt({ onOpenQuickNote }) {
   return (
     <div className="workspace-prompt-container">
       <div className="workspace-prompt-inner">
-        <button className="workspace-prompt-icon-button add-button" aria-label="Add attachment">
+        <button 
+          className="workspace-prompt-icon-button add-button" 
+          aria-label="Add attachment"
+          onClick={onOpenQuickNote}
+        >
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6 1V11M1 6H11" stroke="#111111" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import WorkspacePage from "../pages/WorkspacePage";
-import WorkspaceHeader from "../features/workspace/components/WorkspaceHeader";
+import WorkspaceHeader from "../features/workspace/components/header/WorkspaceHeader";
 import GlobalModalRoot from "./modals/GlobalModalRoot";
 
 export default function DesktopShell() {

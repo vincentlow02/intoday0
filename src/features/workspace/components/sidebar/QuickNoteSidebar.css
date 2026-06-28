@@ -1,0 +1,239 @@
+.quick-note-sidebar {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+  width: 320px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 0.7px solid #e0e0e0;
+  box-shadow: 1px 3px 31.4px 3px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
+.quick-note-sidebar-inner {
+  width: 100%;
+  height: 100%;
+  padding-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.quick-note-main {
+  align-self: stretch;
+  flex: 1 1 0;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.quick-note-topbar {
+  align-self: stretch;
+  padding-left: 19px;
+  padding-right: 16px;
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.quick-note-collapse-button {
+  width: 11px;
+  height: 12px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* 右上角 close 圆形按钮 */
+.quick-note-close-button {
+  width: 22.79px;
+  height: 22.79px;
+  padding: 0;
+  border: none;
+  background: #ffffff;
+  border-radius: 11.4px;
+  outline: 1px solid #f0f0f0;
+  outline-offset: -1px;
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.quick-note-close-button:hover {
+  background: #f7f7f7;
+}
+
+.quick-note-section {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.quick-note-divider {
+  align-self: stretch;
+  height: 0;
+  border-top: 0.4px solid #d7d7d7;
+}
+
+.quick-note-title-row {
+  padding-left: 17px;
+  padding-right: 20px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  display: inline-flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.quick-note-title-icon {
+  padding: 5px;
+  background: #ffe5b9;
+  overflow: hidden;
+  border-radius: 9px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.quick-note-title-icon-image {
+  width: 12px;
+  height: 12px;
+  position: relative;
+  display: block;
+}
+
+.quick-note-title-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #000000;
+  font-size: 11px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  word-wrap: break-word;
+}
+
+.quick-note-content {
+  align-self: stretch;
+  flex: 1 1 0;
+  padding-top: 13px;
+  padding-left: 25px;
+  padding-right: 21px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 9px;
+  box-sizing: border-box;
+}
+
+.quick-note-input-title {
+  align-self: stretch;
+  border: none;
+  outline: none;
+  padding: 0;
+  background: transparent;
+  color: #111111;
+  font-size: 18px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  word-wrap: break-word;
+}
+
+.quick-note-input-title::placeholder {
+  color: #9aa0aa;
+  opacity: 1;
+}
+
+.quick-note-input-body {
+  align-self: stretch;
+  flex: 1 1 0;
+  border: none;
+  outline: none;
+  padding: 0;
+  background: transparent;
+  resize: none;
+  color: #111111;
+  font-size: 12px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.quick-note-input-body::placeholder {
+  color: #bcbcc2;
+  opacity: 1;
+}
+
+.quick-note-footer {
+  padding-left: 25px;
+  padding-right: 28px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.quick-note-add-button {
+  width: 144px;
+  height: 31px;
+  border: none;
+  background: #fbfbfb;
+  border-radius: 18px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.quick-note-add-button:hover {
+  background: #f3f3f3;
+}
+
+.quick-note-add-icon {
+  width: 13px;
+  height: 13px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.quick-note-add-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #8e8e93;
+  font-size: 14px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  word-wrap: break-word;
+}

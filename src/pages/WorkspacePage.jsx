@@ -1,11 +1,15 @@
-import WorkspacePrompt from '../features/workspace/components/WorkspacePrompt';
+import React, { useState } from 'react';
+import WorkspacePrompt from '../features/workspace/components/prompt/WorkspacePrompt';
+import QuickNoteSidebar from '../features/workspace/components/sidebar/QuickNoteSidebar';
 import '../features/workspace/styles/workspace-page.css';
 import '../features/canvas/styles/canvas.css';
 
 export default function WorkspacePage({ activeView = "Canvas" }) {
+  const [isQuickNoteOpen, setIsQuickNoteOpen] = useState(false);
+
   if (activeView === "Collection") {
     return (
-      <section className="workspace-page redesigned-workspace-page">
+      <section className="workspace-page redesigned-workspace-page" style={{ position: 'relative' }}>
         <div
           className="redesign-empty-canvas desktop-canvas-scroll"
           aria-label="Blank redesign workspace"
@@ -20,13 +24,17 @@ export default function WorkspacePage({ activeView = "Canvas" }) {
   }
 
   return (
-    <section className="workspace-page redesigned-workspace-page">
+    <section className="workspace-page redesigned-workspace-page" style={{ position: 'relative' }}>
       <div
         className="redesign-empty-canvas desktop-canvas-scroll"
         aria-label="Blank redesign workspace"
       >
-        <WorkspacePrompt />
+        <WorkspacePrompt onOpenQuickNote={() => setIsQuickNoteOpen(true)} />
       </div>
+      
+      {isQuickNoteOpen && (
+        <QuickNoteSidebar onClose={() => setIsQuickNoteOpen(false)} />
+      )}
     </section>
   );
 }
