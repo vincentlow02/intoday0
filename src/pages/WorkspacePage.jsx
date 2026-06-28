@@ -29,6 +29,7 @@ export default function WorkspacePage({ activeView = "Canvas" }) {
         className="redesign-empty-canvas desktop-canvas-scroll"
         aria-label="Blank redesign workspace"
       >
+
         <WorkspacePrompt onOpenQuickNote={() => setIsQuickNoteOpen(true)} />
       </div>
       

@@ -1,3 +1,11 @@
 @import './tokens.css';
 @import './reset.css';
 @import './app-shell.css';
+
+@font-face {
+  font-family: 'DM Serif Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/dm-serif-display-regular.ttf') format('truetype');
+}
