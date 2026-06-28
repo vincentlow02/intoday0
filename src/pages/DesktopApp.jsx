@@ -452,8 +452,8 @@ const getDesktopGroupCardHeight = (tasks, visibleItemCount = tasks?.length ?? 0)
   return Math.max(
     DESKTOP_GROUP_CARD_MIN_HEIGHT,
     DESKTOP_GROUP_CARD_BASE_HEIGHT
-      + listHeight
-      + (hasExtra ? DESKTOP_GROUP_CARD_MORE_LABEL_HEIGHT : 12),
+    + listHeight
+    + (hasExtra ? DESKTOP_GROUP_CARD_MORE_LABEL_HEIGHT : 12),
   );
 };
 const getDesktopCanvasTaskHeight = (task) => (
@@ -919,7 +919,7 @@ const getDesktopCanvasOverlapEntry = (tasks, dateString, movingTaskIds, nextPosi
   let bestRatio = 0;
   resolveDesktopCanvasEntries(tasks, dateString).forEach((entry) => {
     const entryTaskIds = entry.type === 'group' ? entry.tasks.map((item) => item.id) : [entry.task.id];
-    
+
     // Ignore this entry ONLY if we are moving the exact same set of tasks (all of them).
     // This allows pulling 1 task out of a group and then "putting it back" (overlapping with the group).
     const isMovingExactSameItems = entryTaskIds.length === movingTaskIds.size && entryTaskIds.every(id => movingTaskIds.has(id));
@@ -942,7 +942,7 @@ const getDesktopCanvasOverlapEntry = (tasks, dateString, movingTaskIds, nextPosi
     };
 
     const overlapArea = getDesktopCanvasRectIntersectionArea(movingHitRect, targetHitRect);
-    
+
     const movingCenterInsideTarget = isDesktopCanvasPointInsideRect(movingCenter, targetHitRect);
     const targetCenterInsideMoving = isDesktopCanvasPointInsideRect(targetCenter, movingHitRect);
     if (overlapArea <= 0 && !movingCenterInsideTarget && !targetCenterInsideMoving) return;
@@ -2123,17 +2123,17 @@ const PackItemSourceIcon = ({ task, appearance, labels }) => {
 
   if (normalizeCardType(task?.cardType) === CARD_TYPES.PHOTO && photoPreview) {
     return (
-        <span className="desktop-pack-page-item-leading desktop-pack-page-item-leading-photo-preview" aria-hidden="true">
-          <img
-            src={photoPreview}
-            alt=""
-            width={36}
-            height={36}
-            draggable={false}
-            onDragStart={(event) => event.preventDefault()}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10 }}
-          />
-        </span>
+      <span className="desktop-pack-page-item-leading desktop-pack-page-item-leading-photo-preview" aria-hidden="true">
+        <img
+          src={photoPreview}
+          alt=""
+          width={36}
+          height={36}
+          draggable={false}
+          onDragStart={(event) => event.preventDefault()}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10 }}
+        />
+      </span>
     );
   }
 
@@ -2246,17 +2246,17 @@ const TaskCardFaviconIcon = ({ task, appearance, cfg, faviconUrl: propFaviconUrl
 
   if (normalizeCardType(task?.cardType) === CARD_TYPES.PHOTO && photoPreview) {
     return (
-        <div style={{ width: 32, height: 32, borderRadius: 11, overflow: 'hidden', background: '#f3f3f3', border: iconBorder, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <img
-            src={photoPreview}
-            alt=""
-            width={32}
-            height={32}
-            draggable={false}
-            onDragStart={(event) => event.preventDefault()}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        </div>
+      <div style={{ width: 32, height: 32, borderRadius: 11, overflow: 'hidden', background: '#f3f3f3', border: iconBorder, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <img
+          src={photoPreview}
+          alt=""
+          width={32}
+          height={32}
+          draggable={false}
+          onDragStart={(event) => event.preventDefault()}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      </div>
     );
   }
 
@@ -2345,13 +2345,13 @@ const TaskCardContent = ({ task, appearance, labels }) => {
             flexShrink: 0,
           }}
         >
-            <img
-              src={photoPreview}
-              alt={contentTitle || 'Photo'}
-              draggable={false}
-              onDragStart={(event) => event.preventDefault()}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            />
+          <img
+            src={photoPreview}
+            alt={contentTitle || 'Photo'}
+            draggable={false}
+            onDragStart={(event) => event.preventDefault()}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
         </div>
         <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
           <div style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden', wordBreak: 'break-word', color: 'var(--desktop-card-title)', fontSize: 13, fontWeight: 590, lineHeight: '18px' }}>
@@ -2390,18 +2390,18 @@ const TaskCard = (props) => {
     onPointerDown,
     onPointerMove,
     onPointerUp,
-      onPointerCancel,
-      isDragging,
-      isSelected,
-      editLabel,
-      deleteLabel,
-    } = props;
+    onPointerCancel,
+    isDragging,
+    isSelected,
+    editLabel,
+    deleteLabel,
+  } = props;
   const taskCardLabels = props?.labels;
 
   const isPhotoCard = normalizeCardType(task?.cardType) === CARD_TYPES.PHOTO;
 
   return (
-      <div id={`desktop-task-wrapper-${task.id}`} className={`desktop-task-wrapper ${isDragging ? 'is-dragging' : ''} ${isSelected ? 'is-selected' : ''}`}>
+    <div id={`desktop-task-wrapper-${task.id}`} className={`desktop-task-wrapper ${isDragging ? 'is-dragging' : ''} ${isSelected ? 'is-selected' : ''}`}>
       <button
         id={`desktop-task-card-${task.id}`}
         type="button"
@@ -2521,71 +2521,71 @@ const GroupedTaskCard = ({
   const canScrollExpandedList = isExpanded && hiddenTaskCount > 0;
 
   return (
-      <div id={`desktop-task-wrapper-${leadTask.id}`} className={`desktop-task-wrapper desktop-task-group-wrapper ${isDragging ? 'is-dragging' : ''} ${isSelected ? 'is-selected' : ''}`}>
-        <div
-          id={`desktop-group-card-${leadTask.id}`}
-          className={`desktop-task-card desktop-task-group-card ${isDragging ? 'is-dragging' : ''} ${isExpanded ? 'is-expanded' : ''}`}
-          onPointerDown={(event) => onPointerDown(groupTask, event)}
-          onPointerMove={(event) => onPointerMove(groupTask, event)}
-          onPointerUp={(event) => onPointerUp(groupTask, event)}
-          onPointerCancel={(event) => onPointerCancel(groupTask, event)}
-          onMouseLeave={() => setIsExpanded(false)}
-          style={{ width: '100%', minHeight: groupCardMinHeight, touchAction: 'none', userSelect: 'none' }}
+    <div id={`desktop-task-wrapper-${leadTask.id}`} className={`desktop-task-wrapper desktop-task-group-wrapper ${isDragging ? 'is-dragging' : ''} ${isSelected ? 'is-selected' : ''}`}>
+      <div
+        id={`desktop-group-card-${leadTask.id}`}
+        className={`desktop-task-card desktop-task-group-card ${isDragging ? 'is-dragging' : ''} ${isExpanded ? 'is-expanded' : ''}`}
+        onPointerDown={(event) => onPointerDown(groupTask, event)}
+        onPointerMove={(event) => onPointerMove(groupTask, event)}
+        onPointerUp={(event) => onPointerUp(groupTask, event)}
+        onPointerCancel={(event) => onPointerCancel(groupTask, event)}
+        onMouseLeave={() => setIsExpanded(false)}
+        style={{ width: '100%', minHeight: groupCardMinHeight, touchAction: 'none', userSelect: 'none' }}
+      >
+        <button
+          type="button"
+          className="desktop-task-group-summary-button"
+          aria-label="Open full view"
+          onMouseDown={(event) => event.stopPropagation()}
+          onPointerDown={(event) => {
+            event.stopPropagation();
+            onPointerDown?.(groupTask, event);
+          }}
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpenFullView?.(event);
+          }}
         >
-          <button
-            type="button"
-            className="desktop-task-group-summary-button"
-            aria-label="Open full view"
-            onMouseDown={(event) => event.stopPropagation()}
-            onPointerDown={(event) => {
-              event.stopPropagation();
-              onPointerDown?.(groupTask, event);
-            }}
-            onClick={(event) => {
-              event.stopPropagation();
-              onOpenFullView?.(event);
-            }}
-          >
-            <div className="desktop-task-group-header">
-              <div className="desktop-task-group-title-wrap">
-                {groupIcon ? (
-                  <span className="desktop-task-group-title-icon">{groupIcon}</span>
-                ) : (
-                  <span className="desktop-task-group-title-dot" />
-                )}
-                <div className="desktop-task-group-title-block">
+          <div className="desktop-task-group-header">
+            <div className="desktop-task-group-title-wrap">
+              {groupIcon ? (
+                <span className="desktop-task-group-title-icon">{groupIcon}</span>
+              ) : (
+                <span className="desktop-task-group-title-dot" />
+              )}
+              <div className="desktop-task-group-title-block">
+                <span
+                  className="desktop-task-group-title"
+                  onDragStart={(e) => e.preventDefault()}
+                  style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+                >
+                  {groupTitle}
+                </span>
+                {groupMetadataText ? (
                   <span
-                    className="desktop-task-group-title"
-                    onDragStart={(e) => e.preventDefault()}
+                    className="desktop-task-group-metadata"
                     style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
                   >
-                    {groupTitle}
+                    {groupMetadataText}
                   </span>
-                  {groupMetadataText ? (
-                    <span
-                      className="desktop-task-group-metadata"
-                      style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
-                    >
-                      {groupMetadataText}
-                    </span>
-                  ) : null}
-                </div>
-              </div>
-              <div className="desktop-task-group-header-actions">
-                <span className="desktop-task-group-open-icon" aria-hidden="true">
-                  <OpenFullViewIcon />
-                </span>
+                ) : null}
               </div>
             </div>
-            {groupChips.length > 0 ? (
-              <div className="desktop-task-group-chip-row">
-                {groupChips.map((chip) => (
-                  <span key={chip} className="desktop-task-group-chip">{chip}</span>
-                ))}
-              </div>
-            ) : null}
-          </button>
-          <div className="desktop-task-group-divider" />
+            <div className="desktop-task-group-header-actions">
+              <span className="desktop-task-group-open-icon" aria-hidden="true">
+                <OpenFullViewIcon />
+              </span>
+            </div>
+          </div>
+          {groupChips.length > 0 ? (
+            <div className="desktop-task-group-chip-row">
+              {groupChips.map((chip) => (
+                <span key={chip} className="desktop-task-group-chip">{chip}</span>
+              ))}
+            </div>
+          ) : null}
+        </button>
+        <div className="desktop-task-group-divider" />
         <div
           className="desktop-task-group-list"
           style={{ maxHeight: groupListMaxHeight, overflowY: canScrollExpandedList ? 'auto' : 'hidden' }}
@@ -2657,8 +2657,8 @@ const GroupedTaskCard = ({
             onPointerDown={(event) => event.stopPropagation()}
             onClick={(event) => event.preventDefault()}
           >
-            {isExpanded && hiddenTaskCount > 0 
-              ? (labels.scrollForMore || 'Scroll for {count} more').replace('{count}', hiddenTaskCount) 
+            {isExpanded && hiddenTaskCount > 0
+              ? (labels.scrollForMore || 'Scroll for {count} more').replace('{count}', hiddenTaskCount)
               : (labels.plusMore || '+ {count} more').replace('{count}', collapsedHiddenTaskCount)}
           </button>
         )}
@@ -2926,7 +2926,7 @@ const DesktopGroupFullViewModal = ({
   const shellRef = useRef(null);
   const openContentTimerRef = useRef(null);
   const closeTimerRef = useRef(null);
-  
+
   const tasks = view?.tasks || [];
   const open = Boolean(view);
 
@@ -3059,7 +3059,7 @@ const DesktopGroupFullViewModal = ({
       window.clearTimeout(clearTimer);
     };
   }, [open, view?.focusTaskId]);
-  
+
   const filteredTasks = useMemo(() => {
     let list = [...tasks];
 
@@ -3086,7 +3086,7 @@ const DesktopGroupFullViewModal = ({
         );
       });
     }
-    
+
     return list;
   }, [tasks, itemSearchQuery, activeFilter, labels]);
 
@@ -3292,204 +3292,204 @@ const DesktopGroupFullViewModal = ({
         style={shellMotionStyle}
       >
         <div className={`desktop-pack-page-shell-inner ${isContentVisible ? 'is-visible' : ''}`}>
-        <div className="desktop-pack-page-topbar">
-          <button
-            type="button"
-            onClick={handleRequestClose}
-            aria-label={labels.close}
-            className="desktop-pack-page-close"
-          >
-            <CloseIcon />
-          </button>
-        </div>
+          <div className="desktop-pack-page-topbar">
+            <button
+              type="button"
+              onClick={handleRequestClose}
+              aria-label={labels.close}
+              className="desktop-pack-page-close"
+            >
+              <CloseIcon />
+            </button>
+          </div>
 
-        <DesktopPackPageHeader
-          tasks={tasks}
-          onUpdateGroup={onUpdateGroup}
-          appearance={appearance}
-          language={language}
-          labels={labels}
-          isSelectMode={isSelectMode}
-          selectedCount={selectedCount}
-          onEnterSelectMode={enterSelectMode}
-          onExitSelectMode={exitSelectMode}
-          onDeleteSelected={handleDeleteSelected}
-        />
+          <DesktopPackPageHeader
+            tasks={tasks}
+            onUpdateGroup={onUpdateGroup}
+            appearance={appearance}
+            language={language}
+            labels={labels}
+            isSelectMode={isSelectMode}
+            selectedCount={selectedCount}
+            onEnterSelectMode={enterSelectMode}
+            onExitSelectMode={exitSelectMode}
+            onDeleteSelected={handleDeleteSelected}
+          />
 
-        <div className="desktop-pack-page-content">
-          <div className="desktop-pack-page-controls">
-            <div className="desktop-pack-page-controls-bar">
-              <div className="desktop-pack-page-filters" role="tablist" aria-label="Pack filters">
-                {filters.map((filter) => (
-                  <button
-                    key={filter}
-                    type="button"
-                    className={`desktop-pack-page-filter-btn ${activeFilter === filter ? 'is-active' : ''}`}
-                    onClick={() => {
-                      setActiveFilter(filter);
-                      setIsSearchVisible(false);
-                      setIsExportMenuOpen(false);
-                    }}
-                  >
-                    {getPackFilterLabel(filter, labels)}
-                  </button>
-                ))}
-              </div>
-              <div className={`desktop-pack-page-control-actions ${isSelectMode ? 'is-select-mode' : ''}`}>
-                {isSelectMode ? (
-                  <button
-                    type="button"
-                    className="desktop-pack-page-toolbar-action desktop-pack-page-toolbar-text-action is-active"
-                    onClick={exitSelectMode}
-                  >
-                    <PackSelectIcon />
-                    <span>{labels.select || 'Select'}</span>
-                  </button>
-                ) : (
-                  <>
+          <div className="desktop-pack-page-content">
+            <div className="desktop-pack-page-controls">
+              <div className="desktop-pack-page-controls-bar">
+                <div className="desktop-pack-page-filters" role="tablist" aria-label="Pack filters">
+                  {filters.map((filter) => (
                     <button
+                      key={filter}
                       type="button"
-                      className={`desktop-pack-page-toolbar-action desktop-pack-page-search-toggle ${isSearchVisible ? 'is-active' : ''}`}
+                      className={`desktop-pack-page-filter-btn ${activeFilter === filter ? 'is-active' : ''}`}
                       onClick={() => {
-                        setIsSearchVisible((current) => !current);
+                        setActiveFilter(filter);
+                        setIsSearchVisible(false);
                         setIsExportMenuOpen(false);
                       }}
-                      aria-label="Search items"
-                      aria-expanded={isSearchVisible}
                     >
-                      <SearchIcon />
-                      <span>{labels.search || 'Search'}</span>
+                      {getPackFilterLabel(filter, labels)}
                     </button>
-                    <span className="desktop-pack-page-toolbar-divider" aria-hidden="true" />
+                  ))}
+                </div>
+                <div className={`desktop-pack-page-control-actions ${isSelectMode ? 'is-select-mode' : ''}`}>
+                  {isSelectMode ? (
                     <button
                       type="button"
-                      className="desktop-pack-page-toolbar-action desktop-pack-page-toolbar-text-action"
-                      onClick={enterSelectMode}
+                      className="desktop-pack-page-toolbar-action desktop-pack-page-toolbar-text-action is-active"
+                      onClick={exitSelectMode}
                     >
                       <PackSelectIcon />
                       <span>{labels.select || 'Select'}</span>
                     </button>
-                    <div className="desktop-pack-page-toolbar-menu-anchor" ref={exportMenuRef}>
+                  ) : (
+                    <>
                       <button
                         type="button"
-                        className={`desktop-pack-page-toolbar-action desktop-pack-page-toolbar-text-action ${isExportMenuOpen ? 'is-active' : ''}`}
-                        aria-haspopup="menu"
-                        aria-expanded={isExportMenuOpen}
-                        onClick={() => setIsExportMenuOpen((current) => !current)}
+                        className={`desktop-pack-page-toolbar-action desktop-pack-page-search-toggle ${isSearchVisible ? 'is-active' : ''}`}
+                        onClick={() => {
+                          setIsSearchVisible((current) => !current);
+                          setIsExportMenuOpen(false);
+                        }}
+                        aria-label="Search items"
+                        aria-expanded={isSearchVisible}
                       >
-                        <PackExportIcon />
-                        <span>{labels.exportPack || 'Export'}</span>
+                        <SearchIcon />
+                        <span>{labels.search || 'Search'}</span>
                       </button>
-                      {isExportMenuOpen ? (
-                        <div className="desktop-pack-page-toolbar-menu" role="menu" aria-label="Export pack">
-                          {exportMenuOptions.map(({ id, label }) => (
-                            <button
-                              key={id}
-                              type="button"
-                              role="menuitem"
-                              className="desktop-pack-page-toolbar-menu-item"
-                              onClick={() => handleExportMenuAction(id)}
-                            >
-                              {label}
-                            </button>
-                          ))}
-                        </div>
-                      ) : null}
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-            {isSearchVisible && (
-              <div className="desktop-pack-page-search-wrapper is-revealed">
-                <SearchIcon />
-                <input
-                  type="text"
-                  placeholder={labels.searchInPack || 'Search in pack...'}
-                  value={itemSearchQuery}
-                  onChange={(e) => setItemSearchQuery(e.target.value)}
-                  className="desktop-pack-page-search-input"
-                  autoFocus
-                />
-              </div>
-            )}
-          </div>
-          
-          <div className="desktop-pack-page-item-list">
-            {filteredTasks.length === 0 ? (
-              <div className="desktop-pack-page-empty">{labels.noItemsFound || 'No items found'}</div>
-            ) : (
-              filteredTasks.map((task) => (
-                <div
-                  key={task.id}
-                  id={`desktop-pack-page-item-${task.id}`}
-                  className={`desktop-pack-page-item ${highlightedTaskId === task.id ? 'is-highlighted' : ''}`}
-                >
-                  {isSelectMode ? (
-                    <button
-                      type="button"
-                      className={`desktop-pack-page-item-checkbox ${selectedItemIds.includes(task.id) ? 'is-selected' : ''}`}
-                      aria-pressed={selectedItemIds.includes(task.id)}
-                      aria-label={`${selectedItemIds.includes(task.id) ? 'Deselect' : 'Select'} ${task.text || 'item'}`}
-                      onClick={() => toggleSelectItem(task.id)}
-                    >
-                      <span className="desktop-pack-page-item-checkbox-mark" aria-hidden="true">
-                        {selectedItemIds.includes(task.id) ? '✓' : ''}
-                      </span>
-                    </button>
-                  ) : null}
-                  {(() => {
-                    const { label } = getPackItemSourceMeta(task, labels);
-                    const { displayTitle } = getTaskCardPresentation(task, labels);
-                    return (
-                      <>
-                        <PackItemSourceIcon task={task} appearance={appearance} labels={labels} />
+                      <span className="desktop-pack-page-toolbar-divider" aria-hidden="true" />
+                      <button
+                        type="button"
+                        className="desktop-pack-page-toolbar-action desktop-pack-page-toolbar-text-action"
+                        onClick={enterSelectMode}
+                      >
+                        <PackSelectIcon />
+                        <span>{labels.select || 'Select'}</span>
+                      </button>
+                      <div className="desktop-pack-page-toolbar-menu-anchor" ref={exportMenuRef}>
                         <button
                           type="button"
-                          onClick={() => {
-                            if (isSelectMode) {
-                              toggleSelectItem(task.id);
-                              return;
-                            }
-                            onTaskOpen(task);
-                          }}
-                          className="desktop-pack-page-item-main"
+                          className={`desktop-pack-page-toolbar-action desktop-pack-page-toolbar-text-action ${isExportMenuOpen ? 'is-active' : ''}`}
+                          aria-haspopup="menu"
+                          aria-expanded={isExportMenuOpen}
+                          onClick={() => setIsExportMenuOpen((current) => !current)}
                         >
-                          <div className="desktop-pack-page-item-title">
-                            {displayTitle || task.text || 'Untitled item'}
-                          </div>
-                          <div className="desktop-pack-page-item-subtitle">
-                            {label}
-                          </div>
+                          <PackExportIcon />
+                          <span>{labels.exportPack || 'Export'}</span>
                         </button>
-                      </>
-                    );
-                  })()}
-                  {!isSelectMode ? (
-                    <div className="desktop-pack-page-item-actions">
+                        {isExportMenuOpen ? (
+                          <div className="desktop-pack-page-toolbar-menu" role="menu" aria-label="Export pack">
+                            {exportMenuOptions.map(({ id, label }) => (
+                              <button
+                                key={id}
+                                type="button"
+                                role="menuitem"
+                                className="desktop-pack-page-toolbar-menu-item"
+                                onClick={() => handleExportMenuAction(id)}
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+              {isSearchVisible && (
+                <div className="desktop-pack-page-search-wrapper is-revealed">
+                  <SearchIcon />
+                  <input
+                    type="text"
+                    placeholder={labels.searchInPack || 'Search in pack...'}
+                    value={itemSearchQuery}
+                    onChange={(e) => setItemSearchQuery(e.target.value)}
+                    className="desktop-pack-page-search-input"
+                    autoFocus
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="desktop-pack-page-item-list">
+              {filteredTasks.length === 0 ? (
+                <div className="desktop-pack-page-empty">{labels.noItemsFound || 'No items found'}</div>
+              ) : (
+                filteredTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    id={`desktop-pack-page-item-${task.id}`}
+                    className={`desktop-pack-page-item ${highlightedTaskId === task.id ? 'is-highlighted' : ''}`}
+                  >
+                    {isSelectMode ? (
                       <button
                         type="button"
-                        className="desktop-pack-page-item-action"
-                        aria-label={`Edit ${task.text || 'item'}`}
-                        onClick={() => onTaskEdit?.(task)}
+                        className={`desktop-pack-page-item-checkbox ${selectedItemIds.includes(task.id) ? 'is-selected' : ''}`}
+                        aria-pressed={selectedItemIds.includes(task.id)}
+                        aria-label={`${selectedItemIds.includes(task.id) ? 'Deselect' : 'Select'} ${task.text || 'item'}`}
+                        onClick={() => toggleSelectItem(task.id)}
                       >
-                        <EditIcon />
+                        <span className="desktop-pack-page-item-checkbox-mark" aria-hidden="true">
+                          {selectedItemIds.includes(task.id) ? '✓' : ''}
+                        </span>
                       </button>
-                    </div>
-                  ) : null}
-                </div>
-              ))
-            )}
+                    ) : null}
+                    {(() => {
+                      const { label } = getPackItemSourceMeta(task, labels);
+                      const { displayTitle } = getTaskCardPresentation(task, labels);
+                      return (
+                        <>
+                          <PackItemSourceIcon task={task} appearance={appearance} labels={labels} />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (isSelectMode) {
+                                toggleSelectItem(task.id);
+                                return;
+                              }
+                              onTaskOpen(task);
+                            }}
+                            className="desktop-pack-page-item-main"
+                          >
+                            <div className="desktop-pack-page-item-title">
+                              {displayTitle || task.text || 'Untitled item'}
+                            </div>
+                            <div className="desktop-pack-page-item-subtitle">
+                              {label}
+                            </div>
+                          </button>
+                        </>
+                      );
+                    })()}
+                    {!isSelectMode ? (
+                      <div className="desktop-pack-page-item-actions">
+                        <button
+                          type="button"
+                          className="desktop-pack-page-item-action"
+                          aria-label={`Edit ${task.text || 'item'}`}
+                          onClick={() => onTaskEdit?.(task)}
+                        >
+                          <EditIcon />
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
+                ))
+              )}
+            </div>
           </div>
-        </div>
-        <DesktopDeleteConfirmModal
-          open={isDeleteConfirmOpen}
-          title={selectedCount === 1 
-            ? (labels.deleteItemQuestion || 'Delete this item?') 
-            : (labels.deleteMultipleItemsQuestion || 'Delete {count} selected items?').replace('{count}', selectedCount)}
-          onCancel={() => setIsDeleteConfirmOpen(false)}
-          onConfirm={confirmDeleteSelected}
-        />
+          <DesktopDeleteConfirmModal
+            open={isDeleteConfirmOpen}
+            title={selectedCount === 1
+              ? (labels.deleteItemQuestion || 'Delete this item?')
+              : (labels.deleteMultipleItemsQuestion || 'Delete {count} selected items?').replace('{count}', selectedCount)}
+            onCancel={() => setIsDeleteConfirmOpen(false)}
+            onConfirm={confirmDeleteSelected}
+          />
         </div>
       </div>
     </div>
@@ -4134,14 +4134,14 @@ const ScheduleSection = ({
               >
                 {item.type === 'task' ? (
                   <div data-desktop-layout-id={`task-${item.task.id}`}>
-                <TaskCard
-                  task={item.task}
-                  appearance={appearance}
-                  labels={labels}
-                  isDragging={draggedTaskId === item.task.id}
+                    <TaskCard
+                      task={item.task}
+                      appearance={appearance}
+                      labels={labels}
+                      isDragging={draggedTaskId === item.task.id}
                       onClick={(event) => onTaskClick(item.task, event)}
-                  onEdit={() => onTaskEdit(item.task)}
-                  onDelete={() => onTaskDelete(item.task)}
+                      onEdit={() => onTaskEdit(item.task)}
+                      onDelete={() => onTaskDelete(item.task)}
                       onPointerDown={(event) => onTaskPointerDown(item.task, event)}
                       onPointerMove={(event) => onTaskPointerMove(item.task, event)}
                       onPointerUp={(event) => onTaskPointerUp(item.task, event)}
@@ -4277,31 +4277,31 @@ const DailyTaskList = ({
           ? (draggedTaskId === dragTask.id && isGroupDragActive) // Only hide whole card if lead task (group drag) is active
           : (draggedTaskId === entry.task.id && !isGroupDragActive);
         return (
-        <div
-          key={entry.type === 'group' ? `group-${entry.id}` : entry.task.id}
-          id={`desktop-canvas-entry-${dragTask.id}`}
-          data-desktop-layout-id={`task-${dragTask.id}`}
-          data-desktop-connection-id={dragTask.id}
-          className="desktop-canvas-card-node"
-          style={{ left: entry.x, top: entry.y, width: DESKTOP_CANVAS_CARD_WIDTH }}
-        >
           <div
-            className={`desktop-canvas-card-shell ${isGroupReady ? 'desktop-canvas-card-shell--group-ready' : ''} ${isDragging ? 'is-dragging' : ''}`}
+            key={entry.type === 'group' ? `group-${entry.id}` : entry.task.id}
+            id={`desktop-canvas-entry-${dragTask.id}`}
+            data-desktop-layout-id={`task-${dragTask.id}`}
+            data-desktop-connection-id={dragTask.id}
+            className="desktop-canvas-card-node"
+            style={{ left: entry.x, top: entry.y, width: DESKTOP_CANVAS_CARD_WIDTH }}
           >
-            {['left', 'right', 'top', 'bottom'].map((side) => (
-              <button
-                key={side}
-                type="button"
-                className={`desktop-canvas-connection-handle desktop-canvas-connection-handle-${side}`}
-                aria-label="Start connection"
-                onPointerDown={(event) => onConnectionPointerDown?.(dragTask.id, side, event)}
-                onMouseDown={(event) => onConnectionMouseDown?.(dragTask.id, side, event)}
-                onPointerMove={onConnectionPointerMove}
-                onPointerUp={onConnectionPointerUp}
-                onPointerCancel={onConnectionPointerCancel}
-              />
-            ))}
-            {entry.type === 'group' ? (
+            <div
+              className={`desktop-canvas-card-shell ${isGroupReady ? 'desktop-canvas-card-shell--group-ready' : ''} ${isDragging ? 'is-dragging' : ''}`}
+            >
+              {['left', 'right', 'top', 'bottom'].map((side) => (
+                <button
+                  key={side}
+                  type="button"
+                  className={`desktop-canvas-connection-handle desktop-canvas-connection-handle-${side}`}
+                  aria-label="Start connection"
+                  onPointerDown={(event) => onConnectionPointerDown?.(dragTask.id, side, event)}
+                  onMouseDown={(event) => onConnectionMouseDown?.(dragTask.id, side, event)}
+                  onPointerMove={onConnectionPointerMove}
+                  onPointerUp={onConnectionPointerUp}
+                  onPointerCancel={onConnectionPointerCancel}
+                />
+              ))}
+              {entry.type === 'group' ? (
                 <GroupedTaskCard
                   tasks={entry.tasks}
                   appearance={appearance}
@@ -4312,13 +4312,13 @@ const DailyTaskList = ({
                   isGroupReady={isGroupReady}
                   draggedTaskId={draggedTaskId}
                   onOpenItem={onTaskClick}
-                onOpenFullView={(event) => onGroupOpenFullView(entry.tasks, event)}
-                onPointerDown={onTaskPointerDown}
-                onPointerMove={onTaskPointerMove}
-                onPointerUp={onTaskPointerUp}
-                onPointerCancel={onTaskPointerCancel}
-              />
-            ) : (
+                  onOpenFullView={(event) => onGroupOpenFullView(entry.tasks, event)}
+                  onPointerDown={onTaskPointerDown}
+                  onPointerMove={onTaskPointerMove}
+                  onPointerUp={onTaskPointerUp}
+                  onPointerCancel={onTaskPointerCancel}
+                />
+              ) : (
                 <TaskCard
                   task={entry.task}
                   appearance={appearance}
@@ -4337,10 +4337,11 @@ const DailyTaskList = ({
                   editLabel={labels.edit}
                   deleteLabel={labels.delete}
                 />
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      )})
+        )
+      })
     ) : (
       <div
         aria-hidden="true"
@@ -4350,22 +4351,22 @@ const DailyTaskList = ({
           border: appearance === 'dark' ? 'none' : '1px dashed var(--desktop-divider)',
           background: appearance === 'dark' ? 'transparent' : 'var(--desktop-section-bg)',
         }}
-        />
-      )}
-      {selectionRect ? (
-        <div
-          className="desktop-canvas-selection-rect"
-          aria-hidden="true"
-          style={{
-            left: selectionRect.x,
-            top: selectionRect.y,
-            width: selectionRect.width,
-            height: selectionRect.height,
-          }}
-        />
-      ) : null}
-    </div>
-  );
+      />
+    )}
+    {selectionRect ? (
+      <div
+        className="desktop-canvas-selection-rect"
+        aria-hidden="true"
+        style={{
+          left: selectionRect.x,
+          top: selectionRect.y,
+          width: selectionRect.width,
+          height: selectionRect.height,
+        }}
+      />
+    ) : null}
+  </div>
+);
 
 const getDesktopCollectionTimestamp = (tasks) => Math.max(
   0,
@@ -7535,10 +7536,10 @@ function App() {
     });
   }, [activeGroupView?.groupId, currentWorkspaceTasks]);
 
-  const draggedTask = draggedTaskId 
-    ? (tasks.find((task) => task.id === draggedTaskId) 
-        ? { ...tasks.find((task) => task.id === draggedTaskId), isGroupInitiator: isGroupDragActive } 
-        : null)
+  const draggedTask = draggedTaskId
+    ? (tasks.find((task) => task.id === draggedTaskId)
+      ? { ...tasks.find((task) => task.id === draggedTaskId), isGroupInitiator: isGroupDragActive }
+      : null)
     : null;
   const closePanel = () => {
     setInputText('');
@@ -7563,7 +7564,7 @@ function App() {
     if (!storageKey) {
       return false;
     }
-    
+
     // For non-images, open a blank window synchronously before 'await' to bypass popup blockers
     let newWin = null;
     if (uploadedType !== 'image') {
@@ -7839,7 +7840,7 @@ function App() {
         setQuickLinkPreviews(linkPreviews);
         linkPreviews.forEach((linkPreview) => {
           fetchYouTubeQuickLinkPreview(linkPreview.url).then((youtubePreview) => {
-          if (!youtubePreview) return;
+            if (!youtubePreview) return;
             setQuickLinkPreviews((current) => current.map((preview) => (
               preview.url === linkPreview.url
                 ? { ...preview, ...youtubePreview }
@@ -8449,956 +8450,956 @@ function App() {
             transformOrigin: 'top left',
           }}
         >
-      <div className={`desktop-app ${appearance === 'dark' ? 'desktop-app-dark dark-theme' : 'desktop-app-light'}`} style={{ width: '100%', height: '100%', overflow: 'hidden', background: 'var(--desktop-root-bg)', color: 'var(--desktop-root-text)', fontFamily: 'Inter, sans-serif', display: 'flex', flexDirection: 'column' }}>
-        <header className="desktop-minimal-header">
-          <div className="desktop-minimal-brand" ref={workspaceMenuRef}>
-            <div className={`desktop-workspace-shell ${workspaceMenuOpen ? 'is-open' : ''} ${isWorkspaceNameEditing ? 'is-editing' : ''}`}>
-              {isWorkspaceNameEditing ? (
-                <input
-                  ref={workspaceNameInputRef}
-                  type="text"
-                  value={workspaceNameDraft}
-                  onChange={(event) => setWorkspaceNameDraft(event.target.value)}
-                  onBlur={handleCommitWorkspaceRename}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      event.preventDefault();
-                      handleCommitWorkspaceRename();
-                    }
-                    if (event.key === 'Escape') {
-                      event.preventDefault();
-                      handleCancelWorkspaceRename();
-                    }
-                  }}
-                  className="desktop-workspace-name-input"
-                  aria-label="Workspace name"
-                />
-              ) : (
-                <button
-                  type="button"
-                  className="desktop-workspace-name-button"
-                  onClick={handleStartWorkspaceRename}
-                >
-                  <span className="desktop-workspace-trigger-label">{activeWorkspace?.name || t.untitledWorkspace}</span>
-                </button>
-              )}
-              <button
-                type="button"
-                className="desktop-workspace-menu-button"
-                onClick={() => {
-                  if (isWorkspaceNameEditing) {
-                    handleCommitWorkspaceRename();
-                  }
-                  setWorkspaceMenuOpen((current) => !current);
-                }}
-                aria-haspopup="menu"
-                aria-expanded={workspaceMenuOpen}
-              >
-                <span className="desktop-workspace-trigger-chevron">
-                  <WorkspaceChevronIcon open={workspaceMenuOpen} />
-                </span>
-              </button>
-            </div>
-            {workspaceMenuOpen ? (
-              <div className="desktop-workspace-menu" role="menu" aria-label={t.workspaceMenu || 'Workspace menu'}>
-                <div className="desktop-workspace-menu-header">My Spaces</div>
-                <div className="desktop-workspace-menu-list">
-                  {workspaces.map((workspace) => {
-                    const isActive = workspace.id === activeWorkspace?.id;
-                    const isActionsOpen = workspaceActionMenu?.workspaceId === workspace.id;
-                    return (
-                      <div
-                        key={workspace.id}
-                        className={`desktop-workspace-menu-row ${isActive ? 'is-active' : ''} ${isActionsOpen ? 'is-actions-open' : ''}`}
-                      >
-                        <button
-                          type="button"
-                          className="desktop-workspace-menu-item"
-                          onClick={() => handleSelectWorkspace(workspace.id)}
-                          role="menuitemradio"
-                          aria-checked={isActive}
-                        >
-                          <span className="desktop-workspace-menu-item-label">{workspace.name}</span>
-                        </button>
-                        <div className="desktop-workspace-menu-item-actions">
-                          <button
-                            type="button"
-                            className="desktop-workspace-menu-item-more"
-                            onClick={(event) => handleWorkspaceActionsToggle(workspace.id, event)}
-                            aria-label={`${t.workspaceActions || 'Workspace actions'} for ${workspace.name}`}
-                            aria-expanded={isActionsOpen}
-                          >
-                            <WorkspaceMoreIcon />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="desktop-workspace-menu-footer">
-                  {!canAddWorkspace ? (
-                    <div className="desktop-workspace-usage">
-                      <div className="desktop-workspace-usage-row">
-                        <span className="desktop-workspace-limit-label">
-                          <span className="desktop-workspace-limit-icon" aria-hidden="true">ⓘ</span>
-                          <span>Free plan limit reached</span>
-                        </span>
-                        <span className="desktop-workspace-limit-count">
-                          {workspaces.length}/{MAX_DESKTOP_WORKSPACES}
-                        </span>
-                      </div>
-                      <div className="desktop-workspace-limit-track" aria-hidden="true">
-                        <span className="desktop-workspace-limit-fill" />
-                      </div>
-                    </div>
-                  ) : null}
+          <div className={`desktop-app ${appearance === 'dark' ? 'desktop-app-dark dark-theme' : 'desktop-app-light'}`} style={{ width: '100%', height: '100%', overflow: 'hidden', background: 'var(--desktop-root-bg)', color: 'var(--desktop-root-text)', fontFamily: 'Inter, sans-serif', display: 'flex', flexDirection: 'column' }}>
+            <header className="desktop-minimal-header">
+              <div className="desktop-minimal-brand" ref={workspaceMenuRef}>
+                <div className={`desktop-workspace-shell ${workspaceMenuOpen ? 'is-open' : ''} ${isWorkspaceNameEditing ? 'is-editing' : ''}`}>
+                  {isWorkspaceNameEditing ? (
+                    <input
+                      ref={workspaceNameInputRef}
+                      type="text"
+                      value={workspaceNameDraft}
+                      onChange={(event) => setWorkspaceNameDraft(event.target.value)}
+                      onBlur={handleCommitWorkspaceRename}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          event.preventDefault();
+                          handleCommitWorkspaceRename();
+                        }
+                        if (event.key === 'Escape') {
+                          event.preventDefault();
+                          handleCancelWorkspaceRename();
+                        }
+                      }}
+                      className="desktop-workspace-name-input"
+                      aria-label="Workspace name"
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      className="desktop-workspace-name-button"
+                      onClick={handleStartWorkspaceRename}
+                    >
+                      <span className="desktop-workspace-trigger-label">{activeWorkspace?.name || t.untitledWorkspace}</span>
+                    </button>
+                  )}
                   <button
                     type="button"
-                    className="desktop-workspace-menu-add"
-                    onClick={handleAddWorkspace}
-                    disabled={!canAddWorkspace}
+                    className="desktop-workspace-menu-button"
+                    onClick={() => {
+                      if (isWorkspaceNameEditing) {
+                        handleCommitWorkspaceRename();
+                      }
+                      setWorkspaceMenuOpen((current) => !current);
+                    }}
+                    aria-haspopup="menu"
+                    aria-expanded={workspaceMenuOpen}
                   >
-                    <WorkspacePlusIcon />
-                    <span>{t.addWorkspace || 'Add workspace'}</span>
+                    <span className="desktop-workspace-trigger-chevron">
+                      <WorkspaceChevronIcon open={workspaceMenuOpen} />
+                    </span>
+                  </button>
+                </div>
+                {workspaceMenuOpen ? (
+                  <div className="desktop-workspace-menu" role="menu" aria-label={t.workspaceMenu || 'Workspace menu'}>
+                    <div className="desktop-workspace-menu-header">My Spaces</div>
+                    <div className="desktop-workspace-menu-list">
+                      {workspaces.map((workspace) => {
+                        const isActive = workspace.id === activeWorkspace?.id;
+                        const isActionsOpen = workspaceActionMenu?.workspaceId === workspace.id;
+                        return (
+                          <div
+                            key={workspace.id}
+                            className={`desktop-workspace-menu-row ${isActive ? 'is-active' : ''} ${isActionsOpen ? 'is-actions-open' : ''}`}
+                          >
+                            <button
+                              type="button"
+                              className="desktop-workspace-menu-item"
+                              onClick={() => handleSelectWorkspace(workspace.id)}
+                              role="menuitemradio"
+                              aria-checked={isActive}
+                            >
+                              <span className="desktop-workspace-menu-item-label">{workspace.name}</span>
+                            </button>
+                            <div className="desktop-workspace-menu-item-actions">
+                              <button
+                                type="button"
+                                className="desktop-workspace-menu-item-more"
+                                onClick={(event) => handleWorkspaceActionsToggle(workspace.id, event)}
+                                aria-label={`${t.workspaceActions || 'Workspace actions'} for ${workspace.name}`}
+                                aria-expanded={isActionsOpen}
+                              >
+                                <WorkspaceMoreIcon />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="desktop-workspace-menu-footer">
+                      {!canAddWorkspace ? (
+                        <div className="desktop-workspace-usage">
+                          <div className="desktop-workspace-usage-row">
+                            <span className="desktop-workspace-limit-label">
+                              <span className="desktop-workspace-limit-icon" aria-hidden="true">ⓘ</span>
+                              <span>Free plan limit reached</span>
+                            </span>
+                            <span className="desktop-workspace-limit-count">
+                              {workspaces.length}/{MAX_DESKTOP_WORKSPACES}
+                            </span>
+                          </div>
+                          <div className="desktop-workspace-limit-track" aria-hidden="true">
+                            <span className="desktop-workspace-limit-fill" />
+                          </div>
+                        </div>
+                      ) : null}
+                      <button
+                        type="button"
+                        className="desktop-workspace-menu-add"
+                        onClick={handleAddWorkspace}
+                        disabled={!canAddWorkspace}
+                      >
+                        <WorkspacePlusIcon />
+                        <span>{t.addWorkspace || 'Add workspace'}</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+                {workspaceMenuOpen && workspaceActionMenu && workspaceActionTarget ? (
+                  <div
+                    className="desktop-workspace-action-popover"
+                    role="menu"
+                    aria-label="Workspace actions"
+                    style={{
+                      top: workspaceActionMenu.top,
+                      left: workspaceActionMenu.left,
+                    }}
+                  >
+                    <button
+                      type="button"
+                      className="desktop-workspace-menu-item-delete"
+                      onClick={(event) => handleWorkspaceDeleteRequest(workspaceActionTarget, event)}
+                      disabled={workspaces.length <= 1}
+                    >
+                      {t.deleteWorkspace || 'Delete workspace'}
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+              <div className="desktop-minimal-date-nav-wrap">
+                <div className="desktop-minimal-date-nav" role="group" aria-label="View navigation">
+                  <button
+                    type="button"
+                    className={`desktop-minimal-date-nav-button ${desktopViewMode === DESKTOP_VIEW_MODES.CANVAS ? 'is-active' : ''}`}
+                    onClick={() => {
+                      setDesktopViewMode(DESKTOP_VIEW_MODES.CANVAS);
+                      setProfileOpen(false);
+                    }}
+                    aria-label="Show Canvas"
+                    aria-pressed={desktopViewMode === DESKTOP_VIEW_MODES.CANVAS}
+                  >
+                    <HeaderChevronIcon direction="left" />
+                  </button>
+                  <button
+                    type="button"
+                    className="desktop-minimal-date-nav-label"
+                    onClick={() => {
+                      setDesktopViewMode(DESKTOP_VIEW_MODES.CANVAS);
+                      setProfileOpen(false);
+                    }}
+                    aria-label={desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION ? 'Collection View' : 'Canvas'}
+                  >
+                    {desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION ? 'Collection View' : 'Canvas'}
+                  </button>
+                  <button
+                    type="button"
+                    className={`desktop-minimal-date-nav-button ${desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION ? 'is-active' : ''}`}
+                    onClick={() => {
+                      setDesktopViewMode(DESKTOP_VIEW_MODES.COLLECTION);
+                      setProfileOpen(false);
+                    }}
+                    aria-label="Show Collection View"
+                    aria-pressed={desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION}
+                  >
+                    <HeaderChevronIcon direction="right" />
                   </button>
                 </div>
               </div>
-            ) : null}
-            {workspaceMenuOpen && workspaceActionMenu && workspaceActionTarget ? (
-              <div
-                className="desktop-workspace-action-popover"
-                role="menu"
-                aria-label="Workspace actions"
-                style={{
-                  top: workspaceActionMenu.top,
-                  left: workspaceActionMenu.left,
-                }}
-              >
+              <div className="desktop-topbar-actions">
                 <button
                   type="button"
-                  className="desktop-workspace-menu-item-delete"
-                  onClick={(event) => handleWorkspaceDeleteRequest(workspaceActionTarget, event)}
-                  disabled={workspaces.length <= 1}
+                  onClick={() => setHistoryOpen(true)}
+                  className="desktop-header-icon-button"
                 >
-                  {t.deleteWorkspace || 'Delete workspace'}
+                  <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16.625 16.625L13.1812 13.1812M15.0417 8.70833C15.0417 12.2061 12.2061 15.0417 8.70833 15.0417C5.21053 15.0417 2.375 12.2061 2.375 8.70833C2.375 5.21053 5.21053 2.375 8.70833 2.375C12.2061 2.375 15.0417 5.21053 15.0417 8.70833Z" stroke={appearance === 'dark' ? '#E1E1E1' : '#1E1E1E'} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+                <button type="button" className="desktop-profile-trigger desktop-header-avatar-button" onClick={() => setProfileOpen(true)}>
+                  {userProfile.avatarUrl ? (
+                    <img src={userProfile.avatarUrl} alt={userProfile.fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <span style={{ fontFamily: 'DM Serif Display, serif', fontSize: 18, color: 'var(--desktop-root-text)' }}>{userProfile.initial}</span>
+                  )}
                 </button>
               </div>
-            ) : null}
-          </div>
-          <div className="desktop-minimal-date-nav-wrap">
-            <div className="desktop-minimal-date-nav" role="group" aria-label="View navigation">
-            <button
-              type="button"
-              className={`desktop-minimal-date-nav-button ${desktopViewMode === DESKTOP_VIEW_MODES.CANVAS ? 'is-active' : ''}`}
-              onClick={() => {
-                setDesktopViewMode(DESKTOP_VIEW_MODES.CANVAS);
-                setProfileOpen(false);
-              }}
-              aria-label="Show Canvas"
-              aria-pressed={desktopViewMode === DESKTOP_VIEW_MODES.CANVAS}
-            >
-              <HeaderChevronIcon direction="left" />
-            </button>
-            <button
-              type="button"
-              className="desktop-minimal-date-nav-label"
-              onClick={() => {
-                setDesktopViewMode(DESKTOP_VIEW_MODES.CANVAS);
-                setProfileOpen(false);
-              }}
-              aria-label={desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION ? 'Collection View' : 'Canvas'}
-            >
-              {desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION ? 'Collection View' : 'Canvas'}
-            </button>
-            <button
-              type="button"
-              className={`desktop-minimal-date-nav-button ${desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION ? 'is-active' : ''}`}
-              onClick={() => {
-                setDesktopViewMode(DESKTOP_VIEW_MODES.COLLECTION);
-                setProfileOpen(false);
-              }}
-              aria-label="Show Collection View"
-              aria-pressed={desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION}
-            >
-              <HeaderChevronIcon direction="right" />
-            </button>
-           </div>
-          </div>
-          <div className="desktop-topbar-actions">
-            <button
-              type="button"
-              onClick={() => setHistoryOpen(true)}
-              className="desktop-header-icon-button"
-            >
-              <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16.625 16.625L13.1812 13.1812M15.0417 8.70833C15.0417 12.2061 12.2061 15.0417 8.70833 15.0417C5.21053 15.0417 2.375 12.2061 2.375 8.70833C2.375 5.21053 5.21053 2.375 8.70833 2.375C12.2061 2.375 15.0417 5.21053 15.0417 8.70833Z" stroke={appearance === 'dark' ? '#E1E1E1' : '#1E1E1E'} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-            <button type="button" className="desktop-profile-trigger desktop-header-avatar-button" onClick={() => setProfileOpen(true)}>
-              {userProfile.avatarUrl ? (
-                <img src={userProfile.avatarUrl} alt={userProfile.fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                <span style={{ fontFamily: 'DM Serif Display, serif', fontSize: 18, color: 'var(--desktop-root-text)' }}>{userProfile.initial}</span>
-              )}
-            </button>
-          </div>
-        </header>
+            </header>
 
-        <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
-          <div
-            ref={desktopDragViewportRef}
-            className={`desktop-main-stage ${desktopDragDayFeedback ? `desktop-main-stage-feedback-${desktopDragDayFeedback}` : ''} ${desktopDragDayConfirming ? 'desktop-main-stage-feedback-armed' : ''}`}
-            style={{ flex: 1, minWidth: 0, minHeight: 0, position: 'relative', overflow: 'hidden' }}
-          >
-            <div className="desktop-main-stage-inner" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--desktop-main-gradient)' }}>
+            <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
+              <div
+                ref={desktopDragViewportRef}
+                className={`desktop-main-stage ${desktopDragDayFeedback ? `desktop-main-stage-feedback-${desktopDragDayFeedback}` : ''} ${desktopDragDayConfirming ? 'desktop-main-stage-feedback-armed' : ''}`}
+                style={{ flex: 1, minWidth: 0, minHeight: 0, position: 'relative', overflow: 'hidden' }}
+              >
+                <div className="desktop-main-stage-inner" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--desktop-main-gradient)' }}>
 
-              {desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION ? (
-                <CollectionViewBoard
-                  tasks={currentWorkspaceTasks}
-                  appearance={appearance}
-                  labels={t}
-                  language={language}
-                  onTaskOpen={handleTaskClick}
-                  onGroupOpen={handleHistoryPackOpen}
-                  onGroupLabelUpdate={updateCollectionGroupLabel}
-                />
-              ) : (
-                <main
-                  ref={viewportContainerRef}
-                  className={`desktop-canvas-scroll ${desktopCanvasPanReady ? 'is-pan-ready' : ''} ${desktopCanvasPanActive ? 'is-panning' : ''} ${isCanvasFileDragActive ? 'is-file-drag-active' : ''}`}
-                  onWheel={handleDesktopCanvasWheel}
-                  onPointerDownCapture={handleDesktopCanvasPointerDown}
-                  onPointerMove={handleDesktopCanvasPointerMove}
-                  onPointerUp={handleDesktopCanvasPointerEnd}
-                  onPointerCancel={handleDesktopCanvasPointerEnd}
-                  onDragEnter={handleCanvasFileDragEnter}
-                  onDragOver={handleCanvasFileDragOver}
-                  onDragLeave={handleCanvasFileDragLeave}
-                  onDrop={handleCanvasFileDrop}
-                  style={{
-                    flex: 1,
-                    minHeight: 0,
-                    overflow: 'hidden',
-                    position: 'relative',
-                    background: 'var(--desktop-root-bg)',
-                    '--desktop-canvas-dot-size': `${Math.min(120, Math.max(14, Math.round(48 * viewport.zoom)))}px`,
-                  }}
-                >
-                  <div
-                    ref={desktopCanvasContentRef}
-                    className="desktop-canvas-content"
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: DESKTOP_MAIN_CONTENT_MAX_WIDTH,
-                      transformOrigin: '0 0',
-                      transform: `translate(${viewport.panX}px, ${viewport.panY}px)`,
-                      paddingTop: 180,
-                    }}
-                  >
-                    <DailyTaskList
-                      entries={selectedDayEntries}
-                      canvasHeight={selectedDayCanvasHeight}
+                  {desktopViewMode === DESKTOP_VIEW_MODES.COLLECTION ? (
+                    <CollectionViewBoard
+                      tasks={currentWorkspaceTasks}
                       appearance={appearance}
                       labels={t}
-                      connectionLinks={selectedDayConnectionLinks}
-                      connectionDraft={desktopConnectionDraft}
-                      selectedConnectionKey={selectedDesktopConnectionKey}
-                      onTaskClick={handleTaskClick}
-                      onGroupOpenFullView={handleGroupCardOpen}
-                      onTaskEdit={handleTaskEdit}
-                      onTaskDelete={handleTaskDelete}
-                      onTaskPointerDown={handleTaskPointerDown}
-                      onTaskPointerMove={handleTaskPointerMove}
-                      onTaskPointerUp={handleTaskPointerUp}
-                      onTaskPointerCancel={handleTaskPointerCancel}
-                      onConnectionPointerDown={handleDesktopConnectionPointerDown}
-                      onConnectionMouseDown={handleDesktopConnectionMouseDown}
-                      onConnectionPointerMove={handleDesktopConnectionPointerMove}
-                      onConnectionPointerUp={handleDesktopConnectionPointerEnd}
-                      onConnectionPointerCancel={handleDesktopConnectionPointerEnd}
-                      onConnectionSelect={setSelectedDesktopConnectionKey}
-                      onConnectionDelete={deleteDesktopConnection}
-                      draggedTaskId={draggedTaskId}
-                      selectedTaskIds={selectedTaskIds}
-                      selectionRect={desktopSelectionRect}
-                      dragOverlapTargetId={desktopDragOverlapTargetId}
-                      layoutWidth={DESKTOP_MAIN_CONTENT_MAX_WIDTH}
+                      language={language}
+                      onTaskOpen={handleTaskClick}
+                      onGroupOpen={handleHistoryPackOpen}
+                      onGroupLabelUpdate={updateCollectionGroupLabel}
                     />
-                  {desktopDragOverlayActive && desktopDragOverlaySnapshot ? (
-                    <div
-                      aria-hidden="true"
+                  ) : (
+                    <main
+                      ref={viewportContainerRef}
+                      className={`desktop-canvas-scroll ${desktopCanvasPanReady ? 'is-pan-ready' : ''} ${desktopCanvasPanActive ? 'is-panning' : ''} ${isCanvasFileDragActive ? 'is-file-drag-active' : ''}`}
+                      onWheel={handleDesktopCanvasWheel}
+                      onPointerDownCapture={handleDesktopCanvasPointerDown}
+                      onPointerMove={handleDesktopCanvasPointerMove}
+                      onPointerUp={handleDesktopCanvasPointerEnd}
+                      onPointerCancel={handleDesktopCanvasPointerEnd}
+                      onDragEnter={handleCanvasFileDragEnter}
+                      onDragOver={handleCanvasFileDragOver}
+                      onDragLeave={handleCanvasFileDragLeave}
+                      onDrop={handleCanvasFileDrop}
                       style={{
-                        position: 'absolute',
-                        inset: 0,
-                        pointerEvents: 'none',
-                        zIndex: 9999,
+                        flex: 1,
+                        minHeight: 0,
+                        overflow: 'hidden',
+                        position: 'relative',
+                        background: 'var(--desktop-root-bg)',
+                        '--desktop-canvas-dot-size': `${Math.min(120, Math.max(14, Math.round(48 * viewport.zoom)))}px`,
                       }}
                     >
                       <div
-                        ref={desktopDragOverlayNodeRef}
-                        className="desktop-canvas-card-node"
+                        ref={desktopCanvasContentRef}
+                        className="desktop-canvas-content"
                         style={{
-                          left: desktopDragOverlaySnapshot.baseX,
-                          top: desktopDragOverlaySnapshot.baseY,
-                          width: DESKTOP_CANVAS_CARD_WIDTH,
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: DESKTOP_MAIN_CONTENT_MAX_WIDTH,
+                          transformOrigin: '0 0',
+                          transform: `translate(${viewport.panX}px, ${viewport.panY}px)`,
+                          paddingTop: 180,
                         }}
                       >
-                        <div className="desktop-canvas-card-shell is-dragging">
-                          {desktopDragOverlaySnapshot.type === 'group' && Array.isArray(desktopDragOverlaySnapshot.tasks) ? (
-                            <GroupedTaskCard
-                              tasks={desktopDragOverlaySnapshot.tasks}
-                              appearance={appearance}
-                              labels={t}
-                              isDragging={true}
-                              isGroupDragActive={true}
-                              isSelected={false}
-                              isGroupReady={false}
-                              draggedTaskId={desktopDragOverlaySnapshot.taskId}
-                              onOpenItem={null}
-                              onOpenFullView={null}
-                              onPointerDown={null}
-                              onPointerMove={null}
-                              onPointerUp={null}
-                              onPointerCancel={null}
-                            />
-                          ) : desktopDragOverlaySnapshot.type === 'task' && desktopDragOverlaySnapshot.task ? (
-                            <TaskCard
-                              task={desktopDragOverlaySnapshot.task}
-                              appearance={appearance}
-                              labels={t}
-                              isDragging={true}
-                              isSelected={false}
-                              isGroupReady={false}
-                              draggedTaskId={desktopDragOverlaySnapshot.taskId}
-                              onClick={null}
-                              onEdit={null}
-                              onDelete={null}
-                              onPointerDown={null}
-                              onPointerMove={null}
-                              onPointerUp={null}
-                              onPointerCancel={null}
-                              editLabel={t.edit}
-                              deleteLabel={t.delete}
-                            />
-                          ) : null}
-                        </div>
+                        <DailyTaskList
+                          entries={selectedDayEntries}
+                          canvasHeight={selectedDayCanvasHeight}
+                          appearance={appearance}
+                          labels={t}
+                          connectionLinks={selectedDayConnectionLinks}
+                          connectionDraft={desktopConnectionDraft}
+                          selectedConnectionKey={selectedDesktopConnectionKey}
+                          onTaskClick={handleTaskClick}
+                          onGroupOpenFullView={handleGroupCardOpen}
+                          onTaskEdit={handleTaskEdit}
+                          onTaskDelete={handleTaskDelete}
+                          onTaskPointerDown={handleTaskPointerDown}
+                          onTaskPointerMove={handleTaskPointerMove}
+                          onTaskPointerUp={handleTaskPointerUp}
+                          onTaskPointerCancel={handleTaskPointerCancel}
+                          onConnectionPointerDown={handleDesktopConnectionPointerDown}
+                          onConnectionMouseDown={handleDesktopConnectionMouseDown}
+                          onConnectionPointerMove={handleDesktopConnectionPointerMove}
+                          onConnectionPointerUp={handleDesktopConnectionPointerEnd}
+                          onConnectionPointerCancel={handleDesktopConnectionPointerEnd}
+                          onConnectionSelect={setSelectedDesktopConnectionKey}
+                          onConnectionDelete={deleteDesktopConnection}
+                          draggedTaskId={draggedTaskId}
+                          selectedTaskIds={selectedTaskIds}
+                          selectionRect={desktopSelectionRect}
+                          dragOverlapTargetId={desktopDragOverlapTargetId}
+                          layoutWidth={DESKTOP_MAIN_CONTENT_MAX_WIDTH}
+                        />
+                        {desktopDragOverlayActive && desktopDragOverlaySnapshot ? (
+                          <div
+                            aria-hidden="true"
+                            style={{
+                              position: 'absolute',
+                              inset: 0,
+                              pointerEvents: 'none',
+                              zIndex: 9999,
+                            }}
+                          >
+                            <div
+                              ref={desktopDragOverlayNodeRef}
+                              className="desktop-canvas-card-node"
+                              style={{
+                                left: desktopDragOverlaySnapshot.baseX,
+                                top: desktopDragOverlaySnapshot.baseY,
+                                width: DESKTOP_CANVAS_CARD_WIDTH,
+                              }}
+                            >
+                              <div className="desktop-canvas-card-shell is-dragging">
+                                {desktopDragOverlaySnapshot.type === 'group' && Array.isArray(desktopDragOverlaySnapshot.tasks) ? (
+                                  <GroupedTaskCard
+                                    tasks={desktopDragOverlaySnapshot.tasks}
+                                    appearance={appearance}
+                                    labels={t}
+                                    isDragging={true}
+                                    isGroupDragActive={true}
+                                    isSelected={false}
+                                    isGroupReady={false}
+                                    draggedTaskId={desktopDragOverlaySnapshot.taskId}
+                                    onOpenItem={null}
+                                    onOpenFullView={null}
+                                    onPointerDown={null}
+                                    onPointerMove={null}
+                                    onPointerUp={null}
+                                    onPointerCancel={null}
+                                  />
+                                ) : desktopDragOverlaySnapshot.type === 'task' && desktopDragOverlaySnapshot.task ? (
+                                  <TaskCard
+                                    task={desktopDragOverlaySnapshot.task}
+                                    appearance={appearance}
+                                    labels={t}
+                                    isDragging={true}
+                                    isSelected={false}
+                                    isGroupReady={false}
+                                    draggedTaskId={desktopDragOverlaySnapshot.taskId}
+                                    onClick={null}
+                                    onEdit={null}
+                                    onDelete={null}
+                                    onPointerDown={null}
+                                    onPointerMove={null}
+                                    onPointerUp={null}
+                                    onPointerCancel={null}
+                                    editLabel={t.edit}
+                                    deleteLabel={t.delete}
+                                  />
+                                ) : null}
+                              </div>
+                            </div>
+                          </div>
+                        ) : null}
+                        {isCanvasFileDragActive ? (
+                          <div className="desktop-canvas-file-drop-indicator">
+                            <span>{draggedTaskId ? 'Drop to place task' : 'Drop file to create card'}</span>
+                          </div>
+                        ) : null}
                       </div>
-                    </div>
-                  ) : null}
-                  {isCanvasFileDragActive ? (
-                    <div className="desktop-canvas-file-drop-indicator">
-                      <span>{draggedTaskId ? 'Drop to place task' : 'Drop file to create card'}</span>
-                    </div>
-                  ) : null}
-                  </div>
-                </main>
-              )}
-            </div>
-            {desktopViewMode === DESKTOP_VIEW_MODES.CANVAS ? (
-              <DragDayFeedbackOverlayV2
-                direction={desktopDragDayFeedback}
-                previousLabel={desktopPreviousDayLabel}
-                nextLabel={desktopNextDayLabel}
-                zones={desktopDragDayZones}
-                isConfirming={desktopDragDayConfirming}
-              />
-            ) : null}
-          </div>
-        </div>
-
-
-        {panelOpen ? <div style={{ position: 'fixed', inset: 0, zIndex: 25 }} onClick={closePanel} /> : null}
-        <AddPanel
-          open={panelOpen}
-          language={language}
-          inputText={inputText}
-          setInputText={setInputText}
-          fileAttachments={addPanelAttachments}
-          onAddFiles={handleAddPanelFilesSelected}
-          onRemoveFile={handleRemoveAddPanelAttachment}
-          onShowToast={showToast}
-          onClose={closePanel}
-          onSubmit={saveTask}
-        />
-
-        {quickAddResourcesModalOpen ? (
-          <DesktopAddResourcesModal
-            attachments={quickAddAttachments}
-            linkPreviews={quickAddDetectedLinks}
-            onClose={closeQuickAddResourcesModal}
-            onRemoveAttachment={removeQuickAddAttachment}
-            onRemoveLink={removeQuickAddLink}
-            onSubmit={submitQuickAddResources}
-          />
-        ) : null}
-
-        {!panelOpen
-          && desktopViewMode === DESKTOP_VIEW_MODES.CANVAS
-          && !quickAddResourcesModalOpen ? (
-          <form
-            ref={quickAddMenuRef}
-            className={`desktop-canvas-quick-add ${quickAddAttachments.length > 0 ? 'has-attachments' : ''}`}
-            onSubmit={(event) => {
-              event.preventDefault();
-              submitQuickAdd();
-            }}
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={(event) => event.stopPropagation()}
-            style={{ transform: `translateX(-50%) scale(${DESKTOP_FIXED_UI_SCALE / desktopAppScale})` }}
-          >
-            {quickAddAttachments.length > 0 ? (
-              <div className="desktop-canvas-quick-add-attachments">
-                {quickAddAttachments.map((attachment) => (
-                  attachment.uploadKind === 'image' ? (
-                    <article key={attachment.id} className="desktop-canvas-quick-add-photo-preview">
-                      <img src={attachment.previewUrl || attachment.photoDataUrl} alt={attachment.title || 'Photo preview'} />
-                      <button
-                        type="button"
-                        className="desktop-canvas-quick-add-attachment-remove"
-                        aria-label={`Remove ${attachment.originalFileName}`}
-                        onClick={() => removeQuickAddAttachment(attachment.id)}
-                      >
-                        &times;
-                      </button>
-                    </article>
-                  ) : (
-                    <article key={attachment.id} className="desktop-canvas-quick-add-file-preview">
-                      <span className="desktop-canvas-quick-add-file-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none">
-                          <path d="M7 3.75h6.8L18 8v12.25H7a1.5 1.5 0 0 1-1.5-1.5V5.25A1.5 1.5 0 0 1 7 3.75Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-                          <path d="M13.5 4v4.5H18" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-                        </svg>
-                      </span>
-                      <span className="desktop-canvas-quick-add-file-copy">
-                        <strong>{attachment.originalFileName}</strong>
-                        <span>{attachment.uploadKind === 'pdf' ? 'PDF' : 'Document'}</span>
-                      </span>
-                      <button
-                        type="button"
-                        className="desktop-canvas-quick-add-attachment-remove"
-                        aria-label={`Remove ${attachment.originalFileName}`}
-                        onClick={() => removeQuickAddAttachment(attachment.id)}
-                      >
-                        &times;
-                      </button>
-                    </article>
-                  )
-                ))}
-              </div>
-            ) : null}
-            <div className="desktop-canvas-quick-add-menu-anchor">
-              <button
-                type="button"
-                className="desktop-canvas-quick-add-plus"
-                aria-label="Open add menu"
-                aria-expanded={quickAddMenuOpen}
-                onClick={() => setQuickAddMenuOpen((current) => !current)}
-              >
-                <svg
-                  className="desktop-canvas-quick-add-icon"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-              </button>
-              <input
-                ref={quickAddFileInputRef}
-                className="desktop-canvas-quick-add-file-input"
-                type="file"
-                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                multiple
-                onChange={(event) => handleQuickAddFileSelection(event, 'file')}
-              />
-              <input
-                ref={quickAddPhotoInputRef}
-                className="desktop-canvas-quick-add-file-input"
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={(event) => handleQuickAddFileSelection(event, 'image')}
-              />
-              {quickAddMenuOpen ? (
-                <div className="desktop-canvas-quick-add-menu" role="menu" aria-label="Quick add menu">
-                  <button
-                    type="button"
-                    className="desktop-canvas-quick-add-menu-item"
-                    role="menuitem"
-                    onClick={() => quickAddFileInputRef.current?.click()}
-                  >
-                    <span className="desktop-canvas-quick-add-menu-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24">
-                        <path d="M7 7.5v8.25a5 5 0 0 0 10 0V6.75a3.25 3.25 0 0 0-6.5 0v8.75a1.5 1.5 0 0 0 3 0V8" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </span>
-                    <span>Upload file</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="desktop-canvas-quick-add-menu-item"
-                    role="menuitem"
-                    onClick={() => quickAddPhotoInputRef.current?.click()}
-                  >
-                    <span className="desktop-canvas-quick-add-menu-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24">
-                        <path d="M5.5 6.5h13a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="m6.5 15 3.2-3.2 2.6 2.6 1.8-1.8L18 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M16.2 9.5h.01" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-                      </svg>
-                    </span>
-                    <span>Upload photo</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="desktop-canvas-quick-add-menu-item"
-                    role="menuitem"
-                    onClick={openQuickNotePanel}
-                  >
-                    <span className="desktop-canvas-quick-add-menu-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24">
-                        <path d="M7 4.75h7.2L18 8.55v10.7H7a1 1 0 0 1-1-1V5.75a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M14 5v4h4M9 12h6M9 15h5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </span>
-                    <span>Quick Note</span>
-                  </button>
+                    </main>
+                  )}
                 </div>
-              ) : null}
+                {desktopViewMode === DESKTOP_VIEW_MODES.CANVAS ? (
+                  <DragDayFeedbackOverlayV2
+                    direction={desktopDragDayFeedback}
+                    previousLabel={desktopPreviousDayLabel}
+                    nextLabel={desktopNextDayLabel}
+                    zones={desktopDragDayZones}
+                    isConfirming={desktopDragDayConfirming}
+                  />
+                ) : null}
+              </div>
             </div>
-            <textarea
-              ref={quickAddTextareaRef}
-              className="desktop-canvas-quick-add-input"
-              value={quickAddText}
-              rows={1}
-              placeholder="Paste a link, note, or file..."
-              onChange={(event) => {
-                setQuickAddText(event.target.value);
-                setQuickLinkPreviews([]);
-                setQuickAddReviewOpen(false);
-              }}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' && !event.shiftKey) {
+
+
+            {panelOpen ? <div style={{ position: 'fixed', inset: 0, zIndex: 25 }} onClick={closePanel} /> : null}
+            <AddPanel
+              open={panelOpen}
+              language={language}
+              inputText={inputText}
+              setInputText={setInputText}
+              fileAttachments={addPanelAttachments}
+              onAddFiles={handleAddPanelFilesSelected}
+              onRemoveFile={handleRemoveAddPanelAttachment}
+              onShowToast={showToast}
+              onClose={closePanel}
+              onSubmit={saveTask}
+            />
+
+            {quickAddResourcesModalOpen ? (
+              <DesktopAddResourcesModal
+                attachments={quickAddAttachments}
+                linkPreviews={quickAddDetectedLinks}
+                onClose={closeQuickAddResourcesModal}
+                onRemoveAttachment={removeQuickAddAttachment}
+                onRemoveLink={removeQuickAddLink}
+                onSubmit={submitQuickAddResources}
+              />
+            ) : null}
+
+            {!panelOpen
+              && desktopViewMode === DESKTOP_VIEW_MODES.CANVAS
+              && !quickAddResourcesModalOpen ? (
+              <form
+                ref={quickAddMenuRef}
+                className={`desktop-canvas-quick-add ${quickAddAttachments.length > 0 ? 'has-attachments' : ''}`}
+                onSubmit={(event) => {
                   event.preventDefault();
                   submitQuickAdd();
-                }
-              }}
-            />
-            <button
-              type="submit"
-              className="desktop-canvas-quick-add-submit"
-              aria-label="Add to canvas"
-              disabled={!quickAddText.trim() && quickAddAttachments.length === 0}
-            >
-              <svg
-                className="desktop-canvas-quick-add-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                aria-hidden="true"
+                }}
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={(event) => event.stopPropagation()}
+                style={{ transform: `translateX(-50%) scale(${DESKTOP_FIXED_UI_SCALE / desktopAppScale})` }}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
-              </svg>
-            </button>
-          </form>
-        ) : null}
-
-        {!panelOpen && desktopViewMode === DESKTOP_VIEW_MODES.CANVAS ? (
-          <div
-            className="desktop-canvas-zoom-toolbar"
-            aria-label="Canvas zoom controls"
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={(event) => event.stopPropagation()}
-            style={{ transform: `scale(${DESKTOP_FIXED_UI_SCALE / desktopAppScale})` }}
-          >
-            <span className="desktop-canvas-zoom-toolbar-icon" aria-hidden="true">
-              <CanvasControlSlidersIcon />
-            </span>
-            <button
-              type="button"
-              className={`desktop-canvas-zoom-percent ${desktopZoomMenuOpen ? 'is-open' : ''}`}
-              aria-haspopup="menu"
-              aria-expanded={desktopZoomMenuOpen}
-              onClick={() => setDesktopZoomMenuOpen((current) => !current)}
-            >
-              {Math.round(viewport.zoom * 100)}%
-            </button>
-            <button
-              type="button"
-              className="desktop-canvas-zoom-toolbar-button"
-              aria-label="Zoom in"
-              onClick={() => handleDesktopZoomPresetSelect('in')}
-            >
-              +
-            </button>
-            <button
-              type="button"
-              className="desktop-canvas-zoom-toolbar-button"
-              aria-label="Zoom out"
-              onClick={() => handleDesktopZoomPresetSelect('out')}
-            >
-              -
-            </button>
-            {desktopZoomMenuOpen ? (
-              <div className="desktop-canvas-zoom-dropdown" role="menu" aria-label="Zoom presets">
-                {[
-                  { label: '25%', value: 0.25 },
-                  { label: '50%', value: 0.5 },
-                  { label: '75%', value: 0.75 },
-                  { label: '100%', value: 1 },
-                  { label: '125%', value: 1.25 },
-                  { label: '150%', value: 1.5 },
-                  { label: '200%', value: 2 },
-                  { label: 'Fit Canvas', value: 'fit' },
-                ].map((option) => (
+                {quickAddAttachments.length > 0 ? (
+                  <div className="desktop-canvas-quick-add-attachments">
+                    {quickAddAttachments.map((attachment) => (
+                      attachment.uploadKind === 'image' ? (
+                        <article key={attachment.id} className="desktop-canvas-quick-add-photo-preview">
+                          <img src={attachment.previewUrl || attachment.photoDataUrl} alt={attachment.title || 'Photo preview'} />
+                          <button
+                            type="button"
+                            className="desktop-canvas-quick-add-attachment-remove"
+                            aria-label={`Remove ${attachment.originalFileName}`}
+                            onClick={() => removeQuickAddAttachment(attachment.id)}
+                          >
+                            &times;
+                          </button>
+                        </article>
+                      ) : (
+                        <article key={attachment.id} className="desktop-canvas-quick-add-file-preview">
+                          <span className="desktop-canvas-quick-add-file-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none">
+                              <path d="M7 3.75h6.8L18 8v12.25H7a1.5 1.5 0 0 1-1.5-1.5V5.25A1.5 1.5 0 0 1 7 3.75Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+                              <path d="M13.5 4v4.5H18" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+                            </svg>
+                          </span>
+                          <span className="desktop-canvas-quick-add-file-copy">
+                            <strong>{attachment.originalFileName}</strong>
+                            <span>{attachment.uploadKind === 'pdf' ? 'PDF' : 'Document'}</span>
+                          </span>
+                          <button
+                            type="button"
+                            className="desktop-canvas-quick-add-attachment-remove"
+                            aria-label={`Remove ${attachment.originalFileName}`}
+                            onClick={() => removeQuickAddAttachment(attachment.id)}
+                          >
+                            &times;
+                          </button>
+                        </article>
+                      )
+                    ))}
+                  </div>
+                ) : null}
+                <div className="desktop-canvas-quick-add-menu-anchor">
                   <button
-                    key={option.label}
                     type="button"
-                    role="menuitem"
-                    className="desktop-canvas-zoom-dropdown-item"
-                    onClick={() => handleDesktopZoomPresetSelect(option.value)}
+                    className="desktop-canvas-quick-add-plus"
+                    aria-label="Open add menu"
+                    aria-expanded={quickAddMenuOpen}
+                    onClick={() => setQuickAddMenuOpen((current) => !current)}
                   >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        ) : null}
-
-        {editingTask ? (
-          <div
-            role="presentation"
-            onClick={closeEditModal}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 40,
-              background: 'var(--desktop-modal-backdrop)',
-              backdropFilter: 'blur(8px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 28,
-            }}
-          >
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="desktop-edit-modal-title"
-              onClick={(event) => event.stopPropagation()}
-              style={{
-                width: 'min(100%, 560px)',
-                maxHeight: 'min(640px, calc(100vh - 56px))',
-                background: 'var(--desktop-edit-bg)',
-                border: '1px solid var(--desktop-edit-border)',
-                borderRadius: 24,
-                boxShadow: 'var(--desktop-edit-shadow)',
-                display: 'grid',
-                gridTemplateRows: 'auto minmax(0, 1fr) auto',
-                overflow: 'hidden',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '22px 24px 16px', borderBottom: '1px solid var(--desktop-edit-border)' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <IntoDayLogo
-                    showWordmark={false}
-                    className="desktop-edit-modal-logo"
-                    iconClassName="desktop-edit-modal-logo-icon"
-                  />
-                  <h2 id="desktop-edit-modal-title" style={{ margin: 0, fontFamily: 'DM Serif Display, serif', fontSize: 28, fontStyle: 'italic', lineHeight: 1, color: 'var(--desktop-root-text)' }}>
-                    {t.editTaskTitle}
-                  </h2>
-                </div>
-                <button type="button" onClick={closeEditModal} aria-label={t.close} style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--desktop-modal-close-bg)', border: '1px solid var(--desktop-edit-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, color: 'var(--desktop-modal-close-text)' }}>
-                  <CloseIcon />
-                </button>
-              </div>
-              <div style={{ minHeight: 0, padding: 24 }}>
-                <div style={{ position: 'relative', height: '100%' }}>
-                  {normalizeCardType(editingTask.cardType) === CARD_TYPES.PHOTO && editingTask.photoDataUrl ? (
-                    <div
-                      style={{
-                        marginBottom: 14,
-                        borderRadius: 18,
-                        overflow: 'hidden',
-                        border: '1px solid var(--desktop-edit-input-border)',
-                        background: 'rgba(255,255,255,0.66)',
-                      }}
+                    <svg
+                      className="desktop-canvas-quick-add-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      aria-hidden="true"
                     >
-                        <img
-                          src={editingTask.photoDataUrl}
-                          alt={editingTask.photoTitle || editingTask.text || 'Photo'}
-                          draggable={false}
-                          onDragStart={(event) => event.preventDefault()}
-                          style={{ display: 'block', width: '100%', maxHeight: 220, objectFit: 'cover' }}
-                        />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                  </button>
+                  <input
+                    ref={quickAddFileInputRef}
+                    className="desktop-canvas-quick-add-file-input"
+                    type="file"
+                    accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    multiple
+                    onChange={(event) => handleQuickAddFileSelection(event, 'file')}
+                  />
+                  <input
+                    ref={quickAddPhotoInputRef}
+                    className="desktop-canvas-quick-add-file-input"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(event) => handleQuickAddFileSelection(event, 'image')}
+                  />
+                  {quickAddMenuOpen ? (
+                    <div className="desktop-canvas-quick-add-menu" role="menu" aria-label="Quick add menu">
+                      <button
+                        type="button"
+                        className="desktop-canvas-quick-add-menu-item"
+                        role="menuitem"
+                        onClick={() => quickAddFileInputRef.current?.click()}
+                      >
+                        <span className="desktop-canvas-quick-add-menu-icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24">
+                            <path d="M7 7.5v8.25a5 5 0 0 0 10 0V6.75a3.25 3.25 0 0 0-6.5 0v8.75a1.5 1.5 0 0 0 3 0V8" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </span>
+                        <span>Upload file</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="desktop-canvas-quick-add-menu-item"
+                        role="menuitem"
+                        onClick={() => quickAddPhotoInputRef.current?.click()}
+                      >
+                        <span className="desktop-canvas-quick-add-menu-icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24">
+                            <path d="M5.5 6.5h13a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="m6.5 15 3.2-3.2 2.6 2.6 1.8-1.8L18 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M16.2 9.5h.01" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+                          </svg>
+                        </span>
+                        <span>Upload photo</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="desktop-canvas-quick-add-menu-item"
+                        role="menuitem"
+                        onClick={openQuickNotePanel}
+                      >
+                        <span className="desktop-canvas-quick-add-menu-icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24">
+                            <path d="M7 4.75h7.2L18 8.55v10.7H7a1 1 0 0 1-1-1V5.75a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M14 5v4h4M9 12h6M9 15h5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </span>
+                        <span>Quick Note</span>
+                      </button>
                     </div>
                   ) : null}
-                  <button
-                    type="button"
-                    onClick={handleEditCopy}
-                    disabled={!editText.trim()}
-                    style={{
-                      position: 'absolute',
-                      top: 12,
-                      right: 12,
-                      zIndex: 1,
-                      minWidth: 72,
-                      height: 32,
-                      padding: '0 12px',
-                      borderRadius: 999,
-                      border: '1px solid var(--desktop-edit-border)',
-                      background: 'var(--desktop-modal-close-bg)',
-                      color: 'var(--desktop-root-text)',
-                      fontSize: 13,
-                      fontWeight: 600,
-                      cursor: editText.trim() ? 'pointer' : 'not-allowed',
-                      opacity: editText.trim() ? 1 : 0.45,
-                    }}
+                </div>
+                <textarea
+                  ref={quickAddTextareaRef}
+                  className="desktop-canvas-quick-add-input"
+                  value={quickAddText}
+                  rows={1}
+                  placeholder="Paste a link, note, or file..."
+                  onChange={(event) => {
+                    setQuickAddText(event.target.value);
+                    setQuickLinkPreviews([]);
+                    setQuickAddReviewOpen(false);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' && !event.shiftKey) {
+                      event.preventDefault();
+                      submitQuickAdd();
+                    }
+                  }}
+                />
+                <button
+                  type="submit"
+                  className="desktop-canvas-quick-add-submit"
+                  aria-label="Add to canvas"
+                  disabled={!quickAddText.trim() && quickAddAttachments.length === 0}
+                >
+                  <svg
+                    className="desktop-canvas-quick-add-icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    aria-hidden="true"
                   >
-                    {editCopied ? 'Copied' : 'Copy'}
-                  </button>
-                  <textarea
-                    value={editText}
-                    onChange={(event) => setEditText(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
-                        event.preventDefault();
-                        handleEditSave();
-                      }
-                    }}
-                    autoFocus
-                    rows={10}
-                    placeholder={t.editTaskPlaceholder}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      minHeight: normalizeCardType(editingTask.cardType) === CARD_TYPES.PHOTO ? 180 : 280,
-                      border: '1px solid var(--desktop-edit-input-border)',
-                      background: 'var(--desktop-edit-input-bg)',
-                      borderRadius: 18,
-                      padding: '52px 18px 18px',
-                      fontSize: 16,
-                      lineHeight: 1.6,
-                      color: 'var(--desktop-root-text)',
-                      resize: 'none',
-                      outline: 'none',
-                      fontFamily: 'Inter, sans-serif',
-                    }}
-                  />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
+                  </svg>
+                </button>
+              </form>
+            ) : null}
+
+            {!panelOpen && desktopViewMode === DESKTOP_VIEW_MODES.CANVAS ? (
+              <div
+                className="desktop-canvas-zoom-toolbar"
+                aria-label="Canvas zoom controls"
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={(event) => event.stopPropagation()}
+                style={{ transform: `scale(${DESKTOP_FIXED_UI_SCALE / desktopAppScale})` }}
+              >
+                <span className="desktop-canvas-zoom-toolbar-icon" aria-hidden="true">
+                  <CanvasControlSlidersIcon />
+                </span>
+                <button
+                  type="button"
+                  className={`desktop-canvas-zoom-percent ${desktopZoomMenuOpen ? 'is-open' : ''}`}
+                  aria-haspopup="menu"
+                  aria-expanded={desktopZoomMenuOpen}
+                  onClick={() => setDesktopZoomMenuOpen((current) => !current)}
+                >
+                  {Math.round(viewport.zoom * 100)}%
+                </button>
+                <button
+                  type="button"
+                  className="desktop-canvas-zoom-toolbar-button"
+                  aria-label="Zoom in"
+                  onClick={() => handleDesktopZoomPresetSelect('in')}
+                >
+                  +
+                </button>
+                <button
+                  type="button"
+                  className="desktop-canvas-zoom-toolbar-button"
+                  aria-label="Zoom out"
+                  onClick={() => handleDesktopZoomPresetSelect('out')}
+                >
+                  -
+                </button>
+                {desktopZoomMenuOpen ? (
+                  <div className="desktop-canvas-zoom-dropdown" role="menu" aria-label="Zoom presets">
+                    {[
+                      { label: '25%', value: 0.25 },
+                      { label: '50%', value: 0.5 },
+                      { label: '75%', value: 0.75 },
+                      { label: '100%', value: 1 },
+                      { label: '125%', value: 1.25 },
+                      { label: '150%', value: 1.5 },
+                      { label: '200%', value: 2 },
+                      { label: 'Fit Canvas', value: 'fit' },
+                    ].map((option) => (
+                      <button
+                        key={option.label}
+                        type="button"
+                        role="menuitem"
+                        className="desktop-canvas-zoom-dropdown-item"
+                        onClick={() => handleDesktopZoomPresetSelect(option.value)}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
+            {editingTask ? (
+              <div
+                role="presentation"
+                onClick={closeEditModal}
+                style={{
+                  position: 'fixed',
+                  inset: 0,
+                  zIndex: 40,
+                  background: 'var(--desktop-modal-backdrop)',
+                  backdropFilter: 'blur(8px)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 28,
+                }}
+              >
+                <div
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="desktop-edit-modal-title"
+                  onClick={(event) => event.stopPropagation()}
+                  style={{
+                    width: 'min(100%, 560px)',
+                    maxHeight: 'min(640px, calc(100vh - 56px))',
+                    background: 'var(--desktop-edit-bg)',
+                    border: '1px solid var(--desktop-edit-border)',
+                    borderRadius: 24,
+                    boxShadow: 'var(--desktop-edit-shadow)',
+                    display: 'grid',
+                    gridTemplateRows: 'auto minmax(0, 1fr) auto',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '22px 24px 16px', borderBottom: '1px solid var(--desktop-edit-border)' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      <IntoDayLogo
+                        showWordmark={false}
+                        className="desktop-edit-modal-logo"
+                        iconClassName="desktop-edit-modal-logo-icon"
+                      />
+                      <h2 id="desktop-edit-modal-title" style={{ margin: 0, fontFamily: 'DM Serif Display, serif', fontSize: 28, fontStyle: 'italic', lineHeight: 1, color: 'var(--desktop-root-text)' }}>
+                        {t.editTaskTitle}
+                      </h2>
+                    </div>
+                    <button type="button" onClick={closeEditModal} aria-label={t.close} style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--desktop-modal-close-bg)', border: '1px solid var(--desktop-edit-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, color: 'var(--desktop-modal-close-text)' }}>
+                      <CloseIcon />
+                    </button>
+                  </div>
+                  <div style={{ minHeight: 0, padding: 24 }}>
+                    <div style={{ position: 'relative', height: '100%' }}>
+                      {normalizeCardType(editingTask.cardType) === CARD_TYPES.PHOTO && editingTask.photoDataUrl ? (
+                        <div
+                          style={{
+                            marginBottom: 14,
+                            borderRadius: 18,
+                            overflow: 'hidden',
+                            border: '1px solid var(--desktop-edit-input-border)',
+                            background: 'rgba(255,255,255,0.66)',
+                          }}
+                        >
+                          <img
+                            src={editingTask.photoDataUrl}
+                            alt={editingTask.photoTitle || editingTask.text || 'Photo'}
+                            draggable={false}
+                            onDragStart={(event) => event.preventDefault()}
+                            style={{ display: 'block', width: '100%', maxHeight: 220, objectFit: 'cover' }}
+                          />
+                        </div>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={handleEditCopy}
+                        disabled={!editText.trim()}
+                        style={{
+                          position: 'absolute',
+                          top: 12,
+                          right: 12,
+                          zIndex: 1,
+                          minWidth: 72,
+                          height: 32,
+                          padding: '0 12px',
+                          borderRadius: 999,
+                          border: '1px solid var(--desktop-edit-border)',
+                          background: 'var(--desktop-modal-close-bg)',
+                          color: 'var(--desktop-root-text)',
+                          fontSize: 13,
+                          fontWeight: 600,
+                          cursor: editText.trim() ? 'pointer' : 'not-allowed',
+                          opacity: editText.trim() ? 1 : 0.45,
+                        }}
+                      >
+                        {editCopied ? 'Copied' : 'Copy'}
+                      </button>
+                      <textarea
+                        value={editText}
+                        onChange={(event) => setEditText(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+                            event.preventDefault();
+                            handleEditSave();
+                          }
+                        }}
+                        autoFocus
+                        rows={10}
+                        placeholder={t.editTaskPlaceholder}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          minHeight: normalizeCardType(editingTask.cardType) === CARD_TYPES.PHOTO ? 180 : 280,
+                          border: '1px solid var(--desktop-edit-input-border)',
+                          background: 'var(--desktop-edit-input-bg)',
+                          borderRadius: 18,
+                          padding: '52px 18px 18px',
+                          fontSize: 16,
+                          lineHeight: 1.6,
+                          color: 'var(--desktop-root-text)',
+                          resize: 'none',
+                          outline: 'none',
+                          fontFamily: 'Inter, sans-serif',
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, padding: '16px 24px 24px', borderTop: '1px solid var(--desktop-edit-border)' }}>
+                    <button type="button" onClick={closeEditModal} style={{ minWidth: 96, height: 44, padding: '0 18px', borderRadius: 14, border: '1px solid var(--desktop-cancel-border)', background: 'var(--desktop-cancel-bg)', color: 'var(--desktop-cancel-text)', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>
+                      {t.cancel}
+                    </button>
+                    <button type="button" onClick={handleEditSave} disabled={!canSaveEdit} style={{ minWidth: 136, height: 44, padding: '0 20px', background: canSaveEdit ? 'var(--desktop-save-bg)' : 'var(--desktop-save-disabled-bg)', color: canSaveEdit ? 'var(--desktop-save-text)' : 'var(--desktop-save-disabled-text)', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 600, cursor: canSaveEdit ? 'pointer' : 'not-allowed' }}>
+                      {t.save}
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, padding: '16px 24px 24px', borderTop: '1px solid var(--desktop-edit-border)' }}>
-                <button type="button" onClick={closeEditModal} style={{ minWidth: 96, height: 44, padding: '0 18px', borderRadius: 14, border: '1px solid var(--desktop-cancel-border)', background: 'var(--desktop-cancel-bg)', color: 'var(--desktop-cancel-text)', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>
-                  {t.cancel}
-                </button>
-                <button type="button" onClick={handleEditSave} disabled={!canSaveEdit} style={{ minWidth: 136, height: 44, padding: '0 20px', background: canSaveEdit ? 'var(--desktop-save-bg)' : 'var(--desktop-save-disabled-bg)', color: canSaveEdit ? 'var(--desktop-save-text)' : 'var(--desktop-save-disabled-text)', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 600, cursor: canSaveEdit ? 'pointer' : 'not-allowed' }}>
-                  {t.save}
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : null}
+            ) : null}
 
-        <DesktopNoteSidePanel
-          task={notePanelTask}
-          labels={t}
-          collapsed={notePanelCollapsed}
-          onClose={closeNotePanel}
-          onCollapse={() => setNotePanelCollapsed(true)}
-          onExpand={() => setNotePanelCollapsed(false)}
-          onTextChange={handleNotePanelTextChange}
-          onEdit={(task) => handleTaskEdit(task)}
-        />
-
-        <DesktopQuickNoteSidePanel
-          open={quickNoteOpen}
-          title={quickNoteTitle}
-          body={quickNoteBody}
-          labels={t}
-          onTitleChange={setQuickNoteTitle}
-          onBodyChange={setQuickNoteBody}
-          onClose={closeQuickNotePanel}
-          onSubmit={submitQuickNote}
-        />
-
-        <DesktopProfilePage
-          open={profileOpen}
-          onClose={() => setProfileOpen(false)}
-          user={user}
-          language={language}
-          setLanguage={setLanguage}
-          appearance={appearance}
-          appearancePreference={appearancePreference}
-          setAppearance={setAppearancePreference}
-        />
-        <DesktopHistoryModal
-          open={historyOpen}
-          tasks={currentWorkspaceTasks}
-          appearance={appearance}
-          language={language}
-          t={t}
-          onClose={() => setHistoryOpen(false)}
-          onTaskClick={(task) => {
-            if (!task.id) return;
-            const { redirectUrl } = getTaskCardPresentation(task, t);
-            if (task.uploadedFileStorageKey) {
-              setHistoryOpen(false);
-              void openUploadedFileTask(task);
-              return;
-            }
-            if (redirectUrl) {
-              if (normalizeCardType(task.cardType) === CARD_TYPES.PHOTO) {
-                setFullscreenImage(task.photoUrl || task.photoDataUrl || redirectUrl);
-                return;
-              }
-              window.open(redirectUrl, '_blank', 'noopener,noreferrer');
-              return;
-            }
-            setHistoryOpen(false);
-            openTaskEditor(task, false);
-          }}
-          onPackClick={handleHistoryPackOpen}
-          onPackItemClick={handleHistoryPackItemOpen}
-          onTaskPointerDown={handleTaskPointerDown}
-          onTaskLongPress={handleHistorySearchLongPress}
-        />
-
-        <DesktopGroupPrompt
-          prompt={pendingGroupPrompt}
-          groupName={pendingGroupName}
-          setGroupName={setPendingGroupName}
-          onConfirm={handleConfirmGroupPrompt}
-          onCancel={handleCancelGroupPrompt}
-        />
-        <DesktopGroupFullViewModal
-          view={activeGroupView}
-          appearance={appearance}
-          labels={t}
-          language={language}
-          onClose={closeActiveGroupView}
-          onTaskEdit={(task) => {
-            closeActiveGroupView();
-            handleTaskEdit(task);
-          }}
-          onDeleteTasks={deleteTasksByIds}
-          onUpdateGroup={updateActiveGroupMetadata}
-          onToast={showToast}
-          onTaskOpen={(task) => {
-            closeActiveGroupView();
-            handleTaskClick(task);
-          }}
-        />
-        <DesktopDeleteConfirmModal
-          open={Boolean(pendingCanvasDeletion)}
-          title={pendingCanvasDeletion?.title || t.deleteObjectQuestion}
-          onCancel={cancelCanvasDeletion}
-          onConfirm={confirmCanvasDeletion}
-        />
-        <DesktopDeleteConfirmModal
-          open={Boolean(pendingWorkspaceDeletion)}
-          title={pendingWorkspaceDeletion?.workspaceName ? (
-            <>
-              Delete workspace
-              <br />
-              "{pendingWorkspaceDeletion.workspaceName}"?
-            </>
-          ) : t.deleteWorkspace}
-          description={pendingWorkspaceDeletion?.description || null}
-          variant="workspace"
-          onCancel={cancelWorkspaceDeletion}
-          onConfirm={confirmWorkspaceDeletion}
-        />
-        
-        {toastMessage && (
-          <div style={{
-            position: 'fixed',
-            bottom: 32,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: appearance === 'dark' ? '#333' : '#333',
-            color: '#FFF',
-            padding: '10px 20px',
-            borderRadius: 999,
-            fontSize: 14,
-            fontWeight: 500,
-            zIndex: 99999,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            animation: 'fadeInOut 3s forwards'
-          }}>
-            {toastMessage}
-          </div>
-        )}
-
-        {fullscreenImage && (
-          <div 
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.95)',
-              zIndex: 100000,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              animation: 'fadeIn 0.2s ease-out',
-              cursor: 'zoom-out'
-            }}
-            onClick={() => setFullscreenImage(null)}
-          >
-            <button
-              onClick={(e) => { e.stopPropagation(); setFullscreenImage(null); }}
-              style={{
-                position: 'absolute',
-                top: 40,
-                right: 40,
-                background: 'rgba(255, 255, 255, 0.15)',
-                border: 'none',
-                borderRadius: '50%',
-                width: 48,
-                height: 48,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                cursor: 'pointer',
-                zIndex: 100001,
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                transition: 'background 0.2s'
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'; }}
-            >
-              <X size={24} />
-            </button>
-            <img
-              src={fullscreenImage}
-              alt="Fullscreen"
-              style={{
-                maxWidth: '90%',
-                maxHeight: '90%',
-                objectFit: 'contain',
-                boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-                userSelect: 'none',
-                WebkitUserDrag: 'none'
-              }}
-              onClick={(e) => e.stopPropagation()}
+            <DesktopNoteSidePanel
+              task={notePanelTask}
+              labels={t}
+              collapsed={notePanelCollapsed}
+              onClose={closeNotePanel}
+              onCollapse={() => setNotePanelCollapsed(true)}
+              onExpand={() => setNotePanelCollapsed(false)}
+              onTextChange={handleNotePanelTextChange}
+              onEdit={(task) => handleTaskEdit(task)}
             />
+
+            <DesktopQuickNoteSidePanel
+              open={quickNoteOpen}
+              title={quickNoteTitle}
+              body={quickNoteBody}
+              labels={t}
+              onTitleChange={setQuickNoteTitle}
+              onBodyChange={setQuickNoteBody}
+              onClose={closeQuickNotePanel}
+              onSubmit={submitQuickNote}
+            />
+
+            <DesktopProfilePage
+              open={profileOpen}
+              onClose={() => setProfileOpen(false)}
+              user={user}
+              language={language}
+              setLanguage={setLanguage}
+              appearance={appearance}
+              appearancePreference={appearancePreference}
+              setAppearance={setAppearancePreference}
+            />
+            <DesktopHistoryModal
+              open={historyOpen}
+              tasks={currentWorkspaceTasks}
+              appearance={appearance}
+              language={language}
+              t={t}
+              onClose={() => setHistoryOpen(false)}
+              onTaskClick={(task) => {
+                if (!task.id) return;
+                const { redirectUrl } = getTaskCardPresentation(task, t);
+                if (task.uploadedFileStorageKey) {
+                  setHistoryOpen(false);
+                  void openUploadedFileTask(task);
+                  return;
+                }
+                if (redirectUrl) {
+                  if (normalizeCardType(task.cardType) === CARD_TYPES.PHOTO) {
+                    setFullscreenImage(task.photoUrl || task.photoDataUrl || redirectUrl);
+                    return;
+                  }
+                  window.open(redirectUrl, '_blank', 'noopener,noreferrer');
+                  return;
+                }
+                setHistoryOpen(false);
+                openTaskEditor(task, false);
+              }}
+              onPackClick={handleHistoryPackOpen}
+              onPackItemClick={handleHistoryPackItemOpen}
+              onTaskPointerDown={handleTaskPointerDown}
+              onTaskLongPress={handleHistorySearchLongPress}
+            />
+
+            <DesktopGroupPrompt
+              prompt={pendingGroupPrompt}
+              groupName={pendingGroupName}
+              setGroupName={setPendingGroupName}
+              onConfirm={handleConfirmGroupPrompt}
+              onCancel={handleCancelGroupPrompt}
+            />
+            <DesktopGroupFullViewModal
+              view={activeGroupView}
+              appearance={appearance}
+              labels={t}
+              language={language}
+              onClose={closeActiveGroupView}
+              onTaskEdit={(task) => {
+                closeActiveGroupView();
+                handleTaskEdit(task);
+              }}
+              onDeleteTasks={deleteTasksByIds}
+              onUpdateGroup={updateActiveGroupMetadata}
+              onToast={showToast}
+              onTaskOpen={(task) => {
+                closeActiveGroupView();
+                handleTaskClick(task);
+              }}
+            />
+            <DesktopDeleteConfirmModal
+              open={Boolean(pendingCanvasDeletion)}
+              title={pendingCanvasDeletion?.title || t.deleteObjectQuestion}
+              onCancel={cancelCanvasDeletion}
+              onConfirm={confirmCanvasDeletion}
+            />
+            <DesktopDeleteConfirmModal
+              open={Boolean(pendingWorkspaceDeletion)}
+              title={pendingWorkspaceDeletion?.workspaceName ? (
+                <>
+                  Delete workspace
+                  <br />
+                  "{pendingWorkspaceDeletion.workspaceName}"?
+                </>
+              ) : t.deleteWorkspace}
+              description={pendingWorkspaceDeletion?.description || null}
+              variant="workspace"
+              onCancel={cancelWorkspaceDeletion}
+              onConfirm={confirmWorkspaceDeletion}
+            />
+
+            {toastMessage && (
+              <div style={{
+                position: 'fixed',
+                bottom: 32,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: appearance === 'dark' ? '#333' : '#333',
+                color: '#FFF',
+                padding: '10px 20px',
+                borderRadius: 999,
+                fontSize: 14,
+                fontWeight: 500,
+                zIndex: 99999,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                animation: 'fadeInOut 3s forwards'
+              }}>
+                {toastMessage}
+              </div>
+            )}
+
+            {fullscreenImage && (
+              <div
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: 'rgba(0, 0, 0, 0.95)',
+                  zIndex: 100000,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  animation: 'fadeIn 0.2s ease-out',
+                  cursor: 'zoom-out'
+                }}
+                onClick={() => setFullscreenImage(null)}
+              >
+                <button
+                  onClick={(e) => { e.stopPropagation(); setFullscreenImage(null); }}
+                  style={{
+                    position: 'absolute',
+                    top: 40,
+                    right: 40,
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: 48,
+                    height: 48,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    cursor: 'pointer',
+                    zIndex: 100001,
+                    backdropFilter: 'blur(10px)',
+                    WebkitBackdropFilter: 'blur(10px)',
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'; }}
+                >
+                  <X size={24} />
+                </button>
+                <img
+                  src={fullscreenImage}
+                  alt="Fullscreen"
+                  style={{
+                    maxWidth: '90%',
+                    maxHeight: '90%',
+                    objectFit: 'contain',
+                    boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                    userSelect: 'none',
+                    WebkitUserDrag: 'none'
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      </div>
+        </div>
       </div>
     </>
   );
