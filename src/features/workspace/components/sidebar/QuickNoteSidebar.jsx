@@ -1,6 +1,6 @@
 import React from 'react';
 import './QuickNoteSidebar.css';
-
+import quickNoteIcon from '../../../../assets/icons/quick-note-icon.svg';
 export default function QuickNoteSidebar({ onClose, onAddToCanvas }) {
   return (
     <aside className="quick-note-sidebar">
@@ -72,8 +72,9 @@ export default function QuickNoteSidebar({ onClose, onAddToCanvas }) {
               <div className="quick-note-title-icon">
                 <img
                   className="quick-note-title-icon-image"
-                  src="https://placehold.co/12x12"
+                  src={quickNoteIcon}
                   alt=""
+                  aria-hidden="true"
                 />
               </div>
 

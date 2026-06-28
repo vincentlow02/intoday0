@@ -2,6 +2,9 @@
   position: relative;
   isolation: isolate;
   overflow: visible;
+
+  /* 定义点点的大小，如果在 JS 中使用了缩放(zoom)，也可以通过 style 属性动态修改这个变量 */
+  --dot-size: var(--desktop-canvas-dot-size, 48px);
 }
 
 .desktop-canvas-scroll::before {
@@ -11,16 +14,15 @@
   z-index: 0;
   border-radius: inherit;
   pointer-events: none;
+
+  /* 
+    第一、二个 gradient 负责营造亮部和暗部的大范围环境光晕 (glow)；
+    第三个 radial-gradient 负责绘制直径约 2.2px 的网格点
+  */
   background:
-    radial-gradient(circle at 18% 16%,
-      var(--desktop-canvas-dot-glow) 0,
-      rgba(255, 255, 255, 0) 28%),
-    radial-gradient(circle at 82% 12%,
-      rgba(226, 232, 240, 0.55) 0,
-      rgba(255, 255, 255, 0) 24%),
-    radial-gradient(circle,
-      var(--desktop-canvas-dot-color) 1.1px,
-      transparent 1.35px);
+    radial-gradient(circle at 18% 16%, var(--desktop-canvas-dot-glow) 0, rgba(255, 255, 255, 0) 28%),
+    radial-gradient(circle at 82% 12%, rgba(226, 232, 240, 0.55) 0, rgba(255, 255, 255, 0) 24%),
+    radial-gradient(circle, var(--desktop-canvas-dot-color) 1.1px, transparent 1.35px);
   background-position:
     center,
     center,
@@ -28,17 +30,20 @@
   background-size:
     100% 100%,
     100% 100%,
-    var(--desktop-canvas-dot-size, 48px) var(--desktop-canvas-dot-size, 48px);
+    var(--dot-size) var(--dot-size);
+  /* 点的间距 */
+
+  /* 控制页面上下两端的渐变淡出，让网格在边缘处平滑消失 */
   mask-image: linear-gradient(180deg,
-      var(--desktop-canvas-dot-fade-top) 0%,
+      rgba(0, 0, 0, 0.72) 0%,
       rgba(0, 0, 0, 1) 18%,
       rgba(0, 0, 0, 1) 72%,
-      var(--desktop-canvas-dot-fade-bottom) 100%);
+      rgba(0, 0, 0, 0.94) 100%);
   -webkit-mask-image: linear-gradient(180deg,
-      var(--desktop-canvas-dot-fade-top) 0%,
+      rgba(0, 0, 0, 0.72) 0%,
       rgba(0, 0, 0, 1) 18%,
       rgba(0, 0, 0, 1) 72%,
-      var(--desktop-canvas-dot-fade-bottom) 100%);
+      rgba(0, 0, 0, 0.94) 100%);
 }
 
 .desktop-canvas-scroll>* {
@@ -48,19 +53,13 @@
 
 .desktop-app-dark .desktop-canvas-scroll::before {
   background-image:
-    radial-gradient(circle at 18% 16%,
-      var(--desktop-canvas-dot-glow) 0,
-      rgba(15, 15, 15, 0) 28%),
-    radial-gradient(circle at 82% 12%,
-      rgba(24, 29, 38, 0.42) 0,
-      rgba(15, 15, 15, 0) 24%),
-    radial-gradient(circle,
-      var(--desktop-canvas-dot-color) 1px,
-      transparent 1.35px);
+    radial-gradient(circle at 18% 16%, var(--desktop-canvas-dot-glow) 0, rgba(15, 15, 15, 0) 28%),
+    radial-gradient(circle at 82% 12%, rgba(24, 29, 38, 0.42) 0, rgba(15, 15, 15, 0) 24%),
+    radial-gradient(circle, var(--desktop-canvas-dot-color) 1px, transparent 1.35px);
   background-size:
     100% 100%,
     100% 100%,
-    var(--desktop-canvas-dot-size, 48px) var(--desktop-canvas-dot-size, 48px);
+    var(--dot-size) var(--dot-size);
 }
 
 .canvas-placeholder {

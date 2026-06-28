@@ -10,65 +10,74 @@ div.workspace-prompt-container {
   justify-content: center;
 }
 
+.workspace-prompt-menu-layer {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 10px);
+  z-index: 20;
+}
+
 .workspace-prompt-inner {
-  display: inline-flex;
-  align-items: flex-end;
-  justify-content: flex-start;
-  background: rgba(255, 255, 255, 0.94);
-  border-radius: 26px;
-  padding: 6.35px 7.30px 6.35px 9.20px;
   width: 100%;
-  box-shadow: 0px 1px 0px 1px rgba(255, 255, 255, 0.92) inset, 0px 18px 44px rgba(17, 17, 17, 0.12);
+  padding: 10px 8px;
+  background: white;
+  box-shadow:
+    0px 18px 44px rgba(17, 17, 17, 0.12),
+    0px 1px 0px 1px rgba(255, 255, 255, 0.92) inset;
+  border-radius: 26px;
   outline: 1px solid rgba(17, 17, 17, 0.12);
   outline-offset: -1px;
   backdrop-filter: blur(11px);
   -webkit-backdrop-filter: blur(11px);
-  gap: 9.50px;
-}
 
-.workspace-prompt-input-wrapper {
-  flex: 1 1 0;
-  height: 32.29px;
-  max-height: 98.80px;
-  padding-top: 6.65px;
-  padding-bottom: 6.65px;
-  overflow: hidden;
   display: inline-flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.workspace-prompt-input {
-  width: 100%;
-  border: none;
-  background: transparent;
-  outline: none;
-  font-family: 'Inter', sans-serif;
+.workspace-prompt-left {
+  flex: 1 1 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.workspace-prompt-placeholder {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  color: #AAA9A6;
   font-size: 13.30px;
+  font-family: 'Inter', sans-serif;
   font-weight: 500;
   line-height: 19px;
-  color: #AAA9A6;
-  padding: 0;
-  margin: 0;
   word-wrap: break-word;
-}
 
-.workspace-prompt-input::placeholder {
-  color: #AAA9A6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .workspace-prompt-icon-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  margin: 0;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32.29px;
-  height: 32.29px;
-  border-radius: 999px;
-  border: none;
+
   cursor: pointer;
-  transition: all 0.2s ease;
   flex-shrink: 0;
+  overflow: hidden;
+  transition: background 0.2s ease;
 }
 
 .workspace-prompt-icon-button:focus {
@@ -82,6 +91,7 @@ div.workspace-prompt-container {
 
 .workspace-prompt-icon-button.add-button {
   background: #F5F5F4;
+  border-radius: 35px;
 }
 
 .workspace-prompt-icon-button.add-button:hover {
@@ -89,7 +99,8 @@ div.workspace-prompt-container {
 }
 
 .workspace-prompt-icon-button.send-button {
-  background: #171717;
+  background: black;
+  border-radius: 32px;
 }
 
 .workspace-prompt-icon-button.send-button:hover {
