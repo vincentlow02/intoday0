@@ -32,8 +32,8 @@ export default function WorkspacePrompt({ onOpenQuickNote }) {
             onClick={() => setIsAddMenuOpen((value) => !value)}
           >
             <svg
-              width="11"
-              height="11"
+              width="9"
+              height="9"
               viewBox="0 0 12 12"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"

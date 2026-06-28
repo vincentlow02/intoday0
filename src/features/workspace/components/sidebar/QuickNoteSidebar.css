@@ -2,8 +2,8 @@
   position: fixed;
   top: 16px;
   right: 16px;
-  bottom: 16px;
-  width: 320px;
+  width: min(378px, calc(100vw - 32px));
+  height: min(810px, calc(100vh - 32px));
   background: #ffffff;
   border-radius: 10px;
   border: 0.7px solid #e0e0e0;
@@ -19,9 +19,9 @@
   padding-bottom: 14px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: flex-start;
-  gap: 10px;
+  gap: 0;
   box-sizing: border-box;
 }
 
@@ -32,8 +32,9 @@
   padding-bottom: 7px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: flex-start;
+  gap: 10px;
 }
 
 .quick-note-topbar {
@@ -82,10 +83,12 @@
 
 .quick-note-section {
   align-self: stretch;
+  height: 38px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: flex-start;
+  flex: 0 0 38px;
 }
 
 .quick-note-divider {
@@ -97,8 +100,6 @@
 .quick-note-title-row {
   padding-left: 17px;
   padding-right: 20px;
-  padding-top: 8px;
-  padding-bottom: 8px;
   display: inline-flex;
   justify-content: flex-start;
   align-items: center;
@@ -107,21 +108,20 @@
 }
 
 .quick-note-title-icon {
-  padding: 1px;
-  background: #ffe5b9;
+  width: 22px;
+  height: 22px;
   overflow: hidden;
   border-radius: 9px;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
-  gap: 10px;
+  flex: 0 0 22px;
   box-sizing: border-box;
 }
 
 .quick-note-title-icon-image {
-  width: 20px;
-  height: 20px;
-  position: relative;
+  width: 22px;
+  height: 22px;
   display: block;
 }
 
@@ -133,12 +133,13 @@
   font-size: 11px;
   font-family: 'Noto Sans SC', sans-serif;
   font-weight: 700;
+  letter-spacing: -0.3192px;
   word-wrap: break-word;
 }
 
 .quick-note-content {
   align-self: stretch;
-  flex: 1 1 0;
+  flex: 0 0 auto;
   padding-top: 13px;
   padding-left: 25px;
   padding-right: 21px;
@@ -160,6 +161,7 @@
   font-size: 18px;
   font-family: 'Noto Sans SC', sans-serif;
   font-weight: 700;
+  line-height: normal;
   word-wrap: break-word;
 }
 
@@ -180,7 +182,8 @@
   font-size: 12px;
   font-family: 'Noto Sans SC', sans-serif;
   font-weight: 500;
-  line-height: 1.5;
+  line-height: normal;
+  letter-spacing: -0.3192px;
   word-wrap: break-word;
 }
 
@@ -235,5 +238,6 @@
   font-size: 14px;
   font-family: 'Noto Sans SC', sans-serif;
   font-weight: 500;
+  letter-spacing: -0.3192px;
   word-wrap: break-word;
 }

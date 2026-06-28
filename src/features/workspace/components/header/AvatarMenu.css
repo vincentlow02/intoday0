@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(17, 17, 17, 0.18);
+  background: rgba(17, 17, 17, 0.28);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   animation: backdrop-fade-in 0.18s ease;
@@ -25,10 +25,11 @@
 .avatar-menu {
   position: relative;
   width: 310px;
+  height: 484.5px;
   box-sizing: border-box;
   padding: 6px 21px 26px;
   background: #ffffff;
-  box-shadow: 0px 18px 48px rgba(17, 17, 17, 0.08);
+  box-shadow: 0px 18px 24px rgba(17, 17, 17, 0.08);
   border-radius: 26px;
   border: 1px solid rgba(17, 17, 17, 0.04);
   display: flex;
@@ -44,12 +45,10 @@
 @keyframes menu-scale-in {
   from {
     opacity: 0;
-    transform: scale(0.95);
   }
 
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
@@ -83,6 +82,12 @@
   padding: 0;
   flex-shrink: 0;
   transition: background 0.2s;
+}
+
+.avatar-menu__close img {
+  width: 11.39px;
+  height: 11.39px;
+  display: block;
 }
 
 .avatar-menu__close:hover {
@@ -142,7 +147,7 @@
   padding-left: 12px;
   padding-right: 12px;
   background: #ffffff;
-  box-shadow: 0px 8px 18px rgba(17, 17, 17, 0.08);
+  box-shadow: 0px 8px 9px rgba(17, 17, 17, 0.08);
   border-radius: 14px;
   border: 1px solid rgba(17, 17, 17, 0.07);
   display: flex;
@@ -250,6 +255,12 @@
   flex-shrink: 0;
 }
 
+.avatar-menu__icon img {
+  width: 13.68px;
+  height: 13.68px;
+  display: block;
+}
+
 .avatar-menu__row-label {
   text-align: center;
   color: #070707;
@@ -278,10 +289,24 @@
 .avatar-menu__chevron {
   width: 13.68px;
   height: 13.68px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #070707;
+}
+
+.avatar-menu__chevron svg {
+  width: 13.68px;
+  height: 13.68px;
+  display: block;
+}
+
+.avatar-menu__chevron path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* Logout */
@@ -313,6 +338,12 @@
   font-weight: 900;
   word-wrap: break-word;
   transition: opacity 0.2s;
+}
+
+.avatar-menu__logout img {
+  width: 13.68px;
+  height: 13.68px;
+  display: block;
 }
 
 .avatar-menu__logout:hover {

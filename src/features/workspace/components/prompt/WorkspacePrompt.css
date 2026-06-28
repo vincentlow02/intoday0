@@ -4,31 +4,33 @@ div.workspace-prompt-container {
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  width: min(500px, calc(100% - 48px));
+  width: min(503px, calc(100% - 48px));
   z-index: 10;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
 }
 
 .workspace-prompt-menu-layer {
   position: absolute;
   left: 0;
-  bottom: calc(100% + 10px);
+  bottom: calc(100% + 14px);
   z-index: 20;
 }
 
 .workspace-prompt-inner {
-  width: 100%;
-  padding: 10px 8px;
+  width: min(456px, 100%);
+  height: 47px;
+  margin-right: 4px;
+  padding: 1px 8px;
   background: white;
   box-shadow:
-    0px 18px 44px rgba(17, 17, 17, 0.12),
-    0px 1px 0px 1px rgba(255, 255, 255, 0.92) inset;
+    0px 18px 22px rgba(17, 17, 17, 0.12),
+    0px 1px 0px rgba(255, 255, 255, 0.92) inset;
   border-radius: 26px;
-  outline: 1px solid rgba(17, 17, 17, 0.12);
-  outline-offset: -1px;
+  border: 1px solid rgba(17, 17, 17, 0.12);
   backdrop-filter: blur(11px);
   -webkit-backdrop-filter: blur(11px);
+  box-sizing: border-box;
 
   display: inline-flex;
   justify-content: space-between;
@@ -55,6 +57,7 @@ div.workspace-prompt-container {
   font-family: 'Inter', sans-serif;
   font-weight: 500;
   line-height: 19px;
+  letter-spacing: -0.133px;
   word-wrap: break-word;
 
   white-space: nowrap;
@@ -90,6 +93,8 @@ div.workspace-prompt-container {
 }
 
 .workspace-prompt-icon-button.add-button {
+  width: 26px;
+  height: 26px;
   background: #F5F5F4;
   border-radius: 35px;
 }
