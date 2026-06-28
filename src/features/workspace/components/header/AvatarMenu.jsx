@@ -130,14 +130,18 @@ export default function AvatarMenu({ onClose }) {
   return (
     <div className="avatar-menu__backdrop" onClick={onClose} aria-modal="true" role="dialog">
       <div className="avatar-menu" onClick={(e) => e.stopPropagation()}>
-        <button className="avatar-menu__close" onClick={onClose} aria-label="Close menu">
-          <CloseIcon />
-        </button>
+        <div className="avatar-menu__top">
+          <button className="avatar-menu__close" onClick={onClose} aria-label="Close menu">
+            <CloseIcon />
+          </button>
+        </div>
 
         <div className="avatar-menu__profile">
-          <div className="avatar-menu__avatar"></div>
+          <div className="avatar-menu__avatar" />
           <div className="avatar-menu__name">Q X</div>
-          <div className="avatar-menu__email">lowvincent8@gmail.com</div>
+          <div className="avatar-menu__email-wrap">
+            <div className="avatar-menu__email">lowvincent8@gmail.com</div>
+          </div>
         </div>
 
         <div className="avatar-menu__storage-card">
