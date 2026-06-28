@@ -92,13 +92,15 @@
   height: 34px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 17px;
-  border: 0.4px solid #f8f8f8;
+  outline: 0.40px solid #f8f8f8;
+  outline-offset: -0.40px;
+  border: none;
   border-radius: 43px;
   padding: 0 15px;
   background: #ffffff;
-  box-shadow: 0 1px 10.9px rgba(0, 0, 0, 0.04);
+  box-shadow: 0px 1px 21.8px rgba(0, 0, 0, 0.04);
 }
 
 .workspace-view-icon-button {
@@ -111,7 +113,7 @@
   padding: 0;
   background: transparent;
   color: #111111;
-  cursor: default;
+  cursor: pointer;
 }
 
 .workspace-view-icon-button.active {
@@ -129,11 +131,13 @@
   background: transparent;
   color: #000000;
   font-size: 12px;
-  font-weight: 400;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
   line-height: normal;
   letter-spacing: 0.48px;
   text-align: center;
-  cursor: default;
+  word-wrap: break-word;
+  cursor: pointer;
 }
 
 .workspace-header-actions {

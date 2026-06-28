@@ -82,7 +82,7 @@ export default function WorkspaceHeader({ activeView = "Canvas", setActiveView }
             type="button"
             className="workspace-view-label"
             aria-current="page"
-            disabled
+            onClick={() => setActiveView?.(activeView === "Canvas" ? "Collection" : "Canvas")}
           >
             {activeView}
           </button>
