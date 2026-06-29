@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './WorkspaceHeader.css';
 import AvatarMenu from './AvatarMenu';
+import SearchPanel from './SearchPanel';
 import WorkspaceSwitcherMenu from './WorkspaceSwitcherMenu';
 
 function ChevronDownIcon() {
@@ -39,6 +40,7 @@ function SearchIcon() {
 export default function WorkspaceHeader({ activeView = "Canvas", setActiveView }) {
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
+  const [isSearchPanelOpen, setIsSearchPanelOpen] = useState(false);
 
   return (
     <header className="workspace-header" aria-label="Workspace header">
@@ -52,6 +54,7 @@ export default function WorkspaceHeader({ activeView = "Canvas", setActiveView }
             onClick={() => {
               setIsWorkspaceMenuOpen((value) => !value);
               setIsAvatarMenuOpen(false);
+              setIsSearchPanelOpen(false);
             }}
           >
             <span className="workspace-brand-title">testing3</span>
@@ -105,7 +108,12 @@ export default function WorkspaceHeader({ activeView = "Canvas", setActiveView }
             type="button"
             className="workspace-header-icon-button"
             aria-label="Search"
-            disabled
+            aria-expanded={isSearchPanelOpen}
+            onClick={() => {
+              setIsSearchPanelOpen((value) => !value);
+              setIsAvatarMenuOpen(false);
+              setIsWorkspaceMenuOpen(false);
+            }}
           >
             <SearchIcon />
           </button>
@@ -118,6 +126,7 @@ export default function WorkspaceHeader({ activeView = "Canvas", setActiveView }
             onClick={() => {
               setIsAvatarMenuOpen((value) => !value);
               setIsWorkspaceMenuOpen(false);
+              setIsSearchPanelOpen(false);
             }}
           >
             <span className="workspace-avatar-core" aria-hidden="true" />
@@ -125,6 +134,10 @@ export default function WorkspaceHeader({ activeView = "Canvas", setActiveView }
 
           {isAvatarMenuOpen && (
             <AvatarMenu onClose={() => setIsAvatarMenuOpen(false)} />
+          )}
+
+          {isSearchPanelOpen && (
+            <SearchPanel onClose={() => setIsSearchPanelOpen(false)} />
           )}
         </div>
       </div>
