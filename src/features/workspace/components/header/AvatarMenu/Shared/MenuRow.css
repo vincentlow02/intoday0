@@ -1,0 +1,147 @@
+.avatar-menu__row {
+  align-self: stretch;
+  min-height: 35px;
+  box-sizing: border-box;
+  padding: 13.5px;
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.avatar-menu__row-button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.avatar-menu__row-button:hover {
+  background: rgba(17, 17, 17, 0.02);
+}
+
+.avatar-menu__row+.avatar-menu__row {
+  border-top: 0.74px solid rgba(17, 17, 17, 0.07);
+}
+
+.avatar-menu__row-left {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8.5px;
+}
+
+.avatar-menu__icon {
+  width: 18.4px;
+  height: 18.4px;
+  border-radius: 999px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #070707;
+  flex-shrink: 0;
+}
+
+.avatar-menu__icon img {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+.avatar-menu__row-label {
+  text-align: center;
+  color: #070707;
+  font-size: 12px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  word-wrap: break-word;
+}
+
+.avatar-menu__row-right {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 6px;
+}
+
+.avatar-menu__select-trigger {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.avatar-menu__row-value {
+  text-align: center;
+  color: #070707;
+  font-size: 12px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 500;
+  word-wrap: break-word;
+}
+
+.avatar-menu__chevron {
+  width: 15px;
+  height: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #070707;
+}
+
+.avatar-menu__chevron svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+.avatar-menu__chevron path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.avatar-menu__select-menu {
+  position: absolute;
+  width: 119px;
+  box-sizing: border-box;
+  padding: 10px 10px 10px 14px;
+  background: #ffffff;
+  border: 0.4px solid #d0d0d0;
+  border-radius: 8px;
+  box-shadow: 0px 1px 3.15px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 11px;
+  font-family: 'Inter', sans-serif;
+}
+
+.avatar-menu__select-option {
+  width: 100%;
+  min-height: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #000000;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  line-height: normal;
+  text-align: left;
+  cursor: pointer;
+}
+
+.avatar-menu__select-option img {
+  width: 7px;
+  height: 5.5px;
+  display: block;
+  flex-shrink: 0;
+}

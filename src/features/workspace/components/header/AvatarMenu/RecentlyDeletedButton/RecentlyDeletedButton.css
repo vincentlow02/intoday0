@@ -1,0 +1,27 @@
+.avatar-menu__row-left--deleted {
+  gap: 14px;
+}
+
+.avatar-menu__icon--deleted {
+  width: 12px;
+  height: 14px;
+}
+
+.avatar-menu__icon--deleted img {
+  width: 12px;
+  height: 14px;
+}
+
+.avatar-menu__arrow-right {
+  display: flex;
+  width: 12px;
+  height: 13px;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-menu__arrow-right img {
+  width: 3.5px;
+  height: 6.5px;
+  display: block;
+}

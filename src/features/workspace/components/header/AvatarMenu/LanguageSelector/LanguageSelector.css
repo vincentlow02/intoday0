@@ -1,0 +1,14 @@
+.avatar-menu__row--language {
+  position: relative;
+  z-index: 3;
+}
+
+.avatar-menu__language-menu {
+  top: calc(100% - 12px);
+  right: 10px;
+  z-index: 5;
+}
+
+.avatar-menu__language-option {
+  font-size: 12px;
+}

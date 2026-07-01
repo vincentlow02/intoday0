@@ -1,0 +1,39 @@
+.avatar-menu__logout-wrap {
+  align-self: stretch;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 11px;
+}
+
+.avatar-menu__logout {
+  min-width: 102px;
+  min-height: 31px;
+  padding: 11px 31px;
+  background: #000000;
+  border-radius: 999px;
+  border: none;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  word-wrap: break-word;
+  transition: opacity 0.2s;
+}
+
+.avatar-menu__logout img {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+.avatar-menu__logout:hover {
+  opacity: 0.8;
+}

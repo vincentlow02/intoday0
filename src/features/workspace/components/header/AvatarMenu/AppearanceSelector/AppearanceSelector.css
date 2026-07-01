@@ -1,0 +1,18 @@
+.avatar-menu__row--appearance {
+  position: relative;
+  z-index: 2;
+}
+
+.avatar-menu__appearance-menu {
+  top: calc(100% - 12px);
+  right: 10px;
+  z-index: 4;
+}
+
+.avatar-menu__appearance-option {
+  font-size: 12px;
+}
+
+.avatar-menu__appearance-option:nth-child(2) {
+  font-size: 13px;
+}
