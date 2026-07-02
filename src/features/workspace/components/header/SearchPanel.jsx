@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import './SearchPanel.css';
 import closeIcon from '../../../../assets/icons/account-close.svg';
 import emptyEllipse from '../../../../assets/icons/search-empty-ellipse.svg';
@@ -9,7 +10,7 @@ import starLarge from '../../../../assets/icons/search-star-large.svg';
 import starSmall from '../../../../assets/icons/search-star-small.svg';
 
 export default function SearchPanel({ onClose }) {
-  return (
+  return createPortal(
     <div className="search-panel__backdrop" onClick={onClose} aria-modal="true" role="dialog">
       <section className="search-panel" aria-label="Search panel" onClick={(event) => event.stopPropagation()}>
         <div className="search-panel__content">
@@ -68,6 +69,7 @@ export default function SearchPanel({ onClose }) {
           </div>
         </div>
       </section>
-    </div>
+    </div>,
+    document.body
   );
 }
