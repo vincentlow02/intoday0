@@ -44,6 +44,7 @@
   align-items: center;
   gap: 21px;
   z-index: 201;
+  pointer-events: auto;
   font-family: 'Manrope', sans-serif;
   animation: menu-scale-in 0.18s ease;
 }
@@ -82,6 +83,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  pointer-events: auto;
   color: #111111;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);

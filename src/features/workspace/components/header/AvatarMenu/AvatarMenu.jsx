@@ -48,14 +48,18 @@ export default function AvatarMenu({ onClose }) {
   return (
     <div
       className={`avatar-menu__backdrop${recentlyDeletedOpen ? ' avatar-menu__backdrop--deleted' : ''}`}
-      onClick={onClose}
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
       aria-modal="true"
       role="dialog"
     >
       {recentlyDeletedOpen ? (
         <RecentlyDeletedPanel closeRecentlyDeleted={closeRecentlyDeleted} onClose={onClose} />
       ) : (
-        <div className="avatar-menu" onClick={(event) => event.stopPropagation()}>
+        <div className="avatar-menu">
           <div className="avatar-menu__top">
             <button className="avatar-menu__close" onClick={onClose} aria-label="Close menu">
               <IconImage src={closeIcon} />
@@ -69,7 +73,6 @@ export default function AvatarMenu({ onClose }) {
           <SettingsCard>
             <LanguageSelector
               languageOpen={languageOpen}
-              setLanguageOpen={setLanguageOpen}
               closeLanguageMenu={closeLanguageMenu}
               toggleLanguageMenu={toggleLanguageMenu}
             />

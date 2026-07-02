@@ -15,6 +15,7 @@
   color: inherit;
   font: inherit;
   cursor: pointer;
+  pointer-events: auto;
 }
 
 .avatar-menu__row-button:hover {
@@ -71,6 +72,7 @@
   background: transparent;
   font: inherit;
   cursor: pointer;
+  pointer-events: auto;
 }
 
 .avatar-menu__row-value {

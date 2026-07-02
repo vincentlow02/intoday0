@@ -7,7 +7,7 @@ import DownChevronIcon from '../Shared/DownChevronIcon';
 
 const LANGUAGE_OPTIONS = ['English', '日本語', '简体中文', '繁體中文', 'ไทย'];
 
-export default function LanguageSelector({ languageOpen, setLanguageOpen, closeLanguageMenu, toggleLanguageMenu }) {
+export default function LanguageSelector({ languageOpen, closeLanguageMenu, toggleLanguageMenu }) {
   return (
     <div className="avatar-menu__row avatar-menu__row--language">
       <div className="avatar-menu__row-left">
