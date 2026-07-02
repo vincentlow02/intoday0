@@ -12,9 +12,9 @@ function DeletedWorkspaceIcon() {
   );
 }
 
-export default function WorkspaceMoreMenu() {
+export default function WorkspaceMoreMenu({ onDeleteClick }) {
   return (
-    <button className="workspace-switcher-more-menu" type="button">
+    <button className="workspace-switcher-more-menu" type="button" onClick={onDeleteClick}>
       <DeletedWorkspaceIcon />
       <span className="workspace-switcher-more-menu-text">
         Delete Workspace

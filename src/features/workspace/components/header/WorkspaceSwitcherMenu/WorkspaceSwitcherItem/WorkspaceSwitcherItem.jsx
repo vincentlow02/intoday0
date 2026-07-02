@@ -1,10 +1,13 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import './WorkspaceSwitcherItem.css';
 import MoreIcon from '../MoreIcon/MoreIcon';
 import WorkspaceMoreMenu from '../WorkspaceMoreMenu/WorkspaceMoreMenu';
+import DeleteWorkspaceModal from '../DeleteWorkspaceModal/DeleteWorkspaceModal';
 
 export default function WorkspaceSwitcherItem({ name }) {
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   return (
     <div className="workspace-switcher-item active">
@@ -23,8 +26,31 @@ export default function WorkspaceSwitcherItem({ name }) {
           <MoreIcon />
         </button>
 
-        {isMoreMenuOpen && <WorkspaceMoreMenu />}
+        {isMoreMenuOpen && (
+          <WorkspaceMoreMenu
+            onDeleteClick={(event) => {
+              event.stopPropagation();
+              setIsMoreMenuOpen(false);
+              setIsDeleteModalOpen(true);
+            }}
+          />
+        )}
       </div>
+
+      {isDeleteModalOpen && createPortal(
+        <DeleteWorkspaceModal
+          workspaceName={name}
+          onClose={(event) => {
+            event?.stopPropagation();
+            setIsDeleteModalOpen(false);
+          }}
+          onConfirm={(event) => {
+            event?.stopPropagation();
+            setIsDeleteModalOpen(false);
+          }}
+        />,
+        document.body
+      )}
     </div>
   );
 }
