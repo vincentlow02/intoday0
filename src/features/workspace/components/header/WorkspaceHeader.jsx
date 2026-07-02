@@ -37,9 +37,8 @@ function SearchIcon() {
   );
 }
 
-export default function WorkspaceHeader({ activeView = "Canvas", setActiveView }) {
+export default function WorkspaceHeader({ activeView = "Canvas", setActiveView, isAvatarMenuOpen, setIsAvatarMenuOpen }) {
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
-  const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
   const [isSearchPanelOpen, setIsSearchPanelOpen] = useState(false);
 
   return (

@@ -5,13 +5,22 @@ import GlobalModalRoot from "./modals/GlobalModalRoot";
 
 export default function DesktopShell() {
   const [activeView, setActiveView] = useState("Canvas");
+  const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
 
   return (
     <div className="desktop-shell redesigned-shell desktop-canvas-scroll">
-      <WorkspaceHeader activeView={activeView} setActiveView={setActiveView} />
+      <WorkspaceHeader 
+        activeView={activeView} 
+        setActiveView={setActiveView} 
+        isAvatarMenuOpen={isAvatarMenuOpen}
+        setIsAvatarMenuOpen={setIsAvatarMenuOpen}
+      />
 
       <main className="redesigned-main">
-        <WorkspacePage activeView={activeView} />
+        <WorkspacePage 
+          activeView={activeView} 
+          isAvatarMenuOpen={isAvatarMenuOpen}
+        />
       </main>
 
       <GlobalModalRoot />
