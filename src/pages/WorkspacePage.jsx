@@ -4,7 +4,7 @@ import QuickNoteSidebar from '../features/workspace/components/sidebar/QuickNote
 import '../features/workspace/styles/workspace-page.css';
 import '../features/canvas/styles/canvas.css';
 
-export default function WorkspacePage({ activeView = "Canvas", isAvatarMenuOpen = false }) {
+export default function WorkspacePage({ activeView = "Canvas", isAvatarMenuOpen = false, isSearchPanelOpen = false }) {
   const [isQuickNoteOpen, setIsQuickNoteOpen] = useState(false);
 
   if (activeView === "Collection") {
@@ -29,7 +29,7 @@ export default function WorkspacePage({ activeView = "Canvas", isAvatarMenuOpen 
         className="redesign-empty-canvas"
         aria-label="Blank redesign workspace"
       >
-        {!isAvatarMenuOpen && (
+        {!isAvatarMenuOpen && !isSearchPanelOpen && (
           <WorkspacePrompt onOpenQuickNote={() => setIsQuickNoteOpen(true)} />
         )}
       </div>

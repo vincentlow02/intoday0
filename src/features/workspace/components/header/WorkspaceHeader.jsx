@@ -37,9 +37,8 @@ function SearchIcon() {
   );
 }
 
-export default function WorkspaceHeader({ activeView = "Canvas", setActiveView, isAvatarMenuOpen, setIsAvatarMenuOpen }) {
+export default function WorkspaceHeader({ activeView = "Canvas", setActiveView, isAvatarMenuOpen, setIsAvatarMenuOpen, isSearchPanelOpen, setIsSearchPanelOpen }) {
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
-  const [isSearchPanelOpen, setIsSearchPanelOpen] = useState(false);
   const brandButtonRef = useRef(null);
   const [brandButtonRect, setBrandButtonRect] = useState(null);
 
