@@ -12,31 +12,32 @@
 }
 
 .delete-workspace-modal {
-  width: 462px;
-  min-height: 216.02px;
+  width: 380px;
+  min-height: 180px;
   box-sizing: border-box;
-  border-radius: 25px;
+  border-radius: 20px;
   background: #ffffff;
-  box-shadow: 0 34px 90px rgba(17, 24, 39, 0.18);
+  box-shadow: 0 24px 60px rgba(17, 24, 39, 0.18);
 }
 
 .delete-workspace-modal-content {
   display: flex;
-  min-height: 258.66px;
+  min-height: 180px;
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
   box-sizing: border-box;
-  padding: 43.43px 41.04px 41.04px;
+  padding: 32px 32px 28px;
 }
 
 .delete-workspace-modal-text-group {
   display: flex;
   align-self: stretch;
-  min-height: 107.11px;
+  min-height: 80px;
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 12px;
 }
 
 .delete-workspace-modal-title-wrap {
@@ -50,9 +51,9 @@
   margin: 0;
   color: #111827;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 35px;
+  font-size: 28px;
   font-weight: 700;
-  line-height: 34.26px;
+  line-height: 1.1;
   word-break: break-word;
 }
 
@@ -67,9 +68,9 @@
   margin: 0;
   color: #9aa3b3;
   font-family: Inter, Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 21.55px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
   word-break: break-word;
 }
 
@@ -78,13 +79,14 @@
   align-self: stretch;
   justify-content: flex-end;
   align-items: center;
-  gap: 10.64px;
+  gap: 8px;
+  margin-top: 24px;
 }
 
 .delete-workspace-modal-button {
   display: inline-flex;
-  height: 44.08px;
-  min-width: 75.09px;
+  height: 36px;
+  min-width: 68px;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
@@ -94,20 +96,20 @@
 }
 
 .delete-workspace-modal-button-cancel {
-  padding: 0 27.84px;
+  padding: 0 20px;
   background: #f3f3f2;
 }
 
 .delete-workspace-modal-button-delete {
-  padding: 0 29.52px;
+  padding: 0 20px;
   background: #171717;
 }
 
 .delete-workspace-modal-button-text {
   text-align: center;
   font-family: Inter, Helvetica, Arial, sans-serif;
-  font-size: 12.9px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 600;
   line-height: normal;
   word-break: break-word;
 }
