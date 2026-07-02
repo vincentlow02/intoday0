@@ -6,11 +6,39 @@
   gap: 7px;
 }
 
+.avatar-menu__avatar-wrap {
+  position: relative;
+  width: 47px;
+  height: 47px;
+  flex-shrink: 0;
+}
+
 .avatar-menu__avatar {
   width: 47px;
   height: 47px;
   background: #d9d9d9;
   border-radius: 9999px;
+}
+
+.avatar-menu__avatar-edit {
+  position: absolute;
+  right: -5px;
+  bottom: -3px;
+  width: 17px;
+  height: 17px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.avatar-menu__avatar-edit img {
+  width: 17px;
+  height: 17px;
+  display: block;
 }
 
 .avatar-menu__name {
