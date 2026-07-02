@@ -54,7 +54,7 @@ export default function ResourceUploadComposer({
   return (
     <form className="resource-upload-composer" onSubmit={handleSubmit}>
       <div className="resource-upload-composer__inner">
-        <div className="resource-upload-composer__previews">
+        <div className={`resource-upload-composer__previews ${files.length > 1 ? 'resource-upload-composer__previews--multiple' : ''}`}>
           {files.map((file, index) => {
             const isImage = file?.type?.startsWith('image/');
             const previewUrl = previewUrls[index];

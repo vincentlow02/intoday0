@@ -33,6 +33,17 @@
     width: 100%;
 }
 
+.resource-upload-composer__previews--multiple {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.resource-upload-composer__previews--multiple::-webkit-scrollbar {
+    display: none;
+}
+
 /* 图片才用方形 preview */
 .resource-upload-composer__image-preview {
     width: 95px;
@@ -42,6 +53,13 @@
     border-radius: 12px;
     border: 1px solid #e5e4e4;
     background: white;
+    flex-shrink: 0;
+}
+
+.resource-upload-composer__previews--multiple .resource-upload-composer__image-preview {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
 }
 
 .resource-upload-composer__image-preview img {
@@ -62,6 +80,7 @@
     border-radius: 14px;
     border: 1px solid #e5e4e4;
     background: #ffffff;
+    flex-shrink: 0;
 }
 
 .resource-upload-composer__file-icon {
