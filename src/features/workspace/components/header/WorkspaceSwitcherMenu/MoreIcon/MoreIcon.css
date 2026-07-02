@@ -1,0 +1,29 @@
+.workspace-switcher-more {
+  position: relative;
+  display: block;
+  width: 12.16px;
+  height: 12.16px;
+  flex: 0 0 12.16px;
+  opacity: 0.88;
+}
+
+.workspace-switcher-more span {
+  position: absolute;
+  top: 5.35px;
+  width: 1.46px;
+  height: 1.46px;
+  border-radius: 999px;
+  background: #8b8b8b;
+}
+
+.workspace-switcher-more span:nth-child(1) {
+  left: 2.31px;
+}
+
+.workspace-switcher-more span:nth-child(2) {
+  left: 5.35px;
+}
+
+.workspace-switcher-more span:nth-child(3) {
+  left: 8.39px;
+}

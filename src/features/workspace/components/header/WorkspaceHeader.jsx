@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './WorkspaceHeader.css';
 import AvatarMenu from './AvatarMenu/AvatarMenu';
 import SearchPanel from './SearchPanel';
-import WorkspaceSwitcherMenu from './WorkspaceSwitcherMenu';
+import WorkspaceSwitcherMenu from './WorkspaceSwitcherMenu/WorkspaceSwitcherMenu';
 
 function ChevronDownIcon() {
   return (

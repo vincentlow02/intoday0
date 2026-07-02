@@ -1,0 +1,49 @@
+.workspace-switcher-more-menu {
+  position: absolute;
+  top: calc(100% - 6px);
+  right: -102px;
+  z-index: 200;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+
+  width: max-content;
+  min-width: 132px;
+  box-sizing: border-box;
+  padding: 11px 13px;
+
+  border: 0;
+  border-radius: 8px;
+  outline: 0.77px solid #d5d5d5;
+  outline-offset: -0.77px;
+  background: #ffffff;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+
+  cursor: pointer;
+}
+
+.workspace-switcher-more-menu:hover {
+  background: #fff7f7;
+}
+
+.workspace-switcher-deleted-icon {
+  width: 12px;
+  height: 14px;
+  flex: 0 0 12px;
+  display: block;
+}
+
+.workspace-switcher-more-menu-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #f44336;
+  font-family: Inter, Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: normal;
+  white-space: nowrap;
+}
