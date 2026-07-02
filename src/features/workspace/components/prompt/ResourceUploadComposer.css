@@ -1,0 +1,207 @@
+.resource-upload-composer {
+    width: 100%;
+    padding: 14px 14px 13px;
+    box-sizing: border-box;
+    background: white;
+    box-shadow:
+        0px 1px 0px 1px rgba(255, 255, 255, 0.92) inset,
+        0px 18px 44px rgba(17, 17, 17, 0.12);
+    border-radius: 26px;
+    border: 1px solid rgba(17, 17, 17, 0.12);
+    backdrop-filter: blur(11px);
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.resource-upload-composer__inner {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.resource-upload-composer__previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-start;
+    width: 100%;
+}
+
+/* 图片才用方形 preview */
+.resource-upload-composer__image-preview {
+    width: 95px;
+    height: 94px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid #e5e4e4;
+    background: white;
+}
+
+.resource-upload-composer__image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 文件用 ChatGPT 那种横向 attachment chip */
+.resource-upload-composer__file-chip {
+    max-width: 260px;
+    height: 46px;
+    padding: 6px 8px 6px 6px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    border-radius: 14px;
+    border: 1px solid #e5e4e4;
+    background: #ffffff;
+}
+
+.resource-upload-composer__file-icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+    border-radius: 10px;
+    background: #f5f5f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Inter, sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    color: #111111;
+}
+
+.resource-upload-composer__file-info {
+    min-width: 0;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.resource-upload-composer__file-name {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: Inter, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #111111;
+}
+
+.resource-upload-composer__file-size {
+    font-family: Inter, sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    color: #aaa9a6;
+}
+
+.resource-upload-composer__remove,
+.resource-upload-composer__file-remove {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+}
+
+.resource-upload-composer__remove {
+    width: 18px;
+    height: 18px;
+    position: absolute;
+    top: 5px;
+    right: 7px;
+}
+
+.resource-upload-composer__file-remove {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+}
+
+.resource-upload-composer__remove img,
+.resource-upload-composer__file-remove img {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.resource-upload-composer__bottom {
+    align-self: stretch;
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.resource-upload-composer__input-area {
+    flex: 1 1 0;
+    background: white;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 11px;
+}
+
+.resource-upload-composer__add-btn {
+    width: 26px;
+    height: 26px;
+    position: relative;
+    background: #f5f5f4;
+    overflow: hidden;
+    border-radius: 35px;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.resource-upload-composer__add-btn svg {
+    display: block;
+}
+
+.resource-upload-composer__input {
+    flex: 1 1 0;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #AAA9A6;
+    font-size: 13.30px;
+    font-family: Inter, sans-serif;
+    font-weight: 500;
+    line-height: 19px;
+    word-wrap: break-word;
+}
+
+.resource-upload-composer__input::placeholder {
+    color: #aaa9a6;
+}
+
+.resource-upload-composer__send-btn {
+    width: 32px;
+    height: 32px;
+    position: relative;
+    background: black;
+    overflow: hidden;
+    border-radius: 32px;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.resource-upload-composer__send-btn svg {
+    display: block;
+}
