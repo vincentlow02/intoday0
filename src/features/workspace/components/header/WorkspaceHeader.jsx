@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import './WorkspaceHeader.css';
 import AvatarMenu from './AvatarMenu/AvatarMenu';
 import SearchPanel from './SearchPanel';
@@ -40,17 +40,22 @@ function SearchIcon() {
 export default function WorkspaceHeader({ activeView = "Canvas", setActiveView, isAvatarMenuOpen, setIsAvatarMenuOpen }) {
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const [isSearchPanelOpen, setIsSearchPanelOpen] = useState(false);
+  const brandButtonRef = useRef(null);
+  const [brandButtonRect, setBrandButtonRect] = useState(null);
 
   return (
     <header className="workspace-header" aria-label="Workspace header">
       <div className="workspace-header-section left">
         <div className="workspace-brand-wrap">
           <button
+            ref={brandButtonRef}
             type="button"
             className="workspace-brand-switcher"
             aria-label="Workspace menu"
             aria-expanded={isWorkspaceMenuOpen}
             onClick={() => {
+              const rect = brandButtonRef.current?.getBoundingClientRect();
+              setBrandButtonRect(rect ?? null);
               setIsWorkspaceMenuOpen((value) => !value);
               setIsAvatarMenuOpen(false);
               setIsSearchPanelOpen(false);
@@ -63,7 +68,10 @@ export default function WorkspaceHeader({ activeView = "Canvas", setActiveView, 
           </button>
 
           {isWorkspaceMenuOpen && (
-            <WorkspaceSwitcherMenu />
+            <WorkspaceSwitcherMenu
+              anchorRect={brandButtonRect}
+              onClose={() => setIsWorkspaceMenuOpen(false)}
+            />
           )}
         </div>
       </div>
