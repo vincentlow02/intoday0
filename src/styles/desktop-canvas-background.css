@@ -1,0 +1,57 @@
+/* Workspace dot-grid background with soft glow */
+.desktop-canvas-scroll {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  --dot-size: var(--desktop-canvas-dot-size, 48px);
+}
+
+.desktop-canvas-scroll::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 18% 16%, var(--desktop-canvas-dot-glow) 0, rgba(255, 255, 255, 0) 28%),
+    radial-gradient(circle at 82% 12%, rgba(226, 232, 240, 0.55) 0, rgba(255, 255, 255, 0) 24%),
+    radial-gradient(circle, var(--desktop-canvas-dot-color) 1.1px, transparent 1.35px);
+  background-size:
+    100% 100%,
+    100% 100%,
+    var(--dot-size) var(--dot-size);
+  background-position:
+    center,
+    center,
+    0 0;
+  mask-image: linear-gradient(
+    180deg,
+    var(--desktop-canvas-dot-fade-top) 0%,
+    rgba(0, 0, 0, 1) 18%,
+    rgba(0, 0, 0, 1) 72%,
+    var(--desktop-canvas-dot-fade-bottom) 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    var(--desktop-canvas-dot-fade-top) 0%,
+    rgba(0, 0, 0, 1) 18%,
+    rgba(0, 0, 0, 1) 72%,
+    var(--desktop-canvas-dot-fade-bottom) 100%
+  );
+}
+
+.desktop-app-dark .desktop-canvas-scroll::before {
+  background-image:
+    radial-gradient(circle at 18% 16%, var(--desktop-canvas-dot-glow) 0, rgba(15, 15, 15, 0) 28%),
+    radial-gradient(circle at 82% 12%, rgba(24, 29, 38, 0.42) 0, rgba(15, 15, 15, 0) 24%),
+    radial-gradient(circle, var(--desktop-canvas-dot-color) 1px, transparent 1.35px);
+  background-size:
+    100% 100%,
+    100% 100%,
+    var(--dot-size) var(--dot-size);
+}
+
+.desktop-canvas-scroll > * {
+  position: relative;
+  z-index: 1;
+}

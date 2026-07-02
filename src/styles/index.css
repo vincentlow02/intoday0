@@ -1,6 +1,7 @@
 @import './tokens.css';
 @import './reset.css';
 @import './app-shell.css';
+@import './desktop-canvas-background.css';
 
 @font-face {
   font-family: 'DM Serif Display';
