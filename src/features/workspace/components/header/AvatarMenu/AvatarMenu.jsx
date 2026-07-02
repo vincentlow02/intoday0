@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import './AvatarMenu.css';
 import closeIcon from '../../../../../assets/icons/account-close.svg';
 import IconImage from './Shared/IconImage';
@@ -45,10 +46,10 @@ export default function AvatarMenu({ onClose }) {
     setRecentlyDeletedOpen(false);
   };
 
-  return (
+  return createPortal(
     <div
       className={`avatar-menu__backdrop${recentlyDeletedOpen ? ' avatar-menu__backdrop--deleted' : ''}`}
-      onMouseDown={(e) => {
+      onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
         }
@@ -61,13 +62,13 @@ export default function AvatarMenu({ onClose }) {
       ) : (
         <div className="avatar-menu">
           <div className="avatar-menu__top">
-            <button className="avatar-menu__close" onClick={onClose} aria-label="Close menu">
+            <button className="avatar-menu__close" type="button" onClick={onClose} aria-label="Close menu">
               <IconImage src={closeIcon} />
             </button>
           </div>
 
           <AccountProfile />
-          
+
           <StorageCard />
 
           <SettingsCard>
@@ -89,6 +90,7 @@ export default function AvatarMenu({ onClose }) {
           <LogoutButton />
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   );
 }
